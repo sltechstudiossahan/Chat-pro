@@ -4,6 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>ChatPro - Premium Messaging</title>
+<link rel="icon" type="image/png" href="ChatGPT Image Sep 15, 2026, 07_31_07 PM.png">
+<link rel="apple-touch-icon" href="ChatGPT Image Sep 15, 2026, 07_31_07 PM.png">
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
@@ -1486,7 +1488,17 @@
                 max-width: 160px;
             }
         }
-    </style>
+    
+/* CHATPRO LOGO / FAVICON */
+.chatpro-logo{display:block;object-fit:contain;object-position:center;user-select:none;-webkit-user-drag:none}
+.auth-logo-image{width:112px;height:112px;object-fit:contain;display:block;margin:0 auto 18px;border-radius:28px;filter:drop-shadow(0 12px 28px rgba(0,190,255,.22)) drop-shadow(0 8px 22px rgba(0,255,190,.14));transition:transform .35s ease,filter .35s ease}
+.auth-logo-image:hover{transform:translateY(-3px) scale(1.035)}
+.header-logo-image{width:46px;height:46px;object-fit:contain;display:block;flex-shrink:0;border-radius:13px;filter:drop-shadow(0 7px 18px rgba(0,190,255,.24)) drop-shadow(0 5px 15px rgba(0,255,190,.13));transition:transform .25s ease}
+.header-logo-image:hover{transform:scale(1.06)}
+.chat-header .brand{display:flex!important;align-items:center;gap:12px}
+.chat-header .brand>i{display:none!important}
+@media(max-width:700px){.auth-logo-image{width:94px;height:94px;margin-bottom:15px}.header-logo-image{width:40px;height:40px}.chat-header .brand{gap:9px}}
+</style>
 <style id="premium-redesign">
 :root{--primary:#7c5cff;--primary-dark:#5940dc;--primary-light:#a99cff;--bg-primary:#070911;--bg-secondary:#0d1020;--bg-card:rgba(20,24,42,.78);--bg-hover:rgba(255,255,255,.075);--text-primary:#f8f8ff;--text-secondary:#b5b9d0;--text-muted:#747994;--border-color:rgba(255,255,255,.09);--shadow:0 24px 80px rgba(0,0,0,.42);--radius:22px;--radius-sm:15px;--radius-lg:30px}
 body{background:radial-gradient(circle at 12% 8%,rgba(124,92,255,.18),transparent 27%),radial-gradient(circle at 90% 92%,rgba(0,214,201,.12),transparent 30%),linear-gradient(135deg,#060810,#0a0d1b 52%,#090a14);letter-spacing:.01em}
@@ -1516,7 +1528,7 @@ input,textarea,.search-box{background:rgba(255,255,255,.055)!important;border-co
 <div id="authPage" class="page">
     <div class="auth-container">
         <div class="auth-header">
-            <div class="icon"><i class="fas fa-comment-dots"></i></div>
+            <img class="chatpro-logo auth-logo-image" src="ChatGPT Image Sep 15, 2026, 07_31_07 PM.png" alt="ChatPro Logo" draggable="false">
             <h1>ChatPro</h1>
             <p>Premium secure messaging platform</p>
         </div>
@@ -1578,8 +1590,8 @@ input,textarea,.search-box{background:rgba(255,255,255,.055)!important;border-co
 <div id="chatPage" class="page hidden">
     <div class="chat-header">
         <div class="brand">
-            <i class="fas fa-comment-dots"></i>
-            Chat<span>Pro</span>
+            <img class="chatpro-logo header-logo-image" src="ChatGPT Image Sep 15, 2026, 07_31_07 PM.png" alt="ChatPro Logo" draggable="false">
+            <span>Chat<span>Pro</span></span>
         </div>
         <div class="user-section">
             <div class="user-badge">
