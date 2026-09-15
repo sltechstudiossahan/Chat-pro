@@ -1821,7 +1821,7 @@ const storage = firebase.storage();
 // ============================================================
 // Replace this placeholder with the OAuth 2.0 Client ID created as
 // Application type: Web application in Google Cloud Console.
-const GOOGLE_OAUTH_CLIENT_ID = '568183938397-a30pmeqpc0l269p4h3gi0bacnfm77t4o.apps.googleusercontent.com';
+const GOOGLE_OAUTH_CLIENT_ID = 'PASTE_YOUR_WEB_OAUTH_CLIENT_ID_HERE';
 const DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.file';
 const DRIVE_API = 'https://www.googleapis.com/drive/v3';
 const DRIVE_UPLOAD_API = 'https://www.googleapis.com/upload/drive/v3/files';
@@ -1852,6 +1852,8 @@ let currentChatWith = null;
 let contacts = [];
 let allUsersCache = {};
 let unsubscribeMessages = null;
+let contactProfileUnsubscribers = [];
+let contactProfileRenderTimer = null;
 let mediaStream = null;
 let isAdmin = false;
 let isLoginMode = true;
@@ -2237,21 +2239,94 @@ async function getUserData(uid) {
     }
 }
 
-async function getUserByEmail(email) {
-    if (allUsersCache[email]) return allUsersCache[email];
+async function getUserByEmail(email, forceFresh = true) {
+    const normalizedEmail = String(email || '').trim().toLowerCase();
+    if (!normalizedEmail) return null;
+    if (!forceFresh && allUsersCache[normalizedEmail]) return allUsersCache[normalizedEmail];
     try {
-        const snapshot = await db.collection('users').where('email', '==', email).get();
+        const snapshot = await db.collection('users').where('email', '==', normalizedEmail).limit(1).get();
         if (!snapshot.empty) {
             const data = snapshot.docs[0].data();
-            allUsersCache[email] = { id: snapshot.docs[0].id, ...data };
-            return allUsersCache[email];
+            const user = { id: snapshot.docs[0].id, ...data };
+            allUsersCache[normalizedEmail] = user;
+            return user;
         }
+        delete allUsersCache[normalizedEmail];
         return null;
     } catch (err) {
         console.error('Error getting user by email:', err);
         return null;
     }
 }
+
+// Keep every saved contact synchronized with the authoritative users/{uid} document.
+// This is what makes a profile-photo change appear for other users without requiring
+// them to delete/re-add the contact. The photo URL stored in Firestore is the shared
+// browser-readable Firebase Storage URL; the original file is also backed up to the
+// owner's private Google Drive.
+function stopContactProfileWatchers() {
+    contactProfileUnsubscribers.forEach(unsub => {
+        try { unsub(); } catch (_) {}
+    });
+    contactProfileUnsubscribers = [];
+}
+
+function scheduleContactProfileRender() {
+    clearTimeout(contactProfileRenderTimer);
+    contactProfileRenderTimer = setTimeout(() => {
+        renderContacts();
+        if (currentChatWith) displayContactProfile(currentChatWith);
+    }, 50);
+}
+
+function startContactProfileWatchers() {
+    stopContactProfileWatchers();
+    const uniqueEmails = [...new Set((contacts || []).map(c => String(c.email || '').toLowerCase()).filter(Boolean))];
+
+    uniqueEmails.forEach(email => {
+        const unsubscribe = db.collection('users')
+            .where('email', '==', email)
+            .limit(1)
+            .onSnapshot(snapshot => {
+                if (snapshot.empty) return;
+                const doc = snapshot.docs[0];
+                const userData = { uid: doc.id, ...doc.data() };
+                allUsersCache[email] = { id: doc.id, ...doc.data() };
+
+                const index = contacts.findIndex(c => String(c.email || '').toLowerCase() === email);
+                if (index !== -1) {
+                    // Preserve local contact-only fields such as lastMessage/name override,
+                    // but always take the latest profile photo/name/emoji from the real account.
+                    contacts[index] = {
+                        ...contacts[index],
+                        name: userData.name || contacts[index].name || email.split('@')[0],
+                        emoji: userData.emoji || '👤',
+                        profilePhoto: userData.profilePhoto || null
+                    };
+                    scheduleContactProfileRender();
+                }
+            }, err => console.error('Contact profile listener error:', email, err));
+        contactProfileUnsubscribers.push(unsubscribe);
+    });
+}
+
+async function syncContactProfilesOnce() {
+    if (!contacts.length) return;
+    const synced = await Promise.all(contacts.map(async contact => {
+        const userData = await getUserByEmail(contact.email, true);
+        if (!userData) return contact;
+        return {
+            ...contact,
+            name: userData.name || contact.name || contact.email.split('@')[0],
+            emoji: userData.emoji || '👤',
+            profilePhoto: userData.profilePhoto || null
+        };
+    }));
+    contacts = synced;
+    if (currentUserData) currentUserData.contacts = synced;
+    renderContacts();
+}
+
 
 // ============================================================
 // GOOGLE DRIVE - GOOGLE IDENTITY SERVICES + DRIVE API
@@ -2694,8 +2769,13 @@ async function loadChat() {
         adminPanel.classList.add('hidden');
     }
 
-    contacts = currentUserData.contacts || [];
+    contacts = Array.isArray(currentUserData.contacts) ? currentUserData.contacts : [];
     renderContacts();
+
+    // Refresh contact profile data from Firestore so an updated photo/name is never
+    // stuck in the old contact snapshot stored in the current user's document.
+    await syncContactProfilesOnce();
+    startContactProfileWatchers();
 
     if (currentChatWith) {
         loadMessages(currentChatWith);
@@ -2703,14 +2783,14 @@ async function loadChat() {
     }
 }
 
-function renderContacts() {
+async function renderContacts() {
     const searchTerm = searchContact.value.toLowerCase().trim();
     let filteredContacts = contacts;
 
     if (searchTerm) {
         filteredContacts = contacts.filter(c =>
-            c.name.toLowerCase().includes(searchTerm) ||
-            c.email.toLowerCase().includes(searchTerm)
+            String(c.name || '').toLowerCase().includes(searchTerm) ||
+            String(c.email || '').toLowerCase().includes(searchTerm)
         );
     }
 
@@ -3208,6 +3288,7 @@ saveProfileSettings.addEventListener('click', async () => {
         });
         
         currentUserData = await getUserData(currentUser.uid);
+        allUsersCache[currentUser.email.toLowerCase()] = { id: currentUser.uid, ...currentUserData };
         currentUserName.textContent = name;
         
         if (currentUserData.profilePhoto) {
@@ -3289,7 +3370,9 @@ profilePhotoInput.addEventListener('change', async (e) => {
         });
 
         currentUserData = await getUserData(currentUser.uid);
+        allUsersCache[currentUser.email.toLowerCase()] = { id: currentUser.uid, ...currentUserData };
         headerAvatar.innerHTML = `<img src="${downloadUrl}" alt="Profile" />`;
+        profilePhotoPreview.innerHTML = `<img src="${downloadUrl}" alt="Profile" />`;
         settingsProfileSuccess.textContent = '✅ Profile photo saved to ChatPro and Google Drive.';
         settingsProfileSuccess.style.color = 'var(--primary)';
         URL.revokeObjectURL(previewUrl);
@@ -3407,6 +3490,7 @@ confirmAddContact.addEventListener('click', async () => {
         contacts = updatedContacts;
         if (currentUserData) currentUserData.contacts = updatedContacts;
         renderContacts();
+        startContactProfileWatchers();
         addContactModal.classList.add('hidden');
         selectContact(email);
     } catch (err) {
@@ -3537,6 +3621,9 @@ auth.onAuthStateChanged(async (user) => {
             startCamera();
         }
     } else {
+        stopContactProfileWatchers();
+        clearTimeout(contactProfileRenderTimer);
+        contactProfileRenderTimer = null;
         showPage('authPage');
         if (!isLoginMode) toggleAuthMode();
         if (mediaStream) {
