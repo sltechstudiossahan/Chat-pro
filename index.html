@@ -3392,99 +3392,182 @@ profilePhotoInput.addEventListener('change', async (e) => {
     settingsProfileSuccess.textContent = '';
 
     const previewUrl = URL.createObjectURL(file);
-    profilePhotoPreview.innerHTML = `<img src="${previewUrl}" alt="Profile" />`;
+    renderAvatar(profilePhotoPreview, previewUrl, currentUserData?.emoji || '😊');
+
+    const oldStoragePath = currentUserData?.profilePhotoStoragePath || null;
+    const oldDriveFileId = currentUserData?.profilePhotoDriveFileId || null;
 
     try {
         /*
-         * IMPORTANT:
-         * Firebase Storage is the shared/public-to-authenticated-users copy.
-         * Google Drive is only a backup. We must NOT make the profile-photo
-         * save depend on Drive succeeding, otherwise a Drive/OAuth error makes
-         * the photo appear as if it was never saved.
+         * STEP 1 — Firebase Storage is the ONLY required upload.
+         * This is the shared image URL that other ChatPro users can read.
+         * Google Drive is handled separately and can never block the save.
          */
-        const extension = (file.name.split('.').pop() || 'jpg').toLowerCase().replace(/[^a-z0-9]/g, '') || 'jpg';
-        const storagePath = `profile_photos/${currentUser.uid}/profile_${Date.now()}.${extension}`;
+        const extension = (file.name.split('.').pop() || 'jpg')
+            .toLowerCase()
+            .replace(/[^a-z0-9]/g, '') || 'jpg';
+
+        const storagePath =
+            `profile_photos/${currentUser.uid}/profile_${Date.now()}.${extension}`;
+
         const fileRef = storage.ref().child(storagePath);
 
-        settingsProfileSuccess.textContent = '⏳ Uploading profile photo...';
+        settingsProfileSuccess.textContent = '⏳ Uploading profile photo to ChatPro...';
+
         const uploadTask = fileRef.put(file, { contentType: file.type });
+
+        // Never leave the button/message stuck forever if the browser/network
+        // fails to complete the Firebase upload.
         const snapshot = await new Promise((resolve, reject) => {
-            uploadTask.on('state_changed',
-                () => {},
-                reject,
-                () => resolve(uploadTask.snapshot)
+            let finished = false;
+
+            const timer = setTimeout(() => {
+                if (finished) return;
+                finished = true;
+                try { uploadTask.cancel(); } catch (_) {}
+                reject(new Error(
+                    'Firebase Storage upload timed out. Please check your Firebase Storage Rules and internet connection.'
+                ));
+            }, 60000);
+
+            uploadTask.on(
+                'state_changed',
+                (snap) => {
+                    if (finished) return;
+                    const percent = snap.totalBytes
+                        ? Math.round((snap.bytesTransferred / snap.totalBytes) * 100)
+                        : 0;
+                    settingsProfileSuccess.textContent =
+                        `⏳ Uploading profile photo... ${percent}%`;
+                },
+                (error) => {
+                    if (finished) return;
+                    finished = true;
+                    clearTimeout(timer);
+                    reject(error);
+                },
+                () => {
+                    if (finished) return;
+                    finished = true;
+                    clearTimeout(timer);
+                    resolve(uploadTask.snapshot);
+                }
             );
         });
 
         const downloadUrl = await snapshot.ref.getDownloadURL();
-        if (!downloadUrl) throw new Error('Firebase Storage did not return a photo URL.');
+
+        if (!downloadUrl) {
+            throw new Error('Firebase Storage did not return a download URL.');
+        }
 
         /*
-         * SAVE THE SHARED URL FIRST.
-         * Every user's contact listener reads users/{uid}.profilePhoto, so all
-         * users who have this account in their contacts will receive the new URL.
+         * STEP 2 — Save Firestore IMMEDIATELY.
+         * Once this succeeds, the profile photo is permanent and available
+         * to every device/user that can read the user's profile document.
          */
-        const oldStoragePath = currentUserData?.profilePhotoStoragePath || null;
-        const oldDriveFileId = currentUserData?.profilePhotoDriveFileId || null;
-
         await db.collection('users').doc(currentUser.uid).update({
             profilePhoto: downloadUrl,
             profilePhotoStoragePath: storagePath,
-            profilePhotoDriveFileId: firebase.firestore.FieldValue.delete(),
-            profilePhotoDriveUrl: firebase.firestore.FieldValue.delete(),
             profilePhotoUpdatedAt: firebase.firestore.FieldValue.serverTimestamp()
         });
 
+        // Update this browser immediately.
         currentUserData = await getUserData(currentUser.uid);
-        allUsersCache[currentUser.email.toLowerCase()] = { id: currentUser.uid, ...currentUserData };
+        allUsersCache[currentUser.email.toLowerCase()] = {
+            id: currentUser.uid,
+            ...currentUserData
+        };
         updateOwnProfilePhotoUI();
 
+        settingsProfileSuccess.textContent =
+            '✅ Profile photo saved successfully!';
+
         /*
-         * The profile is already saved at this point. Drive backup is optional.
-         * If Drive fails, the user keeps the profile photo and gets a clear warning.
+         * STEP 3 — Google Drive backup is OPTIONAL.
+         * It runs in the background and has a 20-second timeout.
+         * A Drive/OAuth problem therefore CANNOT prevent the profile photo
+         * from appearing in ChatPro.
          */
-        let driveMessage = 'Firebase Storage';
-        if (currentUserData.driveConnected) {
-            try {
-                const folders = await ensureDriveConnected(true);
-                const driveFile = await uploadFileToDrive(file, folders.profile);
+        if (currentUserData?.driveConnected) {
+            (async () => {
+                try {
+                    const driveBackupPromise = (async () => {
+                        const folders = await ensureDriveConnected(false);
+                        if (!folders?.profile) {
+                            throw new Error('Google Drive Profile Photos folder is unavailable.');
+                        }
 
-                await db.collection('users').doc(currentUser.uid).update({
-                    profilePhotoDriveFileId: driveFile.id || null,
-                    profilePhotoDriveUrl: driveFile.webViewLink || (driveFile.id ? `https://drive.google.com/open?id=${driveFile.id}` : null)
-                });
+                        const driveFile = await uploadFileToDrive(file, folders.profile);
 
-                if (oldDriveFileId && oldDriveFileId !== driveFile.id) {
-                    await deleteDriveFile(oldDriveFileId);
+                        await db.collection('users').doc(currentUser.uid).update({
+                            profilePhotoDriveFileId: driveFile.id || null,
+                            profilePhotoDriveUrl:
+                                driveFile.webViewLink ||
+                                (driveFile.id
+                                    ? `https://drive.google.com/open?id=${driveFile.id}`
+                                    : null)
+                        });
+
+                        if (oldDriveFileId && oldDriveFileId !== driveFile.id) {
+                            try {
+                                await deleteDriveFile(oldDriveFileId);
+                            } catch (deleteErr) {
+                                console.warn('Old Drive profile photo cleanup failed:', deleteErr);
+                            }
+                        }
+
+                        return true;
+                    })();
+
+                    await Promise.race([
+                        driveBackupPromise,
+                        new Promise((_, reject) =>
+                            setTimeout(
+                                () => reject(new Error('Google Drive backup timed out')),
+                                20000
+                            )
+                        )
+                    ]);
+
+                    console.log('ChatPro: profile photo backed up to Google Drive.');
+                } catch (driveErr) {
+                    console.warn(
+                        'ChatPro: Drive backup failed; profile photo remains saved in Firebase Storage.',
+                        driveErr
+                    );
                 }
-                driveMessage = 'Firebase Storage + Google Drive';
-            } catch (driveErr) {
-                console.warn('Profile photo Drive backup failed; photo remains saved in Firebase Storage:', driveErr);
-                settingsProfileError.textContent = '⚠️ Photo saved successfully, but Google Drive backup failed: ' + (driveErr.message || driveErr);
-            }
+            })();
         }
 
-        /* Delete the previous Firebase Storage copy only AFTER the new URL is saved. */
+        /*
+         * STEP 4 — Delete the previous Storage image only after the new
+         * Firestore URL has been saved successfully.
+         */
         if (oldStoragePath && oldStoragePath !== storagePath) {
             try {
                 await storage.ref().child(oldStoragePath).delete();
-            } catch (storageDeleteErr) {
-                console.warn('Old profile photo cleanup skipped:', storageDeleteErr);
+            } catch (cleanupErr) {
+                console.warn('Old profile photo cleanup skipped:', cleanupErr);
             }
         }
 
-        settingsProfileSuccess.textContent = `✅ Profile photo saved successfully (${driveMessage}).`;
-        settingsProfileSuccess.style.color = 'var(--primary)';
         URL.revokeObjectURL(previewUrl);
+        profilePhotoInput.value = '';
+
     } catch (err) {
         console.error('Profile photo upload error:', err);
-        settingsProfileError.textContent = 'Failed to save profile photo: ' + (err.message || err);
-        URL.revokeObjectURL(previewUrl);
-    } finally {
+
+        // Keep the local preview so the user can see which photo was selected.
+        settingsProfileError.textContent =
+            '❌ Profile photo was not saved: ' + (err.message || err);
+
+        settingsProfileSuccess.textContent = '';
         profilePhotoInput.value = '';
+        // Do not revoke preview here; it remains visible until another image
+        // is selected or the settings page is reloaded.
     }
 });
-
 // ============================================================
 // CLEAR MEDIA
 // ============================================================
