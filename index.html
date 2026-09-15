@@ -2669,15 +2669,36 @@ async function disconnectGoogleDrive() {
     }
 }
 
-async function ensureDriveConnected() {
+async function ensureDriveConnected(forceInteractive = false) {
     if (!currentUser) throw new Error('You must be logged in first.');
     currentUserData = await getUserData(currentUser.uid);
-    if (!currentUserData?.driveConnected || !currentUserData.driveFolderId) {
-        throw new Error('Connect a Google Drive account in Settings before sending media.');
+    if (!currentUserData?.driveConnected) {
+        if (!forceInteractive) throw new Error('Google Drive is not connected. Open Settings and click Connect/Reconnect Google Drive.');
+        await requestDriveAccessToken('consent select_account');
+        const googleUser = await driveUserInfo();
+        const googleEmail = googleUser.email || '';
+        if (!googleEmail) throw new Error('Google did not return an email address.');
+        driveConnected = true;
+        driveEmail = googleEmail;
+        await db.collection('users').doc(currentUser.uid).set({
+            driveConnected: true,
+            driveEmail: googleEmail,
+            driveName: googleUser.name || googleEmail.split('@')[0]
+        }, {merge:true});
+        currentUserData = await getUserData(currentUser.uid);
+    } else {
+        try {
+            await getDriveAccessToken(false, false);
+        } catch (err) {
+            // A page refresh clears the access token. Ask Google again only when needed.
+            await requestDriveAccessToken('');
+        }
     }
-    // If the in-memory token is missing after a page refresh, request it again.
-    await getDriveAccessToken(false, false);
-    return currentUserData.driveFolders || { root: currentUserData.driveFolderId };
+    let folders = currentUserData.driveFolders;
+    if (!folders?.root || !folders?.profile || !folders?.photos || !folders?.videos || !folders?.voice) {
+        folders = await ensureDriveFolders();
+    }
+    return folders;
 }
 
 async function uploadMedia(file, mediaType) {
@@ -3357,7 +3378,7 @@ profilePhotoInput.addEventListener('change', async (e) => {
         const downloadUrl = await fileRef.getDownloadURL();
 
         // Original profile photo is also backed up to the dedicated Drive folder.
-        const folders = await ensureDriveConnected();
+        const folders = await ensureDriveConnected(true);
         const oldDriveFileId = currentUserData?.profilePhotoDriveFileId || null;
         const driveFile = await uploadFileToDrive(file, folders.profile);
         if (oldDriveFileId && oldDriveFileId !== driveFile.id) await deleteDriveFile(oldDriveFileId);
@@ -3373,7 +3394,7 @@ profilePhotoInput.addEventListener('change', async (e) => {
         allUsersCache[currentUser.email.toLowerCase()] = { id: currentUser.uid, ...currentUserData };
         headerAvatar.innerHTML = `<img src="${downloadUrl}" alt="Profile" />`;
         profilePhotoPreview.innerHTML = `<img src="${downloadUrl}" alt="Profile" />`;
-        settingsProfileSuccess.textContent = '✅ Profile photo saved to ChatPro and Google Drive.';
+        settingsProfileSuccess.textContent = `✅ Profile photo saved. Drive file: ${driveFile.name || 'uploaded successfully'}`;
         settingsProfileSuccess.style.color = 'var(--primary)';
         URL.revokeObjectURL(previewUrl);
     } catch (err) {
