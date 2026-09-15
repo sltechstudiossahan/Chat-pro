@@ -1487,6 +1487,28 @@
             }
         }
     </style>
+<style id="premium-redesign">
+:root{--primary:#7c5cff;--primary-dark:#5940dc;--primary-light:#a99cff;--bg-primary:#070911;--bg-secondary:#0d1020;--bg-card:rgba(20,24,42,.78);--bg-hover:rgba(255,255,255,.075);--text-primary:#f8f8ff;--text-secondary:#b5b9d0;--text-muted:#747994;--border-color:rgba(255,255,255,.09);--shadow:0 24px 80px rgba(0,0,0,.42);--radius:22px;--radius-sm:15px;--radius-lg:30px}
+body{background:radial-gradient(circle at 12% 8%,rgba(124,92,255,.18),transparent 27%),radial-gradient(circle at 90% 92%,rgba(0,214,201,.12),transparent 30%),linear-gradient(135deg,#060810,#0a0d1b 52%,#090a14);letter-spacing:.01em}
+button{transition:.2s transform,.25s box-shadow,.25s background}.page{position:relative}.page:after{content:"";position:absolute;inset:18px;pointer-events:none;border:1px solid rgba(255,255,255,.035);border-radius:28px}
+.auth-container,.nic-container,.settings-container,.modal-box{background:linear-gradient(145deg,rgba(25,29,52,.92),rgba(10,13,27,.88))!important;border:1px solid rgba(255,255,255,.10)!important;box-shadow:0 30px 100px rgba(0,0,0,.48),inset 0 1px 0 rgba(255,255,255,.05)!important;backdrop-filter:blur(24px)}
+.auth-title,.nic-title,.settings-title{background:linear-gradient(90deg,#fff,#bdb4ff 55%,#78f2e8);-webkit-background-clip:text;background-clip:text;color:transparent}
+input,textarea,.search-box{background:rgba(255,255,255,.055)!important;border-color:rgba(255,255,255,.09)!important;color:var(--text-primary)!important}input:focus,textarea:focus{border-color:rgba(124,92,255,.72)!important;box-shadow:0 0 0 4px rgba(124,92,255,.12)!important}
+.auth-btn,.btn-primary,.btn-confirm,.send-btn,.connect-btn.primary{background:linear-gradient(135deg,#7c5cff,#5940dc 62%,#00bdb0)!important;border:0!important;color:#fff!important;box-shadow:0 12px 28px rgba(95,67,224,.28)}
+.sidebar{background:linear-gradient(180deg,rgba(14,17,33,.93),rgba(8,10,21,.92))!important;border-right:1px solid rgba(255,255,255,.075)!important;backdrop-filter:blur(20px)}
+.sidebar-header,.chat-header,.chat-input-area,.message-input-area{background:rgba(17,20,38,.72)!important;border-color:rgba(255,255,255,.07)!important;backdrop-filter:blur(20px)}
+.chat-main,.messages-area{background:radial-gradient(circle at 80% 15%,rgba(124,92,255,.08),transparent 30%),radial-gradient(circle at 15% 85%,rgba(0,205,190,.05),transparent 28%)!important}
+.header-avatar,.contact-avatar,.profile-photo-preview,.chat-avatar{border:2px solid rgba(255,255,255,.13)!important;box-shadow:0 8px 24px rgba(0,0,0,.28)}.header-avatar img,.contact-avatar img,.profile-photo-preview img,.chat-avatar img{width:100%;height:100%;object-fit:cover;border-radius:inherit}
+.contact-item{margin:5px 8px;border-radius:17px!important;border:1px solid transparent}.contact-item:hover{background:linear-gradient(90deg,rgba(124,92,255,.14),rgba(255,255,255,.035))!important;border-color:rgba(124,92,255,.14)}
+.contact-item.active,.contact-item.selected{background:linear-gradient(90deg,rgba(124,92,255,.25),rgba(0,205,190,.08))!important;border-color:rgba(124,92,255,.18)!important}
+.message-bubble{border:1px solid rgba(255,255,255,.07)!important;box-shadow:0 10px 28px rgba(0,0,0,.18);backdrop-filter:blur(10px)}.message.sent .message-bubble,.sent .message-bubble{background:linear-gradient(135deg,#6f52ef,#5139c7)!important;color:#fff!important}.message.received .message-bubble,.received .message-bubble{background:rgba(29,33,52,.88)!important}
+.icon-btn,.attach-btn,.emoji-btn,.voice-btn,.settings-back-btn{background:rgba(255,255,255,.055)!important;border:1px solid rgba(255,255,255,.075)!important;color:#c8c7ff!important;border-radius:14px!important}.icon-btn:hover,.attach-btn:hover,.emoji-btn:hover,.voice-btn:hover,.settings-back-btn:hover{background:rgba(124,92,255,.18)!important;border-color:rgba(124,92,255,.32)!important}
+.settings-sidebar,.settings-content,.settings-section,.setting-card,.storage-card,.drive-card{background:rgba(255,255,255,.035)!important;border-color:rgba(255,255,255,.075)!important}.settings-nav-item{border-radius:14px;margin:4px 8px}.settings-nav-item.active,.settings-nav-item:hover{background:linear-gradient(90deg,rgba(124,92,255,.20),rgba(0,205,190,.06))!important}
+.emoji-option{background:rgba(255,255,255,.045)!important;border:1px solid rgba(255,255,255,.06)!important;border-radius:13px!important}.emoji-option.selected{background:rgba(124,92,255,.22)!important;border-color:rgba(124,92,255,.6)!important}
+.modal-overlay{background:rgba(3,5,13,.72)!important;backdrop-filter:blur(10px)}.modal-box{border-radius:26px!important}.admin-panel{background:linear-gradient(135deg,rgba(124,92,255,.12),rgba(0,205,190,.05))!important;border:1px solid rgba(124,92,255,.16)!important;border-radius:20px!important}.stat-card{background:rgba(255,255,255,.045)!important;border:1px solid rgba(255,255,255,.075)!important;border-radius:18px!important}
+.danger,.connect-btn.danger,.btn-danger{background:linear-gradient(135deg,#ff4e6c,#cc2d4e)!important;color:#fff!important;border:0!important}
+@media(max-width:700px){.page:after{inset:6px;border-radius:20px}.contact-item{margin:3px 4px}}
+</style>
 </head>
 <body>
 
@@ -2329,48 +2351,6 @@ async function syncContactProfilesOnce() {
 
 
 // ============================================================
-// PROFILE PHOTO HELPERS
-// ============================================================
-function renderAvatar(element, photoUrl, emoji = '👤') {
-    if (!element) return;
-    element.innerHTML = '';
-    if (photoUrl) {
-        const img = document.createElement('img');
-        img.src = photoUrl;
-        img.alt = 'Profile';
-        img.loading = 'eager';
-        img.referrerPolicy = 'no-referrer';
-        img.onerror = () => {
-            element.innerHTML = '';
-            element.textContent = emoji || '👤';
-        };
-        element.appendChild(img);
-    } else {
-        element.textContent = emoji || '👤';
-    }
-}
-
-function getProfilePhotoUrl(userData) {
-    return userData?.profilePhoto || null;
-}
-
-async function saveProfilePhotoRecord(photoData) {
-    if (!currentUser) throw new Error('You must be logged in first.');
-    await db.collection('users').doc(currentUser.uid).update(photoData);
-    currentUserData = await getUserData(currentUser.uid);
-    if (currentUser?.email) {
-        allUsersCache[currentUser.email.toLowerCase()] = { id: currentUser.uid, ...currentUserData };
-    }
-}
-
-function updateOwnProfilePhotoUI() {
-    const photo = getProfilePhotoUrl(currentUserData);
-    const emoji = currentUserData?.emoji || selectedEmoji || '👤';
-    renderAvatar(headerAvatar, photo, emoji);
-    renderAvatar(profilePhotoPreview, photo, emoji);
-}
-
-// ============================================================
 // GOOGLE DRIVE - GOOGLE IDENTITY SERVICES + DRIVE API
 // ============================================================
 function assertDriveOAuthConfigured() {
@@ -2816,7 +2796,11 @@ async function loadChat() {
     const displayEmoji = currentUserData.emoji || '😊';
     currentUserName.textContent = displayName;
     
-    renderAvatar(headerAvatar, currentUserData.profilePhoto, displayEmoji);
+    if (currentUserData.profilePhoto) {
+        headerAvatar.innerHTML = `<img src="${currentUserData.profilePhoto}" alt="Profile" />`;
+    } else {
+        headerAvatar.textContent = displayEmoji;
+    }
 
     roleBadge.textContent = isAdmin ? 'Admin' : 'User';
     roleBadge.className = `role-badge ${isAdmin ? 'admin' : 'user'}`;
@@ -2868,7 +2852,7 @@ async function renderContacts() {
              data-email="${contact.email}"
              onclick="selectContact('${contact.email}')">
             <div class="avatar">
-                ${contact.profilePhoto ? `<img src="${contact.profilePhoto}" alt="Profile" loading="eager" referrerpolicy="no-referrer" onerror="this.style.display='none';this.parentElement.textContent='${contact.emoji || '👤'}';" />` : (contact.emoji || '👤')}
+                ${contact.profilePhoto ? `<img src="${contact.profilePhoto}" alt="Profile" />` : (contact.emoji || '👤')}
             </div>
             <div class="info">
                 <div class="name">
@@ -2903,7 +2887,11 @@ async function displayContactProfile(email) {
 
         chatContactHeader.classList.remove('hidden');
         
-        renderAvatar(contactAvatar, userData.profilePhoto, userData.emoji || '👤');
+        if (userData.profilePhoto) {
+            contactAvatar.innerHTML = `<img src="${userData.profilePhoto}" alt="Profile" />`;
+        } else {
+            contactAvatar.textContent = userData.emoji || '👤';
+        }
         
         contactNameDisplay.textContent = userData.name || 'Unknown User';
         contactEmojiDisplay.textContent = userData.emoji || '';
@@ -3267,8 +3255,13 @@ async function loadSettings() {
         });
     }
     
-    selectedEmoji = currentUserData.emoji || '😊';
-    renderAvatar(profilePhotoPreview, currentUserData.profilePhoto, selectedEmoji);
+    if (currentUserData.profilePhoto) {
+        profilePhotoPreview.innerHTML = `<img src="${currentUserData.profilePhoto}" alt="Profile" />`;
+        selectedEmoji = currentUserData.emoji || '😊';
+    } else if (currentUserData.emoji) {
+        profilePhotoPreview.innerHTML = `<span id="profilePhotoEmoji">${currentUserData.emoji}</span>`;
+        selectedEmoji = currentUserData.emoji;
+    }
     
     document.querySelectorAll('#settingsEmojiGrid .emoji-option').forEach(el => {
         el.classList.toggle('selected', el.dataset.emoji === currentUserData.emoji);
@@ -3341,7 +3334,11 @@ saveProfileSettings.addEventListener('click', async () => {
         allUsersCache[currentUser.email.toLowerCase()] = { id: currentUser.uid, ...currentUserData };
         currentUserName.textContent = name;
         
-        updateOwnProfilePhotoUI();
+        if (currentUserData.profilePhoto) {
+            headerAvatar.innerHTML = `<img src="${currentUserData.profilePhoto}" alt="Profile" />`;
+        } else {
+            headerAvatar.textContent = selectedEmoji;
+        }
         
         settingsProfileSuccess.textContent = '✅ Profile saved successfully!';
         settingsProfileSuccess.style.color = 'var(--primary)';
@@ -3360,7 +3357,7 @@ setupEmojiGrid(settingsEmojiGrid, (emoji) => {
     selectedEmoji = emoji;
     const preview = document.getElementById('profilePhotoPreview');
     if (!currentUserData?.profilePhoto) {
-        renderAvatar(preview, null, emoji);
+        preview.innerHTML = `<span id="profilePhotoEmoji">${emoji}</span>`;
     }
 });
 
@@ -3383,191 +3380,53 @@ profilePhotoInput.addEventListener('change', async (e) => {
         settingsProfileError.textContent = 'File is too large. Maximum size is 5MB.';
         return;
     }
-    if (!currentUser) {
-        settingsProfileError.textContent = 'Please log in again.';
-        return;
-    }
 
     settingsProfileError.textContent = '';
     settingsProfileSuccess.textContent = '';
 
-    const previewUrl = URL.createObjectURL(file);
-    renderAvatar(profilePhotoPreview, previewUrl, currentUserData?.emoji || '😊');
-
-    const oldStoragePath = currentUserData?.profilePhotoStoragePath || null;
-    const oldDriveFileId = currentUserData?.profilePhotoDriveFileId || null;
-
     try {
-        /*
-         * STEP 1 — Firebase Storage is the ONLY required upload.
-         * This is the shared image URL that other ChatPro users can read.
-         * Google Drive is handled separately and can never block the save.
-         */
-        const extension = (file.name.split('.').pop() || 'jpg')
-            .toLowerCase()
-            .replace(/[^a-z0-9]/g, '') || 'jpg';
-
-        const storagePath =
-            `profile_photos/${currentUser.uid}/profile_${Date.now()}.${extension}`;
-
-        const fileRef = storage.ref().child(storagePath);
-
-        settingsProfileSuccess.textContent = '⏳ Uploading profile photo to ChatPro...';
-
-        const uploadTask = fileRef.put(file, { contentType: file.type });
-
-        // Never leave the button/message stuck forever if the browser/network
-        // fails to complete the Firebase upload.
-        const snapshot = await new Promise((resolve, reject) => {
-            let finished = false;
-
-            const timer = setTimeout(() => {
-                if (finished) return;
-                finished = true;
-                try { uploadTask.cancel(); } catch (_) {}
-                reject(new Error(
-                    'Firebase Storage upload timed out. Please check your Firebase Storage Rules and internet connection.'
-                ));
-            }, 60000);
-
-            uploadTask.on(
-                'state_changed',
-                (snap) => {
-                    if (finished) return;
-                    const percent = snap.totalBytes
-                        ? Math.round((snap.bytesTransferred / snap.totalBytes) * 100)
-                        : 0;
-                    settingsProfileSuccess.textContent =
-                        `⏳ Uploading profile photo... ${percent}%`;
-                },
-                (error) => {
-                    if (finished) return;
-                    finished = true;
-                    clearTimeout(timer);
-                    reject(error);
-                },
-                () => {
-                    if (finished) return;
-                    finished = true;
-                    clearTimeout(timer);
-                    resolve(uploadTask.snapshot);
-                }
-            );
-        });
-
-        const downloadUrl = await snapshot.ref.getDownloadURL();
-
-        if (!downloadUrl) {
-            throw new Error('Firebase Storage did not return a download URL.');
+        if (!currentUserData?.driveConnected) {
+            throw new Error('Connect your Google Drive in Settings before uploading a profile photo.');
         }
 
-        /*
-         * STEP 2 — Save Firestore IMMEDIATELY.
-         * Once this succeeds, the profile photo is permanent and available
-         * to every device/user that can read the user's profile document.
-         */
+        // Immediate local preview.
+        const previewUrl = URL.createObjectURL(file);
+        profilePhotoPreview.innerHTML = `<img src="${previewUrl}" alt="Profile" />`;
+
+        // Firebase Storage is the browser-readable profile image URL.
+        const storageRef = storage.ref();
+        const fileRef = storageRef.child(`profile_photos/${currentUser.uid}/profile_${Date.now()}.${(file.name.split('.').pop() || 'jpg')}`);
+        await fileRef.put(file, { contentType: file.type });
+        const downloadUrl = await fileRef.getDownloadURL();
+
+        // Original profile photo is also backed up to the dedicated Drive folder.
+        const folders = await ensureDriveConnected(true);
+        const oldDriveFileId = currentUserData?.profilePhotoDriveFileId || null;
+        const driveFile = await uploadFileToDrive(file, folders.profile);
+        if (oldDriveFileId && oldDriveFileId !== driveFile.id) await deleteDriveFile(oldDriveFileId);
+
         await db.collection('users').doc(currentUser.uid).update({
             profilePhoto: downloadUrl,
-            profilePhotoStoragePath: storagePath,
+            profilePhotoDriveFileId: driveFile.id || null,
+            profilePhotoDriveUrl: driveFile.webViewLink || (driveFile.id ? `https://drive.google.com/open?id=${driveFile.id}` : null),
             profilePhotoUpdatedAt: firebase.firestore.FieldValue.serverTimestamp()
         });
 
-        // Update this browser immediately.
         currentUserData = await getUserData(currentUser.uid);
-        allUsersCache[currentUser.email.toLowerCase()] = {
-            id: currentUser.uid,
-            ...currentUserData
-        };
-        updateOwnProfilePhotoUI();
-
-        settingsProfileSuccess.textContent =
-            '✅ Profile photo saved successfully!';
-
-        /*
-         * STEP 3 — Google Drive backup is OPTIONAL.
-         * It runs in the background and has a 20-second timeout.
-         * A Drive/OAuth problem therefore CANNOT prevent the profile photo
-         * from appearing in ChatPro.
-         */
-        if (currentUserData?.driveConnected) {
-            (async () => {
-                try {
-                    const driveBackupPromise = (async () => {
-                        const folders = await ensureDriveConnected(false);
-                        if (!folders?.profile) {
-                            throw new Error('Google Drive Profile Photos folder is unavailable.');
-                        }
-
-                        const driveFile = await uploadFileToDrive(file, folders.profile);
-
-                        await db.collection('users').doc(currentUser.uid).update({
-                            profilePhotoDriveFileId: driveFile.id || null,
-                            profilePhotoDriveUrl:
-                                driveFile.webViewLink ||
-                                (driveFile.id
-                                    ? `https://drive.google.com/open?id=${driveFile.id}`
-                                    : null)
-                        });
-
-                        if (oldDriveFileId && oldDriveFileId !== driveFile.id) {
-                            try {
-                                await deleteDriveFile(oldDriveFileId);
-                            } catch (deleteErr) {
-                                console.warn('Old Drive profile photo cleanup failed:', deleteErr);
-                            }
-                        }
-
-                        return true;
-                    })();
-
-                    await Promise.race([
-                        driveBackupPromise,
-                        new Promise((_, reject) =>
-                            setTimeout(
-                                () => reject(new Error('Google Drive backup timed out')),
-                                20000
-                            )
-                        )
-                    ]);
-
-                    console.log('ChatPro: profile photo backed up to Google Drive.');
-                } catch (driveErr) {
-                    console.warn(
-                        'ChatPro: Drive backup failed; profile photo remains saved in Firebase Storage.',
-                        driveErr
-                    );
-                }
-            })();
-        }
-
-        /*
-         * STEP 4 — Delete the previous Storage image only after the new
-         * Firestore URL has been saved successfully.
-         */
-        if (oldStoragePath && oldStoragePath !== storagePath) {
-            try {
-                await storage.ref().child(oldStoragePath).delete();
-            } catch (cleanupErr) {
-                console.warn('Old profile photo cleanup skipped:', cleanupErr);
-            }
-        }
-
+        allUsersCache[currentUser.email.toLowerCase()] = { id: currentUser.uid, ...currentUserData };
+        headerAvatar.innerHTML = `<img src="${downloadUrl}" alt="Profile" />`;
+        profilePhotoPreview.innerHTML = `<img src="${downloadUrl}" alt="Profile" />`;
+        settingsProfileSuccess.textContent = `✅ Profile photo saved. Drive file: ${driveFile.name || 'uploaded successfully'}`;
+        settingsProfileSuccess.style.color = 'var(--primary)';
         URL.revokeObjectURL(previewUrl);
-        profilePhotoInput.value = '';
-
     } catch (err) {
         console.error('Profile photo upload error:', err);
-
-        // Keep the local preview so the user can see which photo was selected.
-        settingsProfileError.textContent =
-            '❌ Profile photo was not saved: ' + (err.message || err);
-
-        settingsProfileSuccess.textContent = '';
+        settingsProfileError.textContent = 'Failed to upload profile photo: ' + (err.message || err);
+    } finally {
         profilePhotoInput.value = '';
-        // Do not revoke preview here; it remains visible until another image
-        // is selected or the settings page is reloaded.
     }
 });
+
 // ============================================================
 // CLEAR MEDIA
 // ============================================================
@@ -3763,10 +3622,6 @@ logoutBtn.addEventListener('click', async () => {
     if (isRecording) {
         stopRecording();
     }
-    if (window.__ownProfileUnsubscribe) {
-        try { window.__ownProfileUnsubscribe(); } catch (_) {}
-        window.__ownProfileUnsubscribe = null;
-    }
     await auth.signOut();
     currentUser = null;
     currentUserData = null;
@@ -3789,20 +3644,6 @@ auth.onAuthStateChanged(async (user) => {
         currentUserData = await getUserData(user.uid);
         isAdmin = currentUserData?.isAdmin || ADMIN_ACCOUNTS.some(a => a.email === user.email);
 
-        // Keep the signed-in user's own avatar live too. This updates the header/settings
-        // immediately if the profile document changes in another tab/device.
-        if (window.__ownProfileUnsubscribe) {
-            try { window.__ownProfileUnsubscribe(); } catch (_) {}
-        }
-        window.__ownProfileUnsubscribe = db.collection('users').doc(user.uid).onSnapshot(snapshot => {
-            if (!snapshot.exists) return;
-            currentUserData = { uid: user.uid, ...snapshot.data() };
-            allUsersCache[user.email.toLowerCase()] = { id: user.uid, ...snapshot.data() };
-            if (!settingsPage.classList.contains('hidden')) loadSettings();
-            if (!chatPage.classList.contains('hidden')) updateOwnProfilePhotoUI();
-            if (currentChatWith) displayContactProfile(currentChatWith);
-        }, err => console.error('Own profile listener error:', err));
-
         if (isAdmin) {
             showPage('chatPage');
             loadChat();
@@ -3823,10 +3664,6 @@ auth.onAuthStateChanged(async (user) => {
             startCamera();
         }
     } else {
-        if (window.__ownProfileUnsubscribe) {
-            try { window.__ownProfileUnsubscribe(); } catch (_) {}
-            window.__ownProfileUnsubscribe = null;
-        }
         stopContactProfileWatchers();
         clearTimeout(contactProfileRenderTimer);
         contactProfileRenderTimer = null;
