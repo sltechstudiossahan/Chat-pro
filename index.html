@@ -9,6 +9,8 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
+    <!-- Google Identity Services (Google Drive OAuth 2.0) -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <!-- Tesseract.js for OCR -->
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <!-- Font Awesome -->
@@ -1814,23 +1816,24 @@ const auth = firebase.auth();
 const db = firebase.firestore();
 const storage = firebase.storage();
 
-// Separate Firebase Auth instance used ONLY for Google Drive OAuth.
-// This keeps the ChatPro email/password account independent from the
-// Google account selected for Drive.
-const driveAuthApp = firebase.initializeApp(firebaseConfig, 'chatproDriveAuth');
-const driveAuth = driveAuthApp.auth();
-let driveAuthReadyResolve;
-const driveAuthReady = new Promise(resolve => { driveAuthReadyResolve = resolve; });
-driveAuth.onAuthStateChanged(() => driveAuthReadyResolve());
-driveAuth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(err =>
-    console.warn('Drive auth persistence could not be enabled:', err)
-);
-
+// ============================================================
+// GOOGLE DRIVE OAUTH CONFIG
+// ============================================================
+// Replace this placeholder with the OAuth 2.0 Client ID created as
+// Application type: Web application in Google Cloud Console.
+const GOOGLE_OAUTH_CLIENT_ID = 'PASTE_YOUR_WEB_OAUTH_CLIENT_ID_HERE';
 const DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.file';
 const DRIVE_API = 'https://www.googleapis.com/drive/v3';
 const DRIVE_UPLOAD_API = 'https://www.googleapis.com/upload/drive/v3/files';
+const DRIVE_USERINFO_API = 'https://www.googleapis.com/oauth2/v3/userinfo';
+const DRIVE_ROOT_NAME = 'ChatPro Media';
+const DRIVE_FOLDER_MIME = 'application/vnd.google-apps.folder';
+
+// OAuth access tokens are intentionally kept only in browser memory.
 let driveAccessToken = null;
 let driveTokenExpiresAt = 0;
+let driveTokenClient = null;
+let driveTokenClientPromise = null;
 
 // ============================================================
 // ADMIN ACCOUNTS
@@ -2251,41 +2254,92 @@ async function getUserByEmail(email) {
 }
 
 // ============================================================
-// GOOGLE DRIVE - REAL OAUTH + DRIVE API
+// GOOGLE DRIVE - GOOGLE IDENTITY SERVICES + DRIVE API
 // ============================================================
-function driveProvider() {
-    const provider = new firebase.auth.GoogleAuthProvider();
-    provider.addScope(DRIVE_SCOPE);
-    provider.setCustomParameters({ prompt: 'select_account' });
-    return provider;
-}
-
-function getDriveCredentialAccessToken(result) {
-    const credential = firebase.auth.GoogleAuthProvider.credentialFromResult(result);
-    return credential && credential.accessToken ? credential.accessToken : null;
-}
-
-async function getDriveAccessToken(forceRefresh = false) {
-    await driveAuthReady;
-    if (!driveAuth.currentUser) {
-        throw new Error('Google Drive is not connected. Open Settings and connect a Google Drive account first.');
+function assertDriveOAuthConfigured() {
+    if (!GOOGLE_OAUTH_CLIENT_ID || GOOGLE_OAUTH_CLIENT_ID.includes('PASTE_YOUR')) {
+        throw new Error('Google Drive is not configured yet. Add your Google OAuth 2.0 Web Client ID to GOOGLE_OAUTH_CLIENT_ID in this HTML file.');
     }
+}
 
-    if (!forceRefresh && driveAccessToken && Date.now() < driveTokenExpiresAt - 60000) {
+async function waitForGoogleIdentityServices() {
+    assertDriveOAuthConfigured();
+    if (window.google?.accounts?.oauth2) return;
+    const started = Date.now();
+    while (Date.now() - started < 15000) {
+        if (window.google?.accounts?.oauth2) return;
+        await new Promise(resolve => setTimeout(resolve, 100));
+    }
+    throw new Error('Google Identity Services did not load. Check your internet connection or browser extensions.');
+}
+
+async function initDriveTokenClient() {
+    if (driveTokenClient) return driveTokenClient;
+    if (driveTokenClientPromise) return driveTokenClientPromise;
+
+    driveTokenClientPromise = (async () => {
+        await waitForGoogleIdentityServices();
+        driveTokenClient = google.accounts.oauth2.initTokenClient({
+            client_id: GOOGLE_OAUTH_CLIENT_ID,
+            scope: DRIVE_SCOPE,
+            callback: () => {}
+        });
+        return driveTokenClient;
+    })();
+
+    try {
+        return await driveTokenClientPromise;
+    } finally {
+        driveTokenClientPromise = null;
+    }
+}
+
+function requestDriveAccessToken(prompt = '') {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const client = await initDriveTokenClient();
+            client.callback = (response) => {
+                if (response?.error) {
+                    reject(new Error(response.error_description || response.error || 'Google authorization failed.'));
+                    return;
+                }
+                if (!response?.access_token) {
+                    reject(new Error('Google did not return an access token.'));
+                    return;
+                }
+                driveAccessToken = response.access_token;
+                const expiresIn = Number(response.expires_in || 3600);
+                driveTokenExpiresAt = Date.now() + Math.max(60, expiresIn - 60) * 1000;
+                resolve(response.access_token);
+            };
+            client.requestAccessToken({ prompt });
+        } catch (err) {
+            reject(err);
+        }
+    });
+}
+
+async function getDriveAccessToken(forceRefresh = false, interactive = false) {
+    if (!forceRefresh && driveAccessToken && Date.now() < driveTokenExpiresAt) {
         return driveAccessToken;
     }
 
-    const result = await driveAuth.currentUser.reauthenticateWithPopup(driveProvider());
-    const token = getDriveCredentialAccessToken(result);
-    if (!token) throw new Error('Google did not return a Drive access token. Please reconnect Google Drive.');
-
-    driveAccessToken = token;
-    driveTokenExpiresAt = Date.now() + (55 * 60 * 1000);
-    return token;
+    // For normal user actions, an existing Google grant can normally be reused silently.
+    // If Google requires interaction, the caller can explicitly reconnect from Settings.
+    try {
+        return await requestDriveAccessToken(interactive ? 'consent' : '');
+    } catch (err) {
+        driveAccessToken = null;
+        driveTokenExpiresAt = 0;
+        if (!interactive) {
+            throw new Error('Google Drive authorization has expired. Click Connect/Reconnect Google Drive in Settings.');
+        }
+        throw err;
+    }
 }
 
-async function driveApiFetch(url, options = {}, retry = true) {
-    const token = await getDriveAccessToken(false);
+async function driveApiFetch(url, options = {}, retry = true, interactive = false) {
+    const token = await getDriveAccessToken(false, interactive);
     const headers = new Headers(options.headers || {});
     headers.set('Authorization', `Bearer ${token}`);
 
@@ -2293,52 +2347,109 @@ async function driveApiFetch(url, options = {}, retry = true) {
     if (response.status === 401 && retry) {
         driveAccessToken = null;
         driveTokenExpiresAt = 0;
-        const freshToken = await getDriveAccessToken(true);
+        const freshToken = await getDriveAccessToken(true, true);
         headers.set('Authorization', `Bearer ${freshToken}`);
         return fetch(url, { ...options, headers });
     }
     return response;
 }
 
-async function findOrCreateDriveFolder() {
-    if (currentUserData?.driveFolderId) return currentUserData.driveFolderId;
+async function driveUserInfo() {
+    const token = await getDriveAccessToken(false, true);
+    const response = await fetch(DRIVE_USERINFO_API, {
+        headers: { Authorization: `Bearer ${token}` }
+    });
+    if (!response.ok) {
+        throw new Error(`Could not read Google account information (${response.status}).`);
+    }
+    return response.json();
+}
 
-    const query = encodeURIComponent("name = 'ChatPro Media' and mimeType = 'application/vnd.google-apps.folder' and trashed = false");
-    const listResponse = await driveApiFetch(`${DRIVE_API}/files?q=${query}&spaces=drive&fields=files(id,name)&pageSize=10`);
-    if (!listResponse.ok) throw new Error(`Drive folder lookup failed (${listResponse.status}).`);
+async function findDriveFolderByName(name, parentId = null) {
+    const parts = [
+        `name = '${String(name).replace(/'/g, "\\'")}'`,
+        `mimeType = '${DRIVE_FOLDER_MIME}'`,
+        `trashed = false`
+    ];
+    if (parentId) parts.push(`'${parentId}' in parents`);
 
-    const listData = await listResponse.json();
-    let folder = listData.files && listData.files[0];
+    const query = encodeURIComponent(parts.join(' and '));
+    const response = await driveApiFetch(`${DRIVE_API}/files?q=${query}&spaces=drive&fields=files(id,name)&pageSize=10`);
+    if (!response.ok) {
+        const text = await response.text();
+        throw new Error(`Drive folder lookup failed (${response.status}): ${text}`);
+    }
+    const data = await response.json();
+    return data.files?.[0] || null;
+}
 
-    if (!folder) {
-        const createResponse = await driveApiFetch(`${DRIVE_API}/files?fields=id,name`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                name: 'ChatPro Media',
-                mimeType: 'application/vnd.google-apps.folder'
-            })
-        });
-        if (!createResponse.ok) {
-            const text = await createResponse.text();
-            throw new Error(`Could not create ChatPro Media folder: ${text}`);
-        }
-        folder = await createResponse.json();
+async function createDriveFolder(name, parentId = null) {
+    const body = { name, mimeType: DRIVE_FOLDER_MIME };
+    if (parentId) body.parents = [parentId];
+
+    const response = await driveApiFetch(`${DRIVE_API}/files?fields=id,name`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+    });
+    if (!response.ok) {
+        const text = await response.text();
+        throw new Error(`Could not create Drive folder '${name}' (${response.status}): ${text}`);
+    }
+    return response.json();
+}
+
+async function findOrCreateDriveFolder(name, parentId = null) {
+    const existing = await findDriveFolderByName(name, parentId);
+    return existing || createDriveFolder(name, parentId);
+}
+
+async function ensureDriveFolders() {
+    currentUserData = await getUserData(currentUser.uid);
+
+    const saved = currentUserData?.driveFolders || {};
+    let rootId = currentUserData?.driveFolderId || saved.root;
+    let profileId = saved.profile;
+    let photosId = saved.photos;
+    let videosId = saved.videos;
+    let voiceId = saved.voice;
+
+    if (rootId) {
+        // Confirming the folder is unnecessary on every page load; Drive will reject stale IDs.
+    } else {
+        const root = await findOrCreateDriveFolder(DRIVE_ROOT_NAME);
+        rootId = root.id;
     }
 
-    await db.collection('users').doc(currentUser.uid).update({ driveFolderId: folder.id });
+    if (!profileId) profileId = (await findOrCreateDriveFolder('Profile Photos', rootId)).id;
+    if (!photosId) photosId = (await findOrCreateDriveFolder('Photos', rootId)).id;
+    if (!videosId) videosId = (await findOrCreateDriveFolder('Videos', rootId)).id;
+    if (!voiceId) voiceId = (await findOrCreateDriveFolder('Voice Notes', rootId)).id;
+
+    const folders = { root: rootId, profile: profileId, photos: photosId, videos: videosId, voice: voiceId };
+    await db.collection('users').doc(currentUser.uid).update({
+        driveFolderId: rootId,
+        driveFolders: folders
+    });
     currentUserData = await getUserData(currentUser.uid);
-    return folder.id;
+    return folders;
+}
+
+function getDriveFolderForMediaType(folders, mediaType) {
+    if (mediaType === 'video') return folders.videos;
+    if (mediaType === 'voice') return folders.voice;
+    return folders.photos;
 }
 
 async function uploadFileToDrive(file, folderId, onProgress) {
+    if (!file || !folderId) throw new Error('Missing file or Drive folder.');
+
     const metadata = {
         name: file.name || `ChatPro_${Date.now()}`,
         parents: [folderId],
         mimeType: file.type || 'application/octet-stream'
     };
 
-    // Small files can be uploaded as multipart in one request.
     if (file.size <= 5 * 1024 * 1024) {
         const boundary = 'chatpro_' + Math.random().toString(16).slice(2);
         const body = new Blob([
@@ -2359,10 +2470,9 @@ async function uploadFileToDrive(file, folderId, onProgress) {
             throw new Error(`Drive upload failed (${response.status}): ${text}`);
         }
         if (onProgress) onProgress(100);
-        return await response.json();
+        return response.json();
     }
 
-    // Resumable upload for larger videos/files.
     const initResponse = await driveApiFetch(`${DRIVE_UPLOAD_API}?uploadType=resumable&fields=id,name,webViewLink`, {
         method: 'POST',
         headers: {
@@ -2380,8 +2490,6 @@ async function uploadFileToDrive(file, folderId, onProgress) {
     const sessionUrl = initResponse.headers.get('Location');
     if (!sessionUrl) throw new Error('Google Drive did not return an upload session URL.');
 
-    // Sending the file in one PUT is supported by Drive resumable upload sessions.
-    // Progress is displayed as upload completion after the request succeeds.
     const putResponse = await driveApiFetch(sessionUrl, {
         method: 'PUT',
         headers: { 'Content-Type': file.type || 'application/octet-stream' },
@@ -2392,7 +2500,17 @@ async function uploadFileToDrive(file, folderId, onProgress) {
         throw new Error(`Drive file upload failed (${putResponse.status}): ${text}`);
     }
     if (onProgress) onProgress(100);
-    return await putResponse.json();
+    return putResponse.json();
+}
+
+async function deleteDriveFile(fileId) {
+    if (!fileId) return;
+    try {
+        const response = await driveApiFetch(`${DRIVE_API}/files/${encodeURIComponent(fileId)}`, { method: 'DELETE' });
+        if (!response.ok && response.status !== 404) console.warn('Drive delete failed:', response.status);
+    } catch (err) {
+        console.warn('Drive delete skipped:', err);
+    }
 }
 
 async function connectGoogleDrive() {
@@ -2405,52 +2523,47 @@ async function connectGoogleDrive() {
 
     try {
         if (!/^https?:$/.test(window.location.protocol)) {
-            throw new Error('Google Drive requires this GitHub Pages site to be opened over HTTPS/HTTP, not as a local file.');
+            throw new Error('Google Drive requires the website to run from HTTP/HTTPS, not file://. Deploy to GitHub Pages or use a local web server.');
         }
+        assertDriveOAuthConfigured();
 
-        const result = await driveAuth.signInWithPopup(driveProvider());
-        const driveUser = result.user;
-        const token = getDriveCredentialAccessToken(result);
-        if (!token) throw new Error('Google did not grant Drive access. Please approve the Drive permission and try again.');
+        // Explicit user action -> interactive OAuth consent/account selection.
+        await requestDriveAccessToken('consent select_account');
+        const googleUser = await driveUserInfo();
+        const googleEmail = googleUser.email || '';
+        const googleName = googleUser.name || googleEmail.split('@')[0] || 'Google Drive';
+        if (!googleEmail) throw new Error('Google did not return an email address.');
 
-        driveAccessToken = token;
-        driveTokenExpiresAt = Date.now() + (55 * 60 * 1000);
-
-        // Set the Drive user in state before folder creation.
-        const googleEmail = driveUser.email || driveUser.providerData?.[0]?.email || '';
-        const googleName = driveUser.displayName || googleEmail.split('@')[0] || 'Google Drive';
-
+        driveConnected = true;
+        driveEmail = googleEmail;
         await db.collection('users').doc(currentUser.uid).update({
             driveConnected: true,
             driveEmail: googleEmail,
             driveName: googleName
         });
-
         currentUserData = await getUserData(currentUser.uid);
-        const folderId = await findOrCreateDriveFolder();
+
+        const folders = await ensureDriveFolders();
         await db.collection('users').doc(currentUser.uid).update({
             driveConnected: true,
             driveEmail: googleEmail,
             driveName: googleName,
-            driveFolderId: folderId
+            driveFolderId: folders.root,
+            driveFolders: folders
         });
         currentUserData = await getUserData(currentUser.uid);
-        driveConnected = true;
-        driveEmail = googleEmail;
-        updateDriveUI();
 
+        updateDriveUI();
         settingsProfileSuccess.textContent = `✅ Google Drive connected: ${googleEmail}`;
         settingsProfileSuccess.style.color = 'var(--primary)';
     } catch (err) {
         console.error('Google Drive connection error:', err);
+        driveConnected = false;
         settingsProfileError.textContent = 'Google Drive: ' + (err.message || 'Connection failed.');
-        // Do not mark the ChatPro account as connected unless the folder was created.
-        if (!currentUserData?.driveFolderId) {
-            try {
-                await db.collection('users').doc(currentUser.uid).update({ driveConnected: false });
-            } catch (_) {}
-            driveConnected = false;
-        }
+        try {
+            await db.collection('users').doc(currentUser.uid).update({ driveConnected: false });
+            currentUserData = await getUserData(currentUser.uid);
+        } catch (_) {}
     } finally {
         connectDriveBtn.disabled = false;
         updateDriveUI();
@@ -2458,24 +2571,23 @@ async function connectGoogleDrive() {
 }
 
 async function disconnectGoogleDrive() {
-    if (!confirm('Disconnect Google Drive? Existing chat media will remain in Firebase Storage.')) return;
+    if (!confirm('Disconnect Google Drive from this ChatPro account? Existing files will remain in your Google Drive.')) return;
 
     try {
-        await db.collection('users').doc(currentUser.uid).update({
-            driveConnected: false,
-            driveToken: firebase.firestore.FieldValue.delete(),
-            driveFolderId: firebase.firestore.FieldValue.delete(),
-            driveEmail: firebase.firestore.FieldValue.delete(),
-            driveName: firebase.firestore.FieldValue.delete()
-        });
-        try { await driveAuth.signOut(); } catch (_) {}
         driveAccessToken = null;
         driveTokenExpiresAt = 0;
         driveConnected = false;
         driveEmail = '';
+        await db.collection('users').doc(currentUser.uid).update({
+            driveConnected: false,
+            driveFolderId: firebase.firestore.FieldValue.delete(),
+            driveFolders: firebase.firestore.FieldValue.delete(),
+            driveEmail: firebase.firestore.FieldValue.delete(),
+            driveName: firebase.firestore.FieldValue.delete()
+        });
         currentUserData = await getUserData(currentUser.uid);
         updateDriveUI();
-        settingsProfileSuccess.textContent = '✅ Google Drive disconnected.';
+        settingsProfileSuccess.textContent = '✅ Google Drive disconnected from ChatPro. Your existing Drive files were not deleted.';
         settingsProfileSuccess.style.color = 'var(--text-secondary)';
     } catch (err) {
         settingsProfileError.textContent = 'Error: ' + err.message;
@@ -2483,19 +2595,23 @@ async function disconnectGoogleDrive() {
 }
 
 async function ensureDriveConnected() {
-    await driveAuthReady;
+    if (!currentUser) throw new Error('You must be logged in first.');
     currentUserData = await getUserData(currentUser.uid);
-    if (!currentUserData?.driveConnected || !currentUserData.driveFolderId || !driveAuth.currentUser) {
+    if (!currentUserData?.driveConnected || !currentUserData.driveFolderId) {
         throw new Error('Connect a Google Drive account in Settings before sending media.');
     }
-    return currentUserData.driveFolderId;
+    // If the in-memory token is missing after a page refresh, request it again.
+    await getDriveAccessToken(false, false);
+    return currentUserData.driveFolders || { root: currentUserData.driveFolderId };
 }
 
-async function uploadMedia(file) {
+async function uploadMedia(file, mediaType) {
     if (!file) throw new Error('No file selected.');
-    const folderId = await ensureDriveConnected();
+    const folders = await ensureDriveConnected();
+    const driveFolderId = getDriveFolderForMediaType(folders, mediaType);
+    if (!driveFolderId) throw new Error('Your ChatPro Drive folders are incomplete. Disconnect and reconnect Google Drive.');
 
-    // Upload to Firebase Storage for reliable playback in ChatPro.
+    // Firebase Storage remains the playback layer for ChatPro recipients.
     const safeName = (file.name || 'file').replace(/[^a-zA-Z0-9._-]/g, '_');
     const storageRef = storage.ref();
     const fileRef = storageRef.child(`media/${currentUser.uid}/${Date.now()}_${safeName}`);
@@ -2505,39 +2621,42 @@ async function uploadMedia(file) {
     });
     const mediaUrl = await firebaseSnapshot.ref.getDownloadURL();
 
-    // Keep an original copy in the connected Google Drive.
-    let driveFile;
     try {
-        driveFile = await uploadFileToDrive(file, folderId);
+        const driveFile = await uploadFileToDrive(file, driveFolderId);
+        return {
+            mediaUrl,
+            driveFileId: driveFile.id || null,
+            driveUrl: driveFile.webViewLink || (driveFile.id ? `https://drive.google.com/open?id=${driveFile.id}` : null)
+        };
     } catch (driveError) {
-        // Don't send a message if the required Drive backup failed.
         try { await firebaseSnapshot.ref.delete(); } catch (_) {}
         throw driveError;
     }
-
-    return {
-        mediaUrl,
-        driveFileId: driveFile.id || null,
-        driveUrl: driveFile.webViewLink || `https://drive.google.com/open?id=${driveFile.id}`
-    };
 }
 
 function updateDriveUI() {
-    if (currentUserData && currentUserData.driveConnected && currentUserData.driveFolderId) {
+    if (currentUserData?.driveConnected && currentUserData?.driveFolderId) {
         driveName.textContent = currentUserData.driveName || 'Connected';
         driveEmailEl.textContent = currentUserData.driveEmail || 'Connected to Google Drive';
         driveStatusBadge.className = 'status-badge connected';
         driveStatusBadge.innerHTML = '<i class="fas fa-circle" style="font-size:8px;"></i> Connected';
-        connectDriveBtn.textContent = 'Disconnect';
+        connectDriveBtn.textContent = 'Reconnect / Disconnect';
         connectDriveBtn.className = 'connect-btn danger';
-        connectDriveBtn.onclick = disconnectGoogleDrive;
-        driveStorageInfo.textContent = 'Media backup: ChatPro Media folder';
+        connectDriveBtn.onclick = async () => {
+            const reconnect = confirm('Click OK to reconnect/select a Google Drive account. Click Cancel to disconnect ChatPro from Drive.');
+            if (reconnect) {
+                await connectGoogleDrive();
+            } else {
+                await disconnectGoogleDrive();
+            }
+        };
+        driveStorageInfo.textContent = 'Media backup: ChatPro Media / Profile Photos / Photos / Videos / Voice Notes';
     } else {
         driveName.textContent = 'Not connected';
         driveEmailEl.textContent = 'Connect a Google Drive account';
         driveStatusBadge.className = 'status-badge disconnected';
         driveStatusBadge.innerHTML = '<i class="fas fa-circle" style="font-size:8px;"></i> Disconnected';
-        connectDriveBtn.textContent = 'Connect';
+        connectDriveBtn.textContent = 'Connect Google Drive';
         connectDriveBtn.className = 'connect-btn primary';
         connectDriveBtn.onclick = connectGoogleDrive;
         driveStorageInfo.textContent = 'Required for media backup';
@@ -2832,7 +2951,7 @@ async function sendMessage(mediaFile = null, mediaType = null) {
 
     if (mediaFile && mediaType) {
         try {
-            const uploaded = await uploadMedia(mediaFile);
+            const uploaded = await uploadMedia(mediaFile, mediaType);
             
             messageData.mediaType = mediaType;
             messageData.mediaUrl = uploaded.mediaUrl;
@@ -2922,17 +3041,25 @@ voiceBtn.addEventListener('click', async () => {
     
     try {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        mediaRecorder = new MediaRecorder(stream);
+        const mimeCandidates = [
+            'audio/webm;codecs=opus',
+            'audio/webm',
+            'audio/ogg;codecs=opus'
+        ];
+        const mimeType = mimeCandidates.find(type => MediaRecorder.isTypeSupported(type)) || '';
+        mediaRecorder = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream);
         audioChunks = [];
         recordingDuration = 0;
         
         mediaRecorder.ondataavailable = (event) => {
-            audioChunks.push(event.data);
+            if (event.data && event.data.size) audioChunks.push(event.data);
         };
         
         mediaRecorder.onstop = async () => {
-            const audioBlob = new Blob(audioChunks, { type: 'audio/mp3' });
-            const audioFile = new File([audioBlob], `voice_${Date.now()}.mp3`, { type: 'audio/mp3' });
+            const actualType = mediaRecorder.mimeType || mimeType || 'audio/webm';
+            const extension = actualType.includes('ogg') ? 'ogg' : 'webm';
+            const audioBlob = new Blob(audioChunks, { type: actualType });
+            const audioFile = new File([audioBlob], `voice_${Date.now()}.${extension}`, { type: actualType });
             
             try {
                 await sendMessage(audioFile, 'voice');
@@ -3148,14 +3275,16 @@ profilePhotoInput.addEventListener('change', async (e) => {
         await fileRef.put(file, { contentType: file.type });
         const downloadUrl = await fileRef.getDownloadURL();
 
-        // Original profile photo is also backed up to Drive.
-        const folderId = await ensureDriveConnected();
-        const driveFile = await uploadFileToDrive(file, folderId);
+        // Original profile photo is also backed up to the dedicated Drive folder.
+        const folders = await ensureDriveConnected();
+        const oldDriveFileId = currentUserData?.profilePhotoDriveFileId || null;
+        const driveFile = await uploadFileToDrive(file, folders.profile);
+        if (oldDriveFileId && oldDriveFileId !== driveFile.id) await deleteDriveFile(oldDriveFileId);
 
         await db.collection('users').doc(currentUser.uid).update({
             profilePhoto: downloadUrl,
             profilePhotoDriveFileId: driveFile.id || null,
-            profilePhotoDriveUrl: driveFile.webViewLink || null,
+            profilePhotoDriveUrl: driveFile.webViewLink || (driveFile.id ? `https://drive.google.com/open?id=${driveFile.id}` : null),
             profilePhotoUpdatedAt: firebase.firestore.FieldValue.serverTimestamp()
         });
 
