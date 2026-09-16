@@ -4,15 +4,11 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>ChatPro - Premium Messaging</title>
+    <meta name="chatpro-backend" content="Supabase">
 <link rel="icon" type="image/png" href="ChatGPT Image Sep 15, 2026, 07_31_07 PM.png">
 <link rel="apple-touch-icon" href="ChatGPT Image Sep 15, 2026, 07_31_07 PM.png">
-    <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
-    <!-- Google Identity Services (Google Drive OAuth 2.0) -->
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <!-- Tesseract.js for OCR -->
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <!-- Font Awesome -->
@@ -1520,6 +1516,7 @@ input,textarea,.search-box{background:rgba(255,255,255,.055)!important;border-co
 .modal-overlay{background:rgba(3,5,13,.72)!important;backdrop-filter:blur(10px)}.modal-box{border-radius:26px!important}.admin-panel{background:linear-gradient(135deg,rgba(124,92,255,.12),rgba(0,205,190,.05))!important;border:1px solid rgba(124,92,255,.16)!important;border-radius:20px!important}.stat-card{background:rgba(255,255,255,.045)!important;border:1px solid rgba(255,255,255,.075)!important;border-radius:18px!important}
 .danger,.connect-btn.danger,.btn-danger{background:linear-gradient(135deg,#ff4e6c,#cc2d4e)!important;color:#fff!important;border:0!important}
 @media(max-width:700px){.page:after{inset:6px;border-radius:20px}.contact-item{margin:3px 4px}}
+.google-drive-status .connect-btn{display:none!important;}
 </style>
 </head>
 <body>
@@ -1726,29 +1723,27 @@ input,textarea,.search-box{background:rgba(255,255,255,.055)!important;border-co
             <div id="settingsProfileSuccess" class="success-msg"></div>
         </div>
         
-        <!-- Google Drive Section (Simulated) -->
+        <!-- Cloud Storage Section -->
         <div class="settings-section">
-            <div class="section-title"><i class="fab fa-google-drive"></i> Google Drive</div>
+            <div class="section-title"><i class="fas fa-cloud"></i> Cloud Storage</div>
             <p style="color:var(--text-secondary);font-size:13px;margin-bottom:12px;">
-                Connect your Google Drive to store all media files (photos, videos, voice notes)
+                ChatPro stores your photos, videos and voice notes securely in Supabase Storage.
             </p>
             
             <div id="driveStatusContainer" class="google-drive-status">
-                <i class="fab fa-google-drive" style="color:var(--text-muted);"></i>
+                <i class="fas fa-cloud" style="color:var(--primary);"></i>
                 <div class="info">
-                    <div class="drive-name" id="driveName">Not connected</div>
-                    <div class="drive-email" id="driveEmail">Connect your Google Drive account</div>
+                    <div class="drive-name" id="driveName">Supabase Storage</div>
+                    <div class="drive-email" id="driveEmail">Free cloud storage for ChatPro media</div>
                 </div>
-                <button class="connect-btn primary" id="connectDriveBtn">
-                    <i class="fab fa-google"></i> Connect
-                </button>
+                <span class="status-badge connected"><i class="fas fa-check-circle"></i> Ready</span>
             </div>
             
             <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
-                <span id="driveStatusBadge" class="status-badge disconnected">
-                    <i class="fas fa-circle" style="font-size:8px;"></i> Disconnected
+                <span id="driveStatusBadge" class="status-badge connected">
+                    <i class="fas fa-circle" style="font-size:8px;"></i> Supabase
                 </span>
-                <span style="color:var(--text-muted);font-size:12px;" id="driveStorageInfo">Storage: 0 MB used</span>
+                <span style="color:var(--text-muted);font-size:12px;" id="driveStorageInfo">Supabase Storage</span>
             </div>
         </div>
         
@@ -1833,41 +1828,17 @@ input,textarea,.search-box{background:rgba(255,255,255,.055)!important;border-co
 
 <script>
 // ============================================================
-// FIREBASE CONFIG
+// SUPABASE CONFIG
 // ============================================================
-const firebaseConfig = {
-    apiKey: "AIzaSyCaMdPoVqGflbBhWhsuV4L2duqiASIbP64",
-    authDomain: "src-competion-web.firebaseapp.com",
-    projectId: "src-competion-web",
-    storageBucket: "src-competion-web.firebasestorage.app",
-    messagingSenderId: "568183938397",
-    appId: "1:568183938397:web:02d16665d7bd393d505cb4",
-    measurementId: "G-C0YQX47SR5"
-};
+// Add the two PUBLIC values from Supabase Dashboard -> Project Settings -> API.
+// Never put a service_role/secret key in this file.
+const SUPABASE_URL = 'https://zgvoxwjkpsixamtjsdcp.supabase.co';
+const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_57CKXtZAFv-XReLLo93_rQ_xp2EVzwy';
 
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
-const storage = firebase.storage();
-
-// ============================================================
-// GOOGLE DRIVE OAUTH CONFIG
-// ============================================================
-// Replace this placeholder with the OAuth 2.0 Client ID created as
-// Application type: Web application in Google Cloud Console.
-const GOOGLE_OAUTH_CLIENT_ID = 'PASTE_YOUR_WEB_OAUTH_CLIENT_ID_HERE';
-const DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.file';
-const DRIVE_API = 'https://www.googleapis.com/drive/v3';
-const DRIVE_UPLOAD_API = 'https://www.googleapis.com/upload/drive/v3/files';
-const DRIVE_USERINFO_API = 'https://www.googleapis.com/oauth2/v3/userinfo';
-const DRIVE_ROOT_NAME = 'ChatPro Media';
-const DRIVE_FOLDER_MIME = 'application/vnd.google-apps.folder';
-
-// OAuth access tokens are intentionally kept only in browser memory.
-let driveAccessToken = null;
-let driveTokenExpiresAt = 0;
-let driveTokenClient = null;
-let driveTokenClientPromise = null;
+if (!window.supabase) {
+    console.error('Supabase SDK failed to load.');
+}
+const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY) : null;
 
 // ============================================================
 // ADMIN ACCOUNTS
@@ -1886,7 +1857,7 @@ let currentChatWith = null;
 let contacts = [];
 let allUsersCache = {};
 let unsubscribeMessages = null;
-let contactProfileUnsubscribers = [];
+let contactProfileChannel = null;
 let contactProfileRenderTimer = null;
 let mediaStream = null;
 let isAdmin = false;
@@ -1899,8 +1870,6 @@ let audioChunks = [];
 let isRecording = false;
 let recordingTimer = null;
 let recordingDuration = 0;
-let driveConnected = false;
-let driveEmail = '';
 
 // DOM refs
 const $ = id => document.getElementById(id);
@@ -1965,7 +1934,6 @@ const profilePhotoPreview = $('profilePhotoPreview');
 const profilePhotoEmoji = $('profilePhotoEmoji');
 const uploadPhotoBtn = $('uploadPhotoBtn');
 const profilePhotoInput = $('profilePhotoInput');
-const connectDriveBtn = $('connectDriveBtn');
 const driveStatusBadge = $('driveStatusBadge');
 const driveStorageInfo = $('driveStorageInfo');
 const driveName = $('driveName');
@@ -2045,64 +2013,41 @@ authBtn.addEventListener('click', async () => {
     const email = authEmail.value.trim().toLowerCase();
     const password = authPassword.value;
     authError.textContent = '';
-
-    if (!email || !password) {
-        authError.textContent = 'Please fill in all fields.';
-        return;
-    }
-    if (!isLoginMode && password.length < 6) {
-        authError.textContent = 'Password must be at least 6 characters.';
-        return;
-    }
-
+    if (!email || !password) { authError.textContent = 'Please fill in all fields.'; return; }
+    if (!isLoginMode && password.length < 6) { authError.textContent = 'Password must be at least 6 characters.'; return; }
     authBtn.disabled = true;
     authBtn.innerHTML = '<span class="btn-content"><i class="fas fa-spinner fa-spin"></i> Processing...</span>';
-
     try {
-        let userCredential;
-
+        await requireSupabase();
+        let authData;
         if (isLoginMode) {
-            try {
-                userCredential = await auth.signInWithEmailAndPassword(email, password);
-            } catch (err) {
-                // Development/demo admin accounts can be created automatically
-                // the first time they are used. Existing accounts still require
-                // the correct password.
+            let result = await supabaseClient.auth.signInWithPassword({ email, password });
+            if (result.error) {
                 const admin = ADMIN_ACCOUNTS.find(a => a.email === email);
-                if (admin && err.code === 'auth/user-not-found' && password === admin.password) {
-                    userCredential = await auth.createUserWithEmailAndPassword(email, password);
-                    await db.collection('users').doc(userCredential.user.uid).set({
-                        email, name: admin.name, emoji: '👑',
-                        about: 'ChatPro Administrator', nicNumber: '', contacts: [],
-                        isAdmin: true, createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                        nicCaptured: true, profileSetup: true, driveConnected: false
-                    });
-                } else {
-                    throw err;
-                }
-            }
+                if (admin && password === admin.password && /Invalid login credentials|User not found/i.test(result.error.message || '')) {
+                    const signUp = await supabaseClient.auth.signUp({ email, password });
+                    if (signUp.error) throw signUp.error;
+                    if (!signUp.data.session) throw new Error('Admin account created. If email confirmation is enabled in Supabase, confirm the email first, then log in again.');
+                    const { error: profileError } = await supabaseClient.from('profiles').upsert({ id: signUp.data.user.id, email, name: admin.name, emoji: '👑', about: 'ChatPro Administrator', nic_number: '', contacts: [], is_admin: true, nic_captured: true, profile_setup: true }, { onConflict: 'id' });
+                    if (profileError) throw profileError;
+                    authData = signUp.data;
+                } else throw result.error;
+            } else authData = result.data;
         } else {
-            userCredential = await auth.createUserWithEmailAndPassword(email, password);
-            await db.collection('users').doc(userCredential.user.uid).set({
-                email: email,
-                name: email.split('@')[0],
-                emoji: '😊',
-                about: 'Hey there! I\'m using ChatPro',
-                nicNumber: '',
-                contacts: [],
-                isAdmin: ADMIN_ACCOUNTS.some(a => a.email === email),
-                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                nicCaptured: false,
-                profileSetup: false,
-                driveConnected: false
-            });
+            const result = await supabaseClient.auth.signUp({ email, password });
+            if (result.error) throw result.error;
+            if (!result.data.user) throw new Error('Could not create account.');
+            if (!result.data.session) throw new Error('Account created. Please confirm your email, then log in. You can disable email confirmation in Supabase Auth settings if you want instant sign-up.');
+            const isAdminAccount = ADMIN_ACCOUNTS.some(a => a.email === email);
+            const { error: profileError } = await supabaseClient.from('profiles').upsert({ id: result.data.user.id, email, name: email.split('@')[0], emoji: '😊', about: 'Hey there! I\'m using ChatPro', nic_number: '', contacts: [], is_admin: isAdminAccount, nic_captured: false, profile_setup: false }, { onConflict: 'id' });
+            if (profileError) throw profileError;
+            authData = result.data;
         }
-
-        currentUser = userCredential.user;
-        authBtn.disabled = false;
-        authBtn.innerHTML = isLoginMode ? '<span class="btn-content"><i class="fas fa-sign-in-alt"></i> Login</span>' : '<span class="btn-content"><i class="fas fa-user-plus"></i> Create Account</span>';
+        currentUser = { ...authData.user, uid: authData.user.id };
     } catch (err) {
+        console.error('Authentication error:', err);
         authError.textContent = err.message || 'Authentication failed.';
+    } finally {
         authBtn.disabled = false;
         authBtn.innerHTML = isLoginMode ? '<span class="btn-content"><i class="fas fa-sign-in-alt"></i> Login</span>' : '<span class="btn-content"><i class="fas fa-user-plus"></i> Create Account</span>';
     }
@@ -2172,7 +2117,7 @@ captureBtn.addEventListener('click', async () => {
         const nicData = parseNICDetails(text);
 
         if (nicData.nicNumber || nicData.fullName) {
-            await db.collection('users').doc(currentUser.uid).update({
+            await saveProfilePatch(currentUser.uid, {
                 nicNumber: nicData.nicNumber || '',
                 name: nicData.fullName || currentUserData?.name || currentUser.email.split('@')[0],
                 nicDetails: nicData,
@@ -2263,10 +2208,53 @@ function parseNICDetails(text) {
 // ============================================================
 // USER DATA
 // ============================================================
+async function requireSupabase() {
+    if (!supabaseClient || SUPABASE_URL.includes('PASTE_YOUR_') || SUPABASE_PUBLISHABLE_KEY.includes('PASTE_YOUR_')) {
+        throw new Error('Add your Supabase Project URL and Publishable Key to this HTML file first.');
+    }
+}
+
+function rowToUser(row) {
+    if (!row) return null;
+    return {
+        uid: row.id,
+        id: row.id,
+        email: row.email,
+        name: row.name,
+        emoji: row.emoji,
+        about: row.about,
+        nicNumber: row.nic_number || '',
+        nicDetails: row.nic_details || null,
+        contacts: Array.isArray(row.contacts) ? row.contacts : [],
+        isAdmin: !!row.is_admin,
+        createdAt: row.created_at,
+        nicCaptured: !!row.nic_captured,
+        profileSetup: !!row.profile_setup,
+        profilePhoto: row.profile_photo || null
+    };
+}
+
+function userToRowPatch(data) {
+    const patch = {};
+    if ('name' in data) patch.name = data.name;
+    if ('about' in data) patch.about = data.about;
+    if ('emoji' in data) patch.emoji = data.emoji;
+    if ('nicNumber' in data) patch.nic_number = data.nicNumber;
+    if ('nicDetails' in data) patch.nic_details = data.nicDetails;
+    if ('contacts' in data) patch.contacts = data.contacts;
+    if ('isAdmin' in data) patch.is_admin = data.isAdmin;
+    if ('nicCaptured' in data) patch.nic_captured = data.nicCaptured;
+    if ('profileSetup' in data) patch.profile_setup = data.profileSetup;
+    if ('profilePhoto' in data) patch.profile_photo = data.profilePhoto;
+    return patch;
+}
+
 async function getUserData(uid) {
     try {
-        const doc = await db.collection('users').doc(uid).get();
-        return doc.exists ? { uid, ...doc.data() } : null;
+        await requireSupabase();
+        const { data, error } = await supabaseClient.from('profiles').select('*').eq('id', uid).maybeSingle();
+        if (error) throw error;
+        return rowToUser(data);
     } catch (err) {
         console.error('Error getting user data:', err);
         return null;
@@ -2278,10 +2266,11 @@ async function getUserByEmail(email, forceFresh = true) {
     if (!normalizedEmail) return null;
     if (!forceFresh && allUsersCache[normalizedEmail]) return allUsersCache[normalizedEmail];
     try {
-        const snapshot = await db.collection('users').where('email', '==', normalizedEmail).limit(1).get();
-        if (!snapshot.empty) {
-            const data = snapshot.docs[0].data();
-            const user = { id: snapshot.docs[0].id, ...data };
+        await requireSupabase();
+        const { data, error } = await supabaseClient.from('profiles').select('*').eq('email', normalizedEmail).maybeSingle();
+        if (error) throw error;
+        if (data) {
+            const user = rowToUser(data);
             allUsersCache[normalizedEmail] = user;
             return user;
         }
@@ -2293,16 +2282,11 @@ async function getUserByEmail(email, forceFresh = true) {
     }
 }
 
-// Keep every saved contact synchronized with the authoritative users/{uid} document.
-// This is what makes a profile-photo change appear for other users without requiring
-// them to delete/re-add the contact. The photo URL stored in Firestore is the shared
-// browser-readable Firebase Storage URL; the original file is also backed up to the
-// owner's private Google Drive.
 function stopContactProfileWatchers() {
-    contactProfileUnsubscribers.forEach(unsub => {
-        try { unsub(); } catch (_) {}
-    });
-    contactProfileUnsubscribers = [];
+    if (contactProfileChannel && supabaseClient) {
+        try { supabaseClient.removeChannel(contactProfileChannel); } catch (_) {}
+    }
+    contactProfileChannel = null;
 }
 
 function scheduleContactProfileRender() {
@@ -2315,33 +2299,23 @@ function scheduleContactProfileRender() {
 
 function startContactProfileWatchers() {
     stopContactProfileWatchers();
-    const uniqueEmails = [...new Set((contacts || []).map(c => String(c.email || '').toLowerCase()).filter(Boolean))];
-
-    uniqueEmails.forEach(email => {
-        const unsubscribe = db.collection('users')
-            .where('email', '==', email)
-            .limit(1)
-            .onSnapshot(snapshot => {
-                if (snapshot.empty) return;
-                const doc = snapshot.docs[0];
-                const userData = { uid: doc.id, ...doc.data() };
-                allUsersCache[email] = { id: doc.id, ...doc.data() };
-
-                const index = contacts.findIndex(c => String(c.email || '').toLowerCase() === email);
-                if (index !== -1) {
-                    // Preserve local contact-only fields such as lastMessage/name override,
-                    // but always take the latest profile photo/name/emoji from the real account.
-                    contacts[index] = {
-                        ...contacts[index],
-                        name: userData.name || contacts[index].name || email.split('@')[0],
-                        emoji: userData.emoji || '👤',
-                        profilePhoto: userData.profilePhoto || null
-                    };
-                    scheduleContactProfileRender();
-                }
-            }, err => console.error('Contact profile listener error:', email, err));
-        contactProfileUnsubscribers.push(unsubscribe);
-    });
+    if (!supabaseClient || !currentUser) return;
+    contactProfileChannel = supabaseClient.channel(`profiles-live-${currentUser.uid}`)
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, payload => {
+            const row = payload.new || {};
+            const email = String(row.email || '').toLowerCase();
+            if (!email) return;
+            const relevant = email === String(currentUser.email || '').toLowerCase() || contacts.some(c => String(c.email || '').toLowerCase() === email);
+            if (!relevant) return;
+            const userData = rowToUser(row);
+            allUsersCache[email] = userData;
+            const index = contacts.findIndex(c => String(c.email || '').toLowerCase() === email);
+            if (index !== -1) {
+                contacts[index] = { ...contacts[index], name: userData.name || contacts[index].name || email.split('@')[0], emoji: userData.emoji || '👤', profilePhoto: userData.profilePhoto || null };
+            }
+            scheduleContactProfileRender();
+        })
+        .subscribe();
 }
 
 async function syncContactProfilesOnce() {
@@ -2349,448 +2323,59 @@ async function syncContactProfilesOnce() {
     const synced = await Promise.all(contacts.map(async contact => {
         const userData = await getUserByEmail(contact.email, true);
         if (!userData) return contact;
-        return {
-            ...contact,
-            name: userData.name || contact.name || contact.email.split('@')[0],
-            emoji: userData.emoji || '👤',
-            profilePhoto: userData.profilePhoto || null
-        };
+        return { ...contact, name: userData.name || contact.name || contact.email.split('@')[0], emoji: userData.emoji || '👤', profilePhoto: userData.profilePhoto || null };
     }));
     contacts = synced;
     if (currentUserData) currentUserData.contacts = synced;
     renderContacts();
 }
 
-
 // ============================================================
-// GOOGLE DRIVE - GOOGLE IDENTITY SERVICES + DRIVE API
+// SUPABASE STORAGE
 // ============================================================
-function assertDriveOAuthConfigured() {
-    if (!GOOGLE_OAUTH_CLIENT_ID || GOOGLE_OAUTH_CLIENT_ID.includes('PASTE_YOUR')) {
-        throw new Error('Google Drive is not configured yet. Add your Google OAuth 2.0 Web Client ID to GOOGLE_OAUTH_CLIENT_ID in this HTML file.');
-    }
+const AVATAR_BUCKET = 'avatars';
+const MEDIA_BUCKET = 'chat-media';
+
+function safeFileName(name) {
+    return String(name || 'file').replace(/[^a-zA-Z0-9._-]/g, '_');
 }
 
-async function waitForGoogleIdentityServices() {
-    assertDriveOAuthConfigured();
-    if (window.google?.accounts?.oauth2) return;
-    const started = Date.now();
-    while (Date.now() - started < 15000) {
-        if (window.google?.accounts?.oauth2) return;
-        await new Promise(resolve => setTimeout(resolve, 100));
-    }
-    throw new Error('Google Identity Services did not load. Check your internet connection or browser extensions.');
-}
-
-async function initDriveTokenClient() {
-    if (driveTokenClient) return driveTokenClient;
-    if (driveTokenClientPromise) return driveTokenClientPromise;
-
-    driveTokenClientPromise = (async () => {
-        await waitForGoogleIdentityServices();
-        driveTokenClient = google.accounts.oauth2.initTokenClient({
-            client_id: GOOGLE_OAUTH_CLIENT_ID,
-            scope: DRIVE_SCOPE,
-            callback: () => {}
-        });
-        return driveTokenClient;
-    })();
-
-    try {
-        return await driveTokenClientPromise;
-    } finally {
-        driveTokenClientPromise = null;
-    }
-}
-
-function requestDriveAccessToken(prompt = '') {
-    return new Promise(async (resolve, reject) => {
-        try {
-            const client = await initDriveTokenClient();
-            client.callback = (response) => {
-                if (response?.error) {
-                    reject(new Error(response.error_description || response.error || 'Google authorization failed.'));
-                    return;
-                }
-                if (!response?.access_token) {
-                    reject(new Error('Google did not return an access token.'));
-                    return;
-                }
-                driveAccessToken = response.access_token;
-                const expiresIn = Number(response.expires_in || 3600);
-                driveTokenExpiresAt = Date.now() + Math.max(60, expiresIn - 60) * 1000;
-                resolve(response.access_token);
-            };
-            client.requestAccessToken({ prompt });
-        } catch (err) {
-            reject(err);
-        }
+async function uploadToBucket(bucket, path, file) {
+    await requireSupabase();
+    const { error } = await supabaseClient.storage.from(bucket).upload(path, file, {
+        contentType: file.type || 'application/octet-stream',
+        upsert: true,
+        cacheControl: '3600'
     });
-}
-
-async function getDriveAccessToken(forceRefresh = false, interactive = false) {
-    if (!forceRefresh && driveAccessToken && Date.now() < driveTokenExpiresAt) {
-        return driveAccessToken;
-    }
-
-    // For normal user actions, an existing Google grant can normally be reused silently.
-    // If Google requires interaction, the caller can explicitly reconnect from Settings.
-    try {
-        return await requestDriveAccessToken(interactive ? 'consent' : '');
-    } catch (err) {
-        driveAccessToken = null;
-        driveTokenExpiresAt = 0;
-        if (!interactive) {
-            throw new Error('Google Drive authorization has expired. Click Connect/Reconnect Google Drive in Settings.');
-        }
-        throw err;
-    }
-}
-
-async function driveApiFetch(url, options = {}, retry = true, interactive = false) {
-    const token = await getDriveAccessToken(false, interactive);
-    const headers = new Headers(options.headers || {});
-    headers.set('Authorization', `Bearer ${token}`);
-
-    const response = await fetch(url, { ...options, headers });
-    if (response.status === 401 && retry) {
-        driveAccessToken = null;
-        driveTokenExpiresAt = 0;
-        const freshToken = await getDriveAccessToken(true, true);
-        headers.set('Authorization', `Bearer ${freshToken}`);
-        return fetch(url, { ...options, headers });
-    }
-    return response;
-}
-
-async function driveUserInfo() {
-    const token = await getDriveAccessToken(false, true);
-    const response = await fetch(DRIVE_USERINFO_API, {
-        headers: { Authorization: `Bearer ${token}` }
-    });
-    if (!response.ok) {
-        throw new Error(`Could not read Google account information (${response.status}).`);
-    }
-    return response.json();
-}
-
-async function findDriveFolderByName(name, parentId = null) {
-    const parts = [
-        `name = '${String(name).replace(/'/g, "\\'")}'`,
-        `mimeType = '${DRIVE_FOLDER_MIME}'`,
-        `trashed = false`
-    ];
-    if (parentId) parts.push(`'${parentId}' in parents`);
-
-    const query = encodeURIComponent(parts.join(' and '));
-    const response = await driveApiFetch(`${DRIVE_API}/files?q=${query}&spaces=drive&fields=files(id,name)&pageSize=10`);
-    if (!response.ok) {
-        const text = await response.text();
-        throw new Error(`Drive folder lookup failed (${response.status}): ${text}`);
-    }
-    const data = await response.json();
-    return data.files?.[0] || null;
-}
-
-async function createDriveFolder(name, parentId = null) {
-    const body = { name, mimeType: DRIVE_FOLDER_MIME };
-    if (parentId) body.parents = [parentId];
-
-    const response = await driveApiFetch(`${DRIVE_API}/files?fields=id,name`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
-    });
-    if (!response.ok) {
-        const text = await response.text();
-        throw new Error(`Could not create Drive folder '${name}' (${response.status}): ${text}`);
-    }
-    return response.json();
-}
-
-async function findOrCreateDriveFolder(name, parentId = null) {
-    const existing = await findDriveFolderByName(name, parentId);
-    return existing || createDriveFolder(name, parentId);
-}
-
-async function ensureDriveFolders() {
-    currentUserData = await getUserData(currentUser.uid);
-
-    const saved = currentUserData?.driveFolders || {};
-    let rootId = currentUserData?.driveFolderId || saved.root;
-    let profileId = saved.profile;
-    let photosId = saved.photos;
-    let videosId = saved.videos;
-    let voiceId = saved.voice;
-
-    if (rootId) {
-        // Confirming the folder is unnecessary on every page load; Drive will reject stale IDs.
-    } else {
-        const root = await findOrCreateDriveFolder(DRIVE_ROOT_NAME);
-        rootId = root.id;
-    }
-
-    if (!profileId) profileId = (await findOrCreateDriveFolder('Profile Photos', rootId)).id;
-    if (!photosId) photosId = (await findOrCreateDriveFolder('Photos', rootId)).id;
-    if (!videosId) videosId = (await findOrCreateDriveFolder('Videos', rootId)).id;
-    if (!voiceId) voiceId = (await findOrCreateDriveFolder('Voice Notes', rootId)).id;
-
-    const folders = { root: rootId, profile: profileId, photos: photosId, videos: videosId, voice: voiceId };
-    await db.collection('users').doc(currentUser.uid).update({
-        driveFolderId: rootId,
-        driveFolders: folders
-    });
-    currentUserData = await getUserData(currentUser.uid);
-    return folders;
-}
-
-function getDriveFolderForMediaType(folders, mediaType) {
-    if (mediaType === 'video') return folders.videos;
-    if (mediaType === 'voice') return folders.voice;
-    return folders.photos;
-}
-
-async function uploadFileToDrive(file, folderId, onProgress) {
-    if (!file || !folderId) throw new Error('Missing file or Drive folder.');
-
-    const metadata = {
-        name: file.name || `ChatPro_${Date.now()}`,
-        parents: [folderId],
-        mimeType: file.type || 'application/octet-stream'
-    };
-
-    if (file.size <= 5 * 1024 * 1024) {
-        const boundary = 'chatpro_' + Math.random().toString(16).slice(2);
-        const body = new Blob([
-            `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n`,
-            JSON.stringify(metadata),
-            `\r\n--${boundary}\r\nContent-Type: ${file.type || 'application/octet-stream'}\r\n\r\n`,
-            file,
-            `\r\n--${boundary}--`
-        ]);
-
-        const response = await driveApiFetch(`${DRIVE_UPLOAD_API}?uploadType=multipart&fields=id,name,webViewLink`, {
-            method: 'POST',
-            headers: { 'Content-Type': `multipart/related; boundary=${boundary}` },
-            body
-        });
-        if (!response.ok) {
-            const text = await response.text();
-            throw new Error(`Drive upload failed (${response.status}): ${text}`);
-        }
-        if (onProgress) onProgress(100);
-        return response.json();
-    }
-
-    const initResponse = await driveApiFetch(`${DRIVE_UPLOAD_API}?uploadType=resumable&fields=id,name,webViewLink`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json; charset=UTF-8',
-            'X-Upload-Content-Type': file.type || 'application/octet-stream',
-            'X-Upload-Content-Length': String(file.size)
-        },
-        body: JSON.stringify(metadata)
-    });
-    if (!initResponse.ok) {
-        const text = await initResponse.text();
-        throw new Error(`Could not start Drive upload (${initResponse.status}): ${text}`);
-    }
-
-    const sessionUrl = initResponse.headers.get('Location');
-    if (!sessionUrl) throw new Error('Google Drive did not return an upload session URL.');
-
-    const putResponse = await driveApiFetch(sessionUrl, {
-        method: 'PUT',
-        headers: { 'Content-Type': file.type || 'application/octet-stream' },
-        body: file
-    });
-    if (!putResponse.ok) {
-        const text = await putResponse.text();
-        throw new Error(`Drive file upload failed (${putResponse.status}): ${text}`);
-    }
-    if (onProgress) onProgress(100);
-    return putResponse.json();
-}
-
-async function deleteDriveFile(fileId) {
-    if (!fileId) return;
-    try {
-        const response = await driveApiFetch(`${DRIVE_API}/files/${encodeURIComponent(fileId)}`, { method: 'DELETE' });
-        if (!response.ok && response.status !== 404) console.warn('Drive delete failed:', response.status);
-    } catch (err) {
-        console.warn('Drive delete skipped:', err);
-    }
-}
-
-async function connectGoogleDrive() {
-    if (!currentUser) return;
-
-    settingsProfileError.textContent = '';
-    settingsProfileSuccess.textContent = '';
-    connectDriveBtn.disabled = true;
-    connectDriveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Connecting...';
-
-    try {
-        if (!/^https?:$/.test(window.location.protocol)) {
-            throw new Error('Google Drive requires the website to run from HTTP/HTTPS, not file://. Deploy to GitHub Pages or use a local web server.');
-        }
-        assertDriveOAuthConfigured();
-
-        // Explicit user action -> interactive OAuth consent/account selection.
-        await requestDriveAccessToken('consent select_account');
-        const googleUser = await driveUserInfo();
-        const googleEmail = googleUser.email || '';
-        const googleName = googleUser.name || googleEmail.split('@')[0] || 'Google Drive';
-        if (!googleEmail) throw new Error('Google did not return an email address.');
-
-        driveConnected = true;
-        driveEmail = googleEmail;
-        await db.collection('users').doc(currentUser.uid).update({
-            driveConnected: true,
-            driveEmail: googleEmail,
-            driveName: googleName
-        });
-        currentUserData = await getUserData(currentUser.uid);
-
-        const folders = await ensureDriveFolders();
-        await db.collection('users').doc(currentUser.uid).update({
-            driveConnected: true,
-            driveEmail: googleEmail,
-            driveName: googleName,
-            driveFolderId: folders.root,
-            driveFolders: folders
-        });
-        currentUserData = await getUserData(currentUser.uid);
-
-        updateDriveUI();
-        settingsProfileSuccess.textContent = `✅ Google Drive connected: ${googleEmail}`;
-        settingsProfileSuccess.style.color = 'var(--primary)';
-    } catch (err) {
-        console.error('Google Drive connection error:', err);
-        driveConnected = false;
-        settingsProfileError.textContent = 'Google Drive: ' + (err.message || 'Connection failed.');
-        try {
-            await db.collection('users').doc(currentUser.uid).update({ driveConnected: false });
-            currentUserData = await getUserData(currentUser.uid);
-        } catch (_) {}
-    } finally {
-        connectDriveBtn.disabled = false;
-        updateDriveUI();
-    }
-}
-
-async function disconnectGoogleDrive() {
-    if (!confirm('Disconnect Google Drive from this ChatPro account? Existing files will remain in your Google Drive.')) return;
-
-    try {
-        driveAccessToken = null;
-        driveTokenExpiresAt = 0;
-        driveConnected = false;
-        driveEmail = '';
-        await db.collection('users').doc(currentUser.uid).update({
-            driveConnected: false,
-            driveFolderId: firebase.firestore.FieldValue.delete(),
-            driveFolders: firebase.firestore.FieldValue.delete(),
-            driveEmail: firebase.firestore.FieldValue.delete(),
-            driveName: firebase.firestore.FieldValue.delete()
-        });
-        currentUserData = await getUserData(currentUser.uid);
-        updateDriveUI();
-        settingsProfileSuccess.textContent = '✅ Google Drive disconnected from ChatPro. Your existing Drive files were not deleted.';
-        settingsProfileSuccess.style.color = 'var(--text-secondary)';
-    } catch (err) {
-        settingsProfileError.textContent = 'Error: ' + err.message;
-    }
-}
-
-async function ensureDriveConnected(forceInteractive = false) {
-    if (!currentUser) throw new Error('You must be logged in first.');
-    currentUserData = await getUserData(currentUser.uid);
-    if (!currentUserData?.driveConnected) {
-        if (!forceInteractive) throw new Error('Google Drive is not connected. Open Settings and click Connect/Reconnect Google Drive.');
-        await requestDriveAccessToken('consent select_account');
-        const googleUser = await driveUserInfo();
-        const googleEmail = googleUser.email || '';
-        if (!googleEmail) throw new Error('Google did not return an email address.');
-        driveConnected = true;
-        driveEmail = googleEmail;
-        await db.collection('users').doc(currentUser.uid).set({
-            driveConnected: true,
-            driveEmail: googleEmail,
-            driveName: googleUser.name || googleEmail.split('@')[0]
-        }, {merge:true});
-        currentUserData = await getUserData(currentUser.uid);
-    } else {
-        try {
-            await getDriveAccessToken(false, false);
-        } catch (err) {
-            // A page refresh clears the access token. Ask Google again only when needed.
-            await requestDriveAccessToken('');
-        }
-    }
-    let folders = currentUserData.driveFolders;
-    if (!folders?.root || !folders?.profile || !folders?.photos || !folders?.videos || !folders?.voice) {
-        folders = await ensureDriveFolders();
-    }
-    return folders;
+    if (error) throw error;
+    const { data } = supabaseClient.storage.from(bucket).getPublicUrl(path);
+    if (!data?.publicUrl) throw new Error('Could not create a public media URL.');
+    return { path, publicUrl: data.publicUrl };
 }
 
 async function uploadMedia(file, mediaType) {
     if (!file) throw new Error('No file selected.');
-    const folders = await ensureDriveConnected();
-    const driveFolderId = getDriveFolderForMediaType(folders, mediaType);
-    if (!driveFolderId) throw new Error('Your ChatPro Drive folders are incomplete. Disconnect and reconnect Google Drive.');
-
-    // Firebase Storage remains the playback layer for ChatPro recipients.
-    const safeName = (file.name || 'file').replace(/[^a-zA-Z0-9._-]/g, '_');
-    const storageRef = storage.ref();
-    const fileRef = storageRef.child(`media/${currentUser.uid}/${Date.now()}_${safeName}`);
-    const uploadTask = fileRef.put(file, { contentType: file.type || 'application/octet-stream' });
-    const firebaseSnapshot = await new Promise((resolve, reject) => {
-        uploadTask.on('state_changed', null, reject, () => resolve(uploadTask.snapshot));
-    });
-    const mediaUrl = await firebaseSnapshot.ref.getDownloadURL();
-
-    try {
-        const driveFile = await uploadFileToDrive(file, driveFolderId);
-        return {
-            mediaUrl,
-            driveFileId: driveFile.id || null,
-            driveUrl: driveFile.webViewLink || (driveFile.id ? `https://drive.google.com/open?id=${driveFile.id}` : null)
-        };
-    } catch (driveError) {
-        try { await firebaseSnapshot.ref.delete(); } catch (_) {}
-        throw driveError;
-    }
+    const ext = safeFileName(file.name || 'file').split('.').pop() || 'bin';
+    const path = `${currentUser.uid}/${Date.now()}_${crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2)}.${ext}`;
+    const uploaded = await uploadToBucket(MEDIA_BUCKET, path, file);
+    return { mediaUrl: uploaded.publicUrl, storagePath: path };
 }
 
 function updateDriveUI() {
-    if (currentUserData?.driveConnected && currentUserData?.driveFolderId) {
-        driveName.textContent = currentUserData.driveName || 'Connected';
-        driveEmailEl.textContent = currentUserData.driveEmail || 'Connected to Google Drive';
+    // Kept as a compatibility shim for the existing Settings markup.
+    if (driveName) driveName.textContent = 'Supabase Storage';
+    if (driveEmailEl) driveEmailEl.textContent = 'Free cloud storage for ChatPro media';
+    if (driveStatusBadge) {
         driveStatusBadge.className = 'status-badge connected';
-        driveStatusBadge.innerHTML = '<i class="fas fa-circle" style="font-size:8px;"></i> Connected';
-        connectDriveBtn.textContent = 'Reconnect / Disconnect';
-        connectDriveBtn.className = 'connect-btn danger';
-        connectDriveBtn.onclick = async () => {
-            const reconnect = confirm('Click OK to reconnect/select a Google Drive account. Click Cancel to disconnect ChatPro from Drive.');
-            if (reconnect) {
-                await connectGoogleDrive();
-            } else {
-                await disconnectGoogleDrive();
-            }
-        };
-        driveStorageInfo.textContent = 'Media backup: ChatPro Media / Profile Photos / Photos / Videos / Voice Notes';
-    } else {
-        driveName.textContent = 'Not connected';
-        driveEmailEl.textContent = 'Connect a Google Drive account';
-        driveStatusBadge.className = 'status-badge disconnected';
-        driveStatusBadge.innerHTML = '<i class="fas fa-circle" style="font-size:8px;"></i> Disconnected';
-        connectDriveBtn.textContent = 'Connect Google Drive';
-        connectDriveBtn.className = 'connect-btn primary';
-        connectDriveBtn.onclick = connectGoogleDrive;
-        driveStorageInfo.textContent = 'Required for media backup';
+        driveStatusBadge.innerHTML = '<i class="fas fa-circle" style="font-size:8px;"></i> Supabase';
     }
+    if (driveStorageInfo) driveStorageInfo.textContent = 'Photos, videos & voice notes stored in Supabase';
+}
+
+async function saveProfilePatch(uid, patch) {
+    await requireSupabase();
+    const { error } = await supabaseClient.from('profiles').update(userToRowPatch(patch)).eq('id', uid);
+    if (error) throw error;
 }
 
 // ============================================================
@@ -2927,97 +2512,53 @@ window.selectContact = function(email) {
 };
 
 async function loadMessages(contactEmail) {
-    if (unsubscribeMessages) {
-        unsubscribeMessages();
-        unsubscribeMessages = null;
-    }
-
+    if (unsubscribeMessages) { try { await unsubscribeMessages(); } catch (_) {} unsubscribeMessages = null; }
     const chatId = getChatId(currentUser.email, contactEmail);
     chatMessages.innerHTML = '<div class="empty-chat"><i class="fas fa-spinner fa-spin" style="font-size:32px;color:rgba(0,168,132,0.2);"></i><p>Loading messages...</p></div>';
-
-    unsubscribeMessages = db.collection('chats')
-        .doc(chatId)
-        .collection('messages')
-        .orderBy('timestamp', 'asc')
-        .onSnapshot((snapshot) => {
-            if (snapshot.empty) {
-                chatMessages.innerHTML = `
-                    <div class="empty-chat">
-                        <i class="fas fa-comment" style="font-size:40px;color:rgba(0,168,132,0.15);"></i>
-                        <p>No messages yet. Say hello!</p>
-                    </div>
-                `;
-                return;
+    await requireSupabase();
+    const render = async () => {
+        const { data: rows, error } = await supabaseClient.from('messages').select('*').eq('chat_id', chatId).order('timestamp', { ascending: true });
+        if (error) {
+            console.error('Messages load error:', error);
+            chatMessages.innerHTML = '<div class="empty-chat"><i class="fas fa-exclamation-circle" style="font-size:32px;color:#ff5e5e;"></i><p>Error loading messages</p></div>';
+            return;
+        }
+        if (!rows?.length) {
+            chatMessages.innerHTML = '<div class="empty-chat"><i class="fas fa-comment" style="font-size:40px;color:rgba(0,168,132,0.15);"></i><p>No messages yet. Say hello!</p></div>';
+            return;
+        }
+        let messagesHTML = '';
+        rows.forEach(msg => {
+            const isSent = msg.sender === currentUser.email;
+            const isBroadcast = !!msg.is_broadcast;
+            let msgClass = isSent ? 'sent' : 'received';
+            if (isBroadcast) msgClass = 'broadcast';
+            const isSinhala = msg.language === 'si' || detectLanguage(msg.text) === 'si';
+            let mediaHTML = '';
+            if (msg.media_type === 'image' && msg.media_url) mediaHTML = `<div class="media-wrapper"><img src="${msg.media_url}" alt="Image" loading="lazy" /></div>`;
+            else if (msg.media_type === 'video' && msg.media_url) mediaHTML = `<div class="media-wrapper"><video controls preload="metadata"><source src="${msg.media_url}" type="${msg.media_mime_type || 'video/mp4'}" /></video></div>`;
+            else if (msg.media_type === 'voice' && msg.media_url) {
+                const duration = msg.duration || 5;
+                const bars = Array.from({length: 20}, () => Math.random() * 60 + 20);
+                mediaHTML = `<div class="voice-note"><button class="play-btn" onclick="playVoice('${msg.media_url}', this)"><i class="fas fa-play"></i></button><div class="waveform">${bars.map(h => `<div class="bar" style="height:${h}%"></div>`).join('')}</div><span class="duration">${Math.floor(duration / 60)}:${String(Math.floor(duration % 60)).padStart(2, '0')}</span></div>`;
             }
-
-            let messagesHTML = '';
-            snapshot.forEach(doc => {
-                const msg = doc.data();
-                const isSent = msg.sender === currentUser.email;
-                const isBroadcast = msg.isBroadcast || false;
-                let msgClass = isSent ? 'sent' : 'received';
-                if (isBroadcast) msgClass = 'broadcast';
-                
-                const isSinhala = msg.language === 'si' || detectLanguage(msg.text) === 'si';
-                const sinhalaClass = isSinhala ? 'sinhala' : '';
-
-                let mediaHTML = '';
-                if (msg.mediaType === 'image' && msg.mediaUrl) {
-                    mediaHTML = `
-                        <div class="media-wrapper">
-                            <img src="${msg.mediaUrl}" alt="Image" loading="lazy" />
-                        </div>
-                    `;
-                } else if (msg.mediaType === 'video' && msg.mediaUrl) {
-                    mediaHTML = `
-                        <div class="media-wrapper">
-                            <video controls preload="metadata">
-                                <source src="${msg.mediaUrl}" type="${msg.mediaMimeType || 'video/mp4'}" />
-                            </video>
-                        </div>
-                    `;
-                } else if (msg.mediaType === 'voice' && msg.mediaUrl) {
-                    const duration = msg.duration || 5;
-                    const bars = Array.from({length: 20}, () => Math.random() * 60 + 20);
-                    mediaHTML = `
-                        <div class="voice-note">
-                            <button class="play-btn" onclick="playVoice('${msg.mediaUrl}', this)">
-                                <i class="fas fa-play"></i>
-                            </button>
-                            <div class="waveform">
-                                ${bars.map(h => `<div class="bar" style="height:${h}%"></div>`).join('')}
-                            </div>
-                            <span class="duration">${Math.floor(duration / 60)}:${String(Math.floor(duration % 60)).padStart(2, '0')}</span>
-                        </div>
-                    `;
-                }
-
-                messagesHTML += `
-                    <div class="msg ${msgClass} ${sinhalaClass}">
-                        ${!isSent && !isBroadcast ? `<span class="sender">${msg.senderName || 'Unknown'}</span>` : ''}
-                        ${isBroadcast ? `<span class="sender">📢 ADMIN</span>` : ''}
-                        ${mediaHTML}
-                        ${msg.text ? `<div class="media-caption">${msg.text}</div>` : ''}
-                        <span class="time-stamp">${msg.timestamp ? new Date(msg.timestamp.toDate()).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : ''}</span>
-                    </div>
-                `;
-            });
-
-            chatMessages.innerHTML = messagesHTML;
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-
-            if (snapshot.docs.length > 0) {
-                const lastMsg = snapshot.docs[snapshot.docs.length - 1].data();
-                const contact = contacts.find(c => c.email === contactEmail);
-                if (contact) {
-                    contact.lastMessage = lastMsg.text || (lastMsg.mediaType === 'image' ? '📷 Photo' : lastMsg.mediaType === 'video' ? '🎥 Video' : lastMsg.mediaType === 'voice' ? '🎤 Voice' : '');
-                    updateContactLastMessage(contactEmail, contact.lastMessage);
-                }
-            }
-        }, (error) => {
-            console.error('Messages listener error:', error);
-            chatMessages.innerHTML = `<div class="empty-chat"><i class="fas fa-exclamation-circle" style="font-size:32px;color:#ff5e5e;"></i><p>Error loading messages</p></div>`;
+            const time = msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : '';
+            messagesHTML += `<div class="msg ${msgClass} ${isSinhala ? 'sinhala' : ''}">${!isSent && !isBroadcast ? `<span class="sender">${msg.sender_name || 'Unknown'}</span>` : ''}${isBroadcast ? '<span class="sender">📢 ADMIN</span>' : ''}${mediaHTML}${msg.text ? `<div class="media-caption">${msg.text}</div>` : ''}<span class="time-stamp">${time}</span></div>`;
         });
+        chatMessages.innerHTML = messagesHTML;
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+        const lastMsg = rows[rows.length - 1];
+        const contact = contacts.find(c => c.email === contactEmail);
+        if (contact) {
+            contact.lastMessage = lastMsg.text || (lastMsg.media_type === 'image' ? '📷 Photo' : lastMsg.media_type === 'video' ? '🎥 Video' : lastMsg.media_type === 'voice' ? '🎤 Voice' : '');
+            updateContactLastMessage(contactEmail, contact.lastMessage);
+        }
+    };
+    await render();
+    const channel = supabaseClient.channel(`messages-${chatId}`)
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'messages', filter: `chat_id=eq.${chatId}` }, () => render())
+        .subscribe();
+    unsubscribeMessages = async () => { try { await supabaseClient.removeChannel(channel); } catch (_) {} };
 }
 
 function getChatId(email1, email2) {
@@ -3027,17 +2568,11 @@ function getChatId(email1, email2) {
 async function updateContactLastMessage(email, lastMessage) {
     if (!currentUser) return;
     try {
-        const userRef = db.collection('users').doc(currentUser.uid);
-        const contacts = currentUserData?.contacts || [];
-        const updatedContacts = contacts.map(c => {
-            if (c.email === email) return { ...c, lastMessage };
-            return c;
-        });
-        await userRef.update({ contacts: updatedContacts });
+        const current = currentUserData?.contacts || [];
+        const updatedContacts = current.map(c => c.email === email ? { ...c, lastMessage } : c);
+        await saveProfilePatch(currentUser.uid, { contacts: updatedContacts });
         if (currentUserData) currentUserData.contacts = updatedContacts;
-    } catch (err) {
-        console.error('Error updating last message:', err);
-    }
+    } catch (err) { console.error('Error updating last message:', err); }
 }
 
 // ============================================================
@@ -3057,7 +2592,7 @@ window.playVoice = function(url, btn) {
 };
 
 // ============================================================
-// SEND MESSAGE (with Firebase Storage)
+// SEND MESSAGE (with Supabase Storage)
 // ============================================================
 sendBtn.addEventListener('click', () => sendMessage());
 messageInput.addEventListener('keypress', (e) => {
@@ -3068,57 +2603,29 @@ async function sendMessage(mediaFile = null, mediaType = null) {
     const text = messageInput.value.trim();
     if (!text && !mediaFile) return;
     if (!currentChatWith || !currentUser) return;
-
     const chatId = getChatId(currentUser.email, currentChatWith);
     const contact = contacts.find(c => c.email === currentChatWith);
-    const contactName = contact ? contact.name : currentChatWith;
     const senderName = currentUserData?.name || currentUser.email.split('@')[0];
     const language = detectLanguage(text);
-
-    let messageData = {
-        sender: currentUser.email,
-        senderName: senderName,
-        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-        recipient: currentChatWith,
-        recipientName: contactName,
-        language: language
-    };
-
+    const messageData = { chat_id: chatId, sender: currentUser.email, sender_name: senderName, timestamp: new Date().toISOString(), recipient: currentChatWith, recipient_name: contact?.name || currentChatWith, language, text: text || null, media_type: null, media_url: null, media_mime_type: null, duration: null, is_broadcast: false };
     if (mediaFile && mediaType) {
         try {
             const uploaded = await uploadMedia(mediaFile, mediaType);
-            
-            messageData.mediaType = mediaType;
-            messageData.mediaUrl = uploaded.mediaUrl;
-            messageData.driveFileId = uploaded.driveFileId;
-            messageData.driveUrl = uploaded.driveUrl;
-            messageData.mediaMimeType = mediaFile.type || 'application/octet-stream';
-            if (mediaType === 'voice') {
-                messageData.duration = recordingDuration || 5;
-            }
-            if (text) {
-                messageData.text = text;
-            }
-        } catch (err) {
-            console.error('Upload error:', err);
-            alert('Failed to upload media: ' + err.message);
-            return;
-        }
-    } else if (text) {
-        messageData.text = text;
+            messageData.media_type = mediaType;
+            messageData.media_url = uploaded.mediaUrl;
+            messageData.media_path = uploaded.storagePath;
+            messageData.media_mime_type = mediaFile.type || 'application/octet-stream';
+            if (mediaType === 'voice') messageData.duration = recordingDuration || 5;
+        } catch (err) { alert('Failed to upload media: ' + err.message); return; }
     }
-
     try {
-        await db.collection('chats').doc(chatId).collection('messages').add(messageData);
+        await requireSupabase();
+        const { error } = await supabaseClient.from('messages').insert(messageData);
+        if (error) throw error;
         messageInput.value = '';
         messageInput.focus();
-        langIndicator.textContent = 'EN';
-        langIndicator.className = 'language-indicator';
-        messageInput.className = '';
-    } catch (err) {
-        console.error('Send message error:', err);
-        alert('Failed to send message: ' + err.message);
-    }
+        langIndicator.textContent = 'EN'; langIndicator.className = 'language-indicator'; messageInput.className = '';
+    } catch (err) { console.error('Send message error:', err); alert('Failed to send message: ' + err.message); }
 }
 
 // ============================================================
@@ -3285,39 +2792,17 @@ async function loadSettings() {
 
 async function updateStorageStats() {
     try {
-        const chatsSnapshot = await db.collection('chats').get();
+        await requireSupabase();
+        const { data: rows, error } = await supabaseClient.from('messages').select('media_type').eq('sender', currentUser.email).not('media_url', 'is', null);
+        if (error) throw error;
         let photoCount = 0, videoCount = 0, voiceCount = 0;
-        let totalSize = 0;
-        
-        for (const chatDoc of chatsSnapshot.docs) {
-            const messagesSnapshot = await db.collection('chats')
-                .doc(chatDoc.id)
-                .collection('messages')
-                .where('sender', '==', currentUser.email)
-                .get();
-            
-            for (const msgDoc of messagesSnapshot.docs) {
-                const data = msgDoc.data();
-                if (data.mediaType === 'image') {
-                    photoCount++;
-                    totalSize += 2;
-                } else if (data.mediaType === 'video') {
-                    videoCount++;
-                    totalSize += 10;
-                } else if (data.mediaType === 'voice') {
-                    voiceCount++;
-                    totalSize += 1;
-                }
-            }
-        }
-        
+        (rows || []).forEach(r => { if (r.media_type === 'image') photoCount++; else if (r.media_type === 'video') videoCount++; else if (r.media_type === 'voice') voiceCount++; });
+        const totalSize = photoCount * 2 + videoCount * 10 + voiceCount * 1;
         storagePhotos.textContent = photoCount;
         storageVideos.textContent = videoCount;
         storageVoice.textContent = voiceCount;
         storageUsed.textContent = totalSize > 1024 ? `${(totalSize/1024).toFixed(1)} GB` : `${totalSize} MB`;
-    } catch (err) {
-        console.error('Error getting storage stats:', err);
-    }
+    } catch (err) { console.error('Error getting storage stats:', err); }
 }
 
 // ============================================================
@@ -3335,7 +2820,7 @@ saveProfileSettings.addEventListener('click', async () => {
     }
     
     try {
-        await db.collection('users').doc(currentUser.uid).update({
+        await saveProfilePatch(currentUser.uid, {
             name: name,
             about: about || 'Hey there! I\'m using ChatPro',
             emoji: selectedEmoji,
@@ -3383,96 +2868,45 @@ uploadPhotoBtn.addEventListener('click', () => {
 profilePhotoInput.addEventListener('change', async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-
-    if (!file.type.startsWith('image/')) {
-        settingsProfileError.textContent = 'Please select an image file.';
-        return;
-    }
-    if (file.size > 5 * 1024 * 1024) {
-        settingsProfileError.textContent = 'File is too large. Maximum size is 5MB.';
-        return;
-    }
-
-    settingsProfileError.textContent = '';
-    settingsProfileSuccess.textContent = '';
-
+    if (!file.type.startsWith('image/')) { settingsProfileError.textContent = 'Please select an image file.'; return; }
+    if (file.size > 5 * 1024 * 1024) { settingsProfileError.textContent = 'File is too large. Maximum size is 5MB.'; return; }
+    settingsProfileError.textContent = ''; settingsProfileSuccess.textContent = '';
     try {
-        if (!currentUserData?.driveConnected) {
-            throw new Error('Connect your Google Drive in Settings before uploading a profile photo.');
-        }
-
-        // Immediate local preview.
         const previewUrl = URL.createObjectURL(file);
         profilePhotoPreview.innerHTML = `<img src="${previewUrl}" alt="Profile" />`;
-
-        // Firebase Storage is the browser-readable profile image URL.
-        const storageRef = storage.ref();
-        const fileRef = storageRef.child(`profile_photos/${currentUser.uid}/profile_${Date.now()}.${(file.name.split('.').pop() || 'jpg')}`);
-        await fileRef.put(file, { contentType: file.type });
-        const downloadUrl = await fileRef.getDownloadURL();
-
-        // Original profile photo is also backed up to the dedicated Drive folder.
-        const folders = await ensureDriveConnected(true);
-        const oldDriveFileId = currentUserData?.profilePhotoDriveFileId || null;
-        const driveFile = await uploadFileToDrive(file, folders.profile);
-        if (oldDriveFileId && oldDriveFileId !== driveFile.id) await deleteDriveFile(oldDriveFileId);
-
-        await db.collection('users').doc(currentUser.uid).update({
-            profilePhoto: downloadUrl,
-            profilePhotoDriveFileId: driveFile.id || null,
-            profilePhotoDriveUrl: driveFile.webViewLink || (driveFile.id ? `https://drive.google.com/open?id=${driveFile.id}` : null),
-            profilePhotoUpdatedAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
-
+        const ext = safeFileName(file.name || 'profile.jpg').split('.').pop() || 'jpg';
+        const path = `${currentUser.uid}/profile.${ext}`;
+        const uploaded = await uploadToBucket(AVATAR_BUCKET, path, file);
+        await saveProfilePatch(currentUser.uid, { profilePhoto: uploaded.publicUrl });
         currentUserData = await getUserData(currentUser.uid);
         allUsersCache[currentUser.email.toLowerCase()] = { id: currentUser.uid, ...currentUserData };
-        headerAvatar.innerHTML = `<img src="${downloadUrl}" alt="Profile" />`;
-        profilePhotoPreview.innerHTML = `<img src="${downloadUrl}" alt="Profile" />`;
-        settingsProfileSuccess.textContent = `✅ Profile photo saved. Drive file: ${driveFile.name || 'uploaded successfully'}`;
+        headerAvatar.innerHTML = `<img src="${uploaded.publicUrl}" alt="Profile" />`;
+        profilePhotoPreview.innerHTML = `<img src="${uploaded.publicUrl}" alt="Profile" />`;
+        settingsProfileSuccess.textContent = '✅ Profile photo saved to Supabase Storage.';
         settingsProfileSuccess.style.color = 'var(--primary)';
         URL.revokeObjectURL(previewUrl);
     } catch (err) {
         console.error('Profile photo upload error:', err);
         settingsProfileError.textContent = 'Failed to upload profile photo: ' + (err.message || err);
-    } finally {
-        profilePhotoInput.value = '';
-    }
+    } finally { profilePhotoInput.value = ''; }
 });
 
 // ============================================================
 // CLEAR MEDIA
 // ============================================================
 clearMediaBtn.addEventListener('click', async () => {
-    if (!confirm('Are you sure you want to clear all media files? This cannot be undone.')) return;
-    if (!confirm('This will delete all your photos, videos, and voice notes. Continue?')) return;
-    
+    if (!confirm('Are you sure you want to clear all your media files? This cannot be undone.')) return;
+    if (!confirm('This will delete your photos, videos, and voice notes. Continue?')) return;
     try {
-        const chatsSnapshot = await db.collection('chats').get();
-        let count = 0;
-        for (const chatDoc of chatsSnapshot.docs) {
-            const messagesSnapshot = await db.collection('chats')
-                .doc(chatDoc.id)
-                .collection('messages')
-                .where('sender', '==', currentUser.email)
-                .get();
-            
-            for (const msgDoc of messagesSnapshot.docs) {
-                const data = msgDoc.data();
-                if (data.mediaUrl) {
-                    try {
-                        const ref = storage.refFromURL(data.mediaUrl);
-                        await ref.delete();
-                    } catch (e) {}
-                    await msgDoc.ref.update({ mediaUrl: null, mediaType: null, driveFileId: null, driveUrl: null });
-                    count++;
-                }
-            }
-        }
-        alert(`✅ Cleared ${count} media files.`);
-        updateStorageStats();
-    } catch (err) {
-        alert('Error clearing media: ' + err.message);
-    }
+        await requireSupabase();
+        const { data: rows, error } = await supabaseClient.from('messages').select('id,media_path').eq('sender', currentUser.email).not('media_url', 'is', null);
+        if (error) throw error;
+        const paths = (rows || []).map(r => r.media_path).filter(Boolean);
+        if (paths.length) { const { error: storageError } = await supabaseClient.storage.from(MEDIA_BUCKET).remove(paths); if (storageError) console.warn(storageError); }
+        const ids = (rows || []).map(r => r.id);
+        if (ids.length) { const { error: updateError } = await supabaseClient.from('messages').update({ media_url: null, media_type: null, media_path: null, media_mime_type: null, duration: null }).in('id', ids); if (updateError) throw updateError; }
+        alert(`✅ Cleared ${ids.length} media files.`); updateStorageStats();
+    } catch (err) { alert('Error clearing media: ' + err.message); }
 });
 
 // ============================================================
@@ -3480,17 +2914,15 @@ clearMediaBtn.addEventListener('click', async () => {
 // ============================================================
 deleteAccountBtn.addEventListener('click', async () => {
     if (!confirm('⚠️ Are you sure you want to delete your account? This is permanent!')) return;
-    if (!confirm('All your messages, contacts, and media will be permanently deleted. Continue?')) return;
-    
+    if (!confirm('All your messages, contacts, profile and media will be permanently deleted. Continue?')) return;
     try {
-        await db.collection('users').doc(currentUser.uid).delete();
-        await currentUser.delete();
-        alert('Account deleted successfully.');
-        await auth.signOut();
-        showPage('authPage');
-    } catch (err) {
-        alert('Error deleting account: ' + err.message);
-    }
+        await requireSupabase();
+        const { error } = await supabaseClient.rpc('delete_my_account');
+        if (error) throw error;
+        await supabaseClient.auth.signOut();
+        currentUser = null; currentUserData = null;
+        alert('Account deleted successfully.'); showPage('authPage');
+    } catch (err) { alert('Error deleting account: ' + err.message + '\nMake sure the delete_my_account SQL function has been created in Supabase.'); }
 });
 
 // ============================================================
@@ -3541,7 +2973,7 @@ confirmAddContact.addEventListener('click', async () => {
         };
         const updatedContacts = [...contacts, newContact];
 
-        await db.collection('users').doc(currentUser.uid).update({ contacts: updatedContacts });
+        await saveProfilePatch(currentUser.uid, { contacts: updatedContacts });
         contacts = updatedContacts;
         if (currentUserData) currentUserData.contacts = updatedContacts;
         renderContacts();
@@ -3562,139 +2994,77 @@ searchContact.addEventListener('input', renderContacts);
 // ADMIN
 // ============================================================
 async function updateAdminStats() {
-    try {
-        const snapshot = await db.collection('users').get();
-        adminStats.textContent = `Users: ${snapshot.size}`;
-    } catch (err) {
-        console.error('Error getting user count:', err);
-    }
+    try { await requireSupabase(); const { count, error } = await supabaseClient.from('profiles').select('*', { count: 'exact', head: true }); if (error) throw error; adminStats.textContent = `Users: ${count || 0}`; }
+    catch (err) { console.error('Error getting user count:', err); }
 }
 
 window.adminBroadcast = async function() {
     if (!isAdmin) return;
-    const message = prompt('Enter broadcast message:');
-    if (!message) return;
-
+    const message = prompt('Enter broadcast message:'); if (!message) return;
     try {
-        const usersSnapshot = await db.collection('users').get();
-        const promises = [];
-        usersSnapshot.forEach(doc => {
-            const userData = doc.data();
-            if (userData.email !== currentUser.email) {
-                const chatId = getChatId(currentUser.email, userData.email);
-                promises.push(db.collection('chats').doc(chatId).collection('messages').add({
-                    text: `📢 ${message}`,
-                    sender: currentUser.email,
-                    senderName: '📢 Admin',
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-                    recipient: userData.email,
-                    recipientName: userData.name || userData.email,
-                    isBroadcast: true,
-                    language: detectLanguage(message)
-                }));
-            }
-        });
-        await Promise.all(promises);
-        alert(`Broadcast sent to ${promises.length} users!`);
-    } catch (err) {
-        alert('Error: ' + err.message);
-    }
+        await requireSupabase();
+        const { data: users, error } = await supabaseClient.from('profiles').select('email,name'); if (error) throw error;
+        const rows = (users || []).filter(u => u.email !== currentUser.email).map(u => ({ chat_id: getChatId(currentUser.email, u.email), text: `📢 ${message}`, sender: currentUser.email, sender_name: '📢 Admin', timestamp: new Date().toISOString(), recipient: u.email, recipient_name: u.name || u.email, is_broadcast: true, language: detectLanguage(message) }));
+        if (rows.length) { const { error: insertError } = await supabaseClient.from('messages').insert(rows); if (insertError) throw insertError; }
+        alert(`Broadcast sent to ${rows.length} users!`);
+    } catch (err) { alert('Error: ' + err.message); }
 };
 
 window.adminViewUsers = async function() {
     if (!isAdmin) return;
     try {
-        const snapshot = await db.collection('users').get();
+        await requireSupabase(); const { data: users, error } = await supabaseClient.from('profiles').select('*').order('created_at', { ascending: true }); if (error) throw error;
         let list = '📋 All Users:\n\n';
-        snapshot.forEach(doc => {
-            const data = doc.data();
-            list += `${data.emoji || '👤'} ${data.name || 'Unnamed'} (${data.email})\n`;
-            list += `  NIC: ${data.nicNumber || 'Not provided'}\n`;
-            list += `  About: ${data.about || 'N/A'}\n`;
-            list += `  Drive: ${data.driveConnected ? '✅ Connected' : '❌ Not connected'}\n\n`;
-        });
+        (users || []).forEach(data => { list += `${data.emoji || '👤'} ${data.name || 'Unnamed'} (${data.email})\n`; list += `  NIC: ${data.nic_number || 'Not provided'}\n`; list += `  About: ${data.about || 'N/A'}\n`; list += `  Storage: Supabase Storage\n\n`; });
         alert(list);
-    } catch (err) {
-        alert('Error: ' + err.message);
-    }
+    } catch (err) { alert('Error: ' + err.message); }
 };
 
 // ============================================================
 // LOGOUT
 // ============================================================
 logoutBtn.addEventListener('click', async () => {
-    if (unsubscribeMessages) {
-        unsubscribeMessages();
-        unsubscribeMessages = null;
-    }
-    if (mediaStream) {
-        mediaStream.getTracks().forEach(track => track.stop());
-        mediaStream = null;
-    }
-    if (isRecording) {
-        stopRecording();
-    }
-    await auth.signOut();
-    currentUser = null;
-    currentUserData = null;
-    contacts = [];
-    currentChatWith = null;
-    isAdmin = false;
-    chatContactHeader.classList.add('hidden');
-    messageInput.disabled = true;
-    sendBtn.disabled = true;
-    showPage('authPage');
+    if (unsubscribeMessages) { try { await unsubscribeMessages(); } catch (_) {} unsubscribeMessages = null; }
+    stopContactProfileWatchers();
+    if (mediaStream) { mediaStream.getTracks().forEach(track => track.stop()); mediaStream = null; }
+    if (isRecording) stopRecording();
+    if (supabaseClient) await supabaseClient.auth.signOut();
+    currentUser = null; currentUserData = null; contacts = []; currentChatWith = null; isAdmin = false;
+    chatContactHeader.classList.add('hidden'); messageInput.disabled = true; sendBtn.disabled = true; showPage('authPage');
     if (!isLoginMode) toggleAuthMode();
 });
 
 // ============================================================
 // AUTH STATE
 // ============================================================
-auth.onAuthStateChanged(async (user) => {
-    if (user) {
-        currentUser = user;
-        currentUserData = await getUserData(user.uid);
-        isAdmin = currentUserData?.isAdmin || ADMIN_ACCOUNTS.some(a => a.email === user.email);
-
-        if (isAdmin) {
-            showPage('chatPage');
-            loadChat();
-        } else if (currentUserData && currentUserData.nicCaptured) {
-            showPage('chatPage');
-            loadChat();
-            if (!currentUserData.driveConnected || !currentUserData.profileSetup) {
-                setTimeout(() => {
-                    showPage('settingsPage');
-                    loadSettings();
-                    settingsProfileSuccess.textContent = !currentUserData.driveConnected
-                        ? '⚠️ Connect Google Drive before sending photos, videos or voice messages.'
-                        : '';
-                }, 400);
+if (supabaseClient) {
+    supabaseClient.auth.onAuthStateChange(async (_event, session) => {
+        const user = session?.user || null;
+        if (user) {
+            currentUser = user;
+            currentUserData = await getUserData(user.id);
+            if (!currentUserData) {
+                const isAdminAccount = ADMIN_ACCOUNTS.some(a => a.email === user.email);
+                await supabaseClient.from('profiles').upsert({ id: user.id, email: user.email, name: isAdminAccount ? ADMIN_ACCOUNTS.find(a => a.email === user.email).name : (user.email || '').split('@')[0], emoji: isAdminAccount ? '👑' : '😊', about: isAdminAccount ? 'ChatPro Administrator' : 'Hey there! I\'m using ChatPro', contacts: [], is_admin: isAdminAccount, nic_captured: isAdminAccount, profile_setup: isAdminAccount }, { onConflict: 'id' });
+                currentUserData = await getUserData(user.id);
             }
+            isAdmin = !!currentUserData?.isAdmin || ADMIN_ACCOUNTS.some(a => a.email === user.email);
+            if (isAdmin) { showPage('chatPage'); loadChat(); }
+            else if (currentUserData?.nicCaptured) { showPage('chatPage'); loadChat(); if (!currentUserData.profileSetup) setTimeout(() => { showPage('settingsPage'); loadSettings(); }, 400); }
+            else { showPage('nicPage'); startCamera(); }
         } else {
-            showPage('nicPage');
-            startCamera();
+            stopContactProfileWatchers(); clearTimeout(contactProfileRenderTimer); contactProfileRenderTimer = null; showPage('authPage');
+            if (!isLoginMode) toggleAuthMode();
+            if (mediaStream) { mediaStream.getTracks().forEach(track => track.stop()); mediaStream = null; }
+            chatContactHeader.classList.add('hidden'); messageInput.disabled = true; sendBtn.disabled = true;
         }
-    } else {
-        stopContactProfileWatchers();
-        clearTimeout(contactProfileRenderTimer);
-        contactProfileRenderTimer = null;
-        showPage('authPage');
-        if (!isLoginMode) toggleAuthMode();
-        if (mediaStream) {
-            mediaStream.getTracks().forEach(track => track.stop());
-            mediaStream = null;
-        }
-        chatContactHeader.classList.add('hidden');
-        messageInput.disabled = true;
-        sendBtn.disabled = true;
-    }
-});
+    });
+}
 
 console.log('🚀 ChatPro Premium loaded!');
 console.log('👑 Admin: admin1@chatapp.com / admin2@chatapp.com (pass: admin123)');
 console.log('📱 Features: Photos, Videos, Voice Notes, Auto Language Detection');
-console.log('💾 Media stored in Firebase Storage and backed up to the connected Google Drive');
+console.log('💾 Media and profile photos are stored in Supabase Storage; chat data is stored in Supabase PostgreSQL.');
 </script>
 </body>
 </html>
