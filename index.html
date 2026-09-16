@@ -1677,6 +1677,73 @@ input,textarea,.search-box{background:rgba(255,255,255,.055)!important;border-co
 @media(min-width:701px){#chatPage .chat-contact-header .back-mobile-btn{display:none!important}}
 .back-mobile-btn{display:none!important}
 </style>
+    <script src="https://static.sumsub.com/idensic/static/sns-websdk-builder.js"></script>
+
+<style id="chatpro-secure-identity-and-mobile">
+/* Secure identity verification additions */
+.secure-identity-panel{
+  width:min(760px,calc(100vw - 32px));
+  margin:0 auto 18px;
+  padding:22px;
+  border:1px solid rgba(0,168,132,.24);
+  border-radius:24px;
+  background:linear-gradient(145deg,rgba(17,25,39,.96),rgba(8,14,26,.92));
+  box-shadow:0 24px 80px rgba(0,0,0,.35);
+}
+.secure-identity-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:7px 11px;border-radius:999px;
+  background:rgba(0,168,132,.12);color:#65e6c8;
+  font-size:12px;font-weight:700;
+}
+.secure-identity-panel h3{margin:14px 0 7px;font-size:22px}
+.secure-identity-panel>p{margin:0;color:var(--text-muted);line-height:1.55}
+.verification-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin:17px 0}
+.verification-steps>div{
+  display:flex;align-items:center;gap:9px;padding:12px;
+  border-radius:14px;background:rgba(255,255,255,.045);
+  color:#dce7f4;font-size:12px
+}
+.verification-steps i{color:#55d6bb}
+.sumsub-websdk-container{
+  width:100%;min-height:220px;border-radius:18px;overflow:hidden;
+  background:rgba(255,255,255,.025)
+}
+.secure-identity-actions{display:flex;gap:10px;margin-top:13px;flex-wrap:wrap}
+.secure-identity-actions button{flex:1;min-width:190px}
+.secure-identity-message{
+  margin-top:12px;padding:11px 13px;border-radius:12px;
+  background:rgba(255,255,255,.035);color:var(--text-muted);font-size:12px;line-height:1.45
+}
+#nicPage .video-wrapper{display:none!important}
+#nicPage .nic-container{max-width:860px!important}
+#nicPage .nic-status{margin-top:12px}
+@media(max-width:700px){
+  .secure-identity-panel{
+    width:calc(100vw - 18px);padding:16px;border-radius:20px;
+    margin:8px auto 12px;max-height:calc(100dvh - 24px);overflow:auto
+  }
+  .secure-identity-panel h3{font-size:19px}
+  .verification-steps{grid-template-columns:1fr;gap:7px}
+  .verification-steps>div{padding:10px}
+  .sumsub-websdk-container{min-height:320px}
+  .secure-identity-actions{position:sticky;bottom:0;padding-top:8px;background:linear-gradient(transparent,rgba(8,14,26,.98) 35%)}
+  .secure-identity-actions button{min-height:48px}
+  #nicPage{overflow:auto!important}
+  #nicPage .nic-container{padding:10px 0 24px!important}
+}
+</style>
+
+
+<style id="chatpro-verification-notice-style">
+.mandatory-verification-notice{
+  display:flex;gap:9px;align-items:flex-start;margin:12px 0;padding:11px 13px;
+  border-radius:13px;background:rgba(0,168,132,.08);
+  border:1px solid rgba(0,168,132,.18);color:var(--text-muted);font-size:11px;line-height:1.45
+}
+.mandatory-verification-notice i{color:#55d6bb;margin-top:2px}
+</style>
+
 </head>
 <body>
 
@@ -1703,6 +1770,10 @@ input,textarea,.search-box{background:rgba(255,255,255,.055)!important;border-co
                 <i class="fas fa-sign-in-alt"></i> Login
             </span>
         </button>
+        <div class="mandatory-verification-notice">
+            <i class="fas fa-shield-halved"></i>
+            <span>New accounts must complete secure NIC authenticity and live-person verification before ChatPro access is enabled.</span>
+        </div>
         <div id="authError" class="error-msg"></div>
         
         <div class="auth-footer">
@@ -1729,6 +1800,39 @@ input,textarea,.search-box{background:rgba(255,255,255,.055)!important;border-co
             <h2>Identity Verification</h2>
         </div>
         <p class="sub-text">Capture your National Identity Card for verification</p>
+
+        <!-- Secure identity verification is mandatory.
+             The existing camera/OCR UI remains in the file for compatibility,
+             but the secure flow below is the only path that can activate an account. -->
+        <div id="secureIdentityPanel" class="secure-identity-panel">
+            <div class="secure-identity-badge">
+                <i class="fas fa-shield-halved"></i>
+                <span>Mandatory identity verification</span>
+            </div>
+            <h3>Verify your National Identity Card</h3>
+            <p>
+                Your account cannot enter ChatPro until your identity document is
+                successfully checked for authenticity and you complete live-person
+                verification.
+            </p>
+            <div class="verification-steps">
+                <div><i class="fas fa-id-card"></i><span>NIC document authenticity</span></div>
+                <div><i class="fas fa-user-check"></i><span>Live face / liveness check</span></div>
+                <div><i class="fas fa-link"></i><span>Identity result linked to this account</span></div>
+            </div>
+            <div id="sumsub-websdk-container" class="sumsub-websdk-container"></div>
+            <div class="secure-identity-actions">
+                <button class="btn-primary" id="startIdentityVerificationBtn" type="button">
+                    <i class="fas fa-shield-halved"></i> Start secure verification
+                </button>
+                <button class="btn-secondary" id="refreshIdentityStatusBtn" type="button">
+                    <i class="fas fa-rotate"></i> Check verification status
+                </button>
+            </div>
+            <div id="secureIdentityMessage" class="secure-identity-message">
+                Verification is required before you can use ChatPro.
+            </div>
+        </div>
         <div class="video-wrapper">
             <video id="videoPreview" autoplay playsinline></video>
             <div class="capture-overlay">
@@ -2303,8 +2407,12 @@ async function ensureProfileForUser(user) {
             about: admin ? 'ChatPro Administrator' : 'Hey there! I\'m using ChatPro',
             contacts: [],
             is_admin: !!admin,
-            nic_captured: !!admin,
-            profile_setup: !!admin
+            nic_captured: false,
+            profile_setup: !!admin,
+            identity_status: 'pending',
+            nic_verified: false,
+            liveness_verified: false,
+            account_active: false
         }, { onConflict: 'id' });
         if (error) throw error;
         profile = await getUserData(user.id);
@@ -2316,7 +2424,7 @@ async function ensureProfileForUser(user) {
             name: admin.name,
             emoji: '👑',
             about: 'ChatPro Administrator',
-            nicCaptured: true,
+            nicCaptured: false,
             profileSetup: true
         });
         profile = await getUserData(user.id);
@@ -2347,8 +2455,7 @@ authBtn.addEventListener('click', async () => {
             currentUserData = await ensureProfileForUser(result.data.user);
             isAdmin = !!currentUserData?.isAdmin || !!admin;
             authError.textContent = '';
-            showPage('chatPage');
-            await loadChat();
+            await routeAfterIdentityVerification();
         } else {
             const result = await supabaseClient.auth.signUp({
                 email,
@@ -2376,8 +2483,7 @@ authBtn.addEventListener('click', async () => {
             currentUserData = await ensureProfileForUser(result.data.user);
             isAdmin = !!currentUserData?.isAdmin || !!admin;
             authError.className = 'error-msg';
-            showPage('chatPage');
-            await loadChat();
+            await routeAfterIdentityVerification();
         }
     } catch (err) {
         console.error('Authentication error:', err);
@@ -2411,6 +2517,193 @@ function setupEmojiGrid(grid, callback) {
     });
 }
 
+
+// ============================================================
+// MANDATORY SECURE IDENTITY VERIFICATION
+// ============================================================
+
+function isIdentityVerified(profile = currentUserData) {
+    return !!profile &&
+        profile.identityStatus === 'verified' &&
+        profile.nicVerified === true &&
+        profile.livenessVerified === true &&
+        profile.accountActive === true;
+}
+
+function setSecureIdentityMessage(message, type = 'info') {
+    const el = document.getElementById('secureIdentityMessage');
+    if (!el) return;
+    el.textContent = message;
+    el.className = 'secure-identity-message';
+    if (type === 'success') el.style.color = '#6ee7b7';
+    else if (type === 'error') el.style.color = '#fca5a5';
+    else el.style.color = '';
+}
+
+async function getIdentityVerificationToken() {
+    if (!currentUser?.id) throw new Error('Please log in again.');
+    await requireSupabase();
+    const { data, error } = await supabaseClient.functions.invoke(
+        IDENTITY_VERIFY_FUNCTION,
+        { body: { action: 'token', levelName: IDENTITY_VERIFY_LEVEL } }
+    );
+    if (error) throw error;
+    if (!data?.accessToken) throw new Error(data?.error || 'Secure verification service did not return an access token.');
+    return data.accessToken;
+}
+
+async function refreshIdentityVerificationStatus(showMessages = true) {
+    if (!currentUser?.id) return false;
+    try {
+        const { data, error } = await supabaseClient.functions.invoke(
+            IDENTITY_VERIFY_FUNCTION,
+            { body: { action: 'status' } }
+        );
+        if (error) throw error;
+
+        if (data?.profile) currentUserData = rowToUser(data.profile);
+
+        const status = data?.verification?.reviewStatus || currentUserData?.identityStatus || 'pending';
+        const answer = data?.verification?.reviewResult?.reviewAnswer || '';
+
+        if (isIdentityVerified()) {
+            setSecureIdentityMessage('Identity verified successfully. Your ChatPro account is now active.', 'success');
+            stopIdentityStatusPolling();
+            if (mediaStream) {
+                mediaStream.getTracks().forEach(track => track.stop());
+                mediaStream = null;
+            }
+            setTimeout(async () => {
+                showPage('chatPage');
+                await loadChat();
+            }, 500);
+            return true;
+        }
+
+        if (answer === 'RED' || status === 'completed' && answer !== 'GREEN') {
+            setSecureIdentityMessage(
+                'Identity verification was not approved. Please review the verification instructions and try again.',
+                'error'
+            );
+        } else if (status === 'pending' || status === 'queued' || status === 'prechecked' || status === 'onHold') {
+            setSecureIdentityMessage('Your NIC and liveness checks are being processed. ChatPro will remain locked until the final result is approved.');
+        } else {
+            setSecureIdentityMessage('Complete every required identity step. Your account remains locked until the final verification result is approved.');
+        }
+        return false;
+    } catch (err) {
+        console.error('Identity status error:', err);
+        if (showMessages) setSecureIdentityMessage(err?.message || 'Could not check identity verification status.', 'error');
+        return false;
+    }
+}
+
+function stopIdentityStatusPolling() {
+    if (identityStatusPollTimer) clearInterval(identityStatusPollTimer);
+    identityStatusPollTimer = null;
+}
+
+function startIdentityStatusPolling() {
+    stopIdentityStatusPolling();
+    identityStatusPollTimer = setInterval(() => {
+        refreshIdentityVerificationStatus(false);
+    }, 5000);
+}
+
+async function launchSecureIdentityVerification() {
+    if (identityVerificationBusy) return;
+    if (!currentUser?.id) {
+        setSecureIdentityMessage('Please log in again before starting verification.', 'error');
+        return;
+    }
+
+    identityVerificationBusy = true;
+    const startBtn = document.getElementById('startIdentityVerificationBtn');
+    if (startBtn) {
+        startBtn.disabled = true;
+        startBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Preparing secure verification...';
+    }
+
+    try {
+        const token = await getIdentityVerificationToken();
+        if (!window.snsWebSdk) {
+            throw new Error('The secure verification SDK could not be loaded. Check your internet connection.');
+        }
+
+        const container = document.getElementById('sumsub-websdk-container');
+        if (!container) throw new Error('Secure verification container is missing.');
+
+        container.innerHTML = '';
+
+        sumsubWebSdkInstance = window.snsWebSdk
+            .init(token, async () => {
+                return await getIdentityVerificationToken();
+            })
+            .withConf({
+                lang: 'en',
+                email: currentUser.email,
+                country: 'LKA',
+                theme: 'dark'
+            })
+            .withOptions({
+                addViewportTag: false,
+                adaptIframeHeight: true
+            })
+            .on('idCheck.onStepCompleted', payload => {
+                console.log('Secure identity step completed:', payload);
+            })
+            .on('idCheck.onApplicantVerificationCompleted', payload => {
+                console.log('Secure identity verification completed:', payload);
+                setSecureIdentityMessage('Verification completed. Confirming the final result securely...');
+                refreshIdentityVerificationStatus(true);
+            })
+            .on('idCheck.onError', error => {
+                console.error('Secure identity SDK error:', error);
+                setSecureIdentityMessage('Verification could not be completed. Please retry the secure verification flow.', 'error');
+            })
+            .onMessage((type, payload) => {
+                console.log('Secure identity event:', type, payload);
+                if (String(type).includes('onLivenessCompleted')) {
+                    setSecureIdentityMessage('Liveness step completed. Continue until the SDK shows that the full verification is complete.');
+                }
+            })
+            .build();
+
+        sumsubWebSdkInstance.launch('#sumsub-websdk-container');
+        setSecureIdentityMessage('Follow the secure verification instructions. Do not leave the page until both the document and live-person checks are complete.');
+        startIdentityStatusPolling();
+    } catch (err) {
+        console.error('Secure verification launch failed:', err);
+        setSecureIdentityMessage(err?.message || 'Could not start secure identity verification.', 'error');
+    } finally {
+        identityVerificationBusy = false;
+        if (startBtn) {
+            startBtn.disabled = false;
+            startBtn.innerHTML = '<i class="fas fa-shield-halved"></i> Start secure verification';
+        }
+    }
+}
+
+async function routeAfterIdentityVerification() {
+    currentUserData = await getUserData(currentUser.id);
+    if (isIdentityVerified(currentUserData)) {
+        showPage('chatPage');
+        await loadChat();
+        startUnknownChatPolling();
+        if (!currentUserData.profileSetup) {
+            setTimeout(() => { showPage('settingsPage'); loadSettings(); }, 400);
+        }
+        return;
+    }
+
+    showPage('nicPage');
+    setSecureIdentityMessage('Identity verification is mandatory. Your account is locked until the NIC authenticity and liveness checks are approved.');
+    await refreshIdentityVerificationStatus(false);
+}
+
+document.getElementById('startIdentityVerificationBtn')?.addEventListener('click', launchSecureIdentityVerification);
+document.getElementById('refreshIdentityStatusBtn')?.addEventListener('click', () => refreshIdentityVerificationStatus(true));
+
 // ============================================================
 // CAMERA & NIC
 // ============================================================
@@ -2435,6 +2728,12 @@ async function startCamera() {
 retryCamBtn.addEventListener('click', startCamera);
 
 captureBtn.addEventListener('click', async () => {
+    // Security gate: the old one-frame OCR path is intentionally disabled.
+    // OCR can read text, but it cannot establish document authenticity or human liveness.
+    if (!window.__CHATPRO_ALLOW_LEGACY_NIC_CAPTURE__) {
+        setSecureIdentityMessage('Use the secure identity verification flow above. A single camera frame is not accepted as identity proof.', 'error');
+        return;
+    }
     if (isProcessingNIC) return;
     if (!currentUser?.id) { nicStatus.innerHTML = '❌ Please log in again before capturing your NIC.'; return; }
     isProcessingNIC = true; captureBtn.disabled = true;
@@ -2559,6 +2858,12 @@ function rowToUser(row) {
         profilePhoto: row.profile_photo || null,
         nicPhotoPath: row.nic_photo_path || null,
         nicPhotoUrl: row.nic_photo_url || null,
+        identityStatus: row.identity_status || 'pending',
+        identityApplicantId: row.identity_applicant_id || null,
+        identityVerifiedAt: row.identity_verified_at || null,
+        nicVerified: !!row.nic_verified,
+        livenessVerified: !!row.liveness_verified,
+        accountActive: !!row.account_active,
         lockedChats: Array.isArray(row.locked_chats) ? row.locked_chats : [],
         contactListLocked: !!row.contact_list_locked,
         lockPasswordHash: row.lock_password_hash || null,
@@ -2586,6 +2891,12 @@ function userToRowPatch(data) {
     if ('profilePhoto' in data) patch.profile_photo = data.profilePhoto;
     if ('nicPhotoPath' in data) patch.nic_photo_path = data.nicPhotoPath;
     if ('nicPhotoUrl' in data) patch.nic_photo_url = data.nicPhotoUrl;
+    if ('identityStatus' in data) patch.identity_status = data.identityStatus;
+    if ('identityApplicantId' in data) patch.identity_applicant_id = data.identityApplicantId;
+    if ('identityVerifiedAt' in data) patch.identity_verified_at = data.identityVerifiedAt;
+    if ('nicVerified' in data) patch.nic_verified = data.nicVerified;
+    if ('livenessVerified' in data) patch.liveness_verified = data.livenessVerified;
+    if ('accountActive' in data) patch.account_active = data.accountActive;
     if ('lockedChats' in data) patch.locked_chats = data.lockedChats;
     if ('contactListLocked' in data) patch.contact_list_locked = data.contactListLocked;
     if ('lockPasswordHash' in data) patch.lock_password_hash = data.lockPasswordHash;
@@ -2690,6 +3001,23 @@ async function syncContactProfilesOnce() {
 const AVATAR_BUCKET = 'avatars';
 const MEDIA_BUCKET = 'chat-media';
 const NIC_BUCKET = 'nic-images';
+
+// ============================================================
+// SECURE IDENTITY VERIFICATION CONFIG
+// ============================================================
+// IMPORTANT:
+// - Never put a Sumsub App Token or Secret Key in this HTML.
+// - The Supabase Edge Function creates the short-lived WebSDK token.
+// - Configure a Sumsub WebSDK 2.0 level that requires:
+//     1) live ID-document capture/authenticity checks
+//     2) Advanced Liveness Selfie
+// - Set the Edge Function name below to your deployed function.
+const IDENTITY_VERIFY_FUNCTION = 'identity-verification';
+const IDENTITY_VERIFY_LEVEL = 'chatpro-kyc-level';
+let sumsubWebSdkInstance = null;
+let identityStatusPollTimer = null;
+let identityVerificationBusy = false;
+
 
 function safeFileName(name) {
     return String(name || 'file').replace(/[^a-zA-Z0-9._-]/g, '_');
@@ -3957,17 +4285,7 @@ if (supabaseClient) {
             if (!currentUserData) throw new Error('Your ChatPro profile could not be loaded.');
 
             isAdmin = !!currentUserData.isAdmin || ADMIN_ACCOUNTS.some(a => a.email === user.email);
-            if (isAdmin || currentUserData.nicCaptured) {
-                showPage('chatPage');
-                await loadChat();
-                startUnknownChatPolling();
-                if (!isAdmin && !currentUserData.profileSetup) {
-                    setTimeout(() => { showPage('settingsPage'); loadSettings(); }, 400);
-                }
-            } else {
-                showPage('nicPage');
-                await startCamera();
-            }
+            await routeAfterIdentityVerification();
         } catch (err) {
             console.error('Auth state/profile error:', err);
             authError.className = 'error-msg';
