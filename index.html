@@ -2186,14 +2186,14 @@ captureBtn.addEventListener('click', async () => {
         const nicData = parseNICDetails(text);
 
         if (nicData.nicNumber || nicData.fullName) {
-            await saveProfilePatch(currentUser.uid, {
+            await saveProfilePatch(currentUser.id, {
                 nicNumber: nicData.nicNumber || '',
                 name: nicData.fullName || currentUserData?.name || currentUser.email.split('@')[0],
                 nicDetails: nicData,
                 nicCaptured: true
             });
 
-            currentUserData = await getUserData(currentUser.uid);
+            currentUserData = await getUserData(currentUser.id);
             nicStatus.innerHTML = `✅ NIC captured! Found: ${nicData.fullName || 'Name'}`;
 
             setTimeout(() => {
@@ -2321,6 +2321,10 @@ function userToRowPatch(data) {
 async function getUserData(uid) {
     try {
         await requireSupabase();
+        if (!uid || typeof uid !== 'string') {
+            console.warn('getUserData called without a valid Supabase user ID:', uid);
+            return null;
+        }
         const { data, error } = await supabaseClient.from('profiles').select('*').eq('id', uid).maybeSingle();
         if (error) throw error;
         return rowToUser(data);
@@ -2369,7 +2373,7 @@ function scheduleContactProfileRender() {
 function startContactProfileWatchers() {
     stopContactProfileWatchers();
     if (!supabaseClient || !currentUser) return;
-    contactProfileChannel = supabaseClient.channel(`profiles-live-${currentUser.uid}`)
+    contactProfileChannel = supabaseClient.channel(`profiles-live-${currentUser.id}`)
         .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, payload => {
             const row = payload.new || {};
             const email = String(row.email || '').toLowerCase();
@@ -2425,7 +2429,7 @@ async function uploadToBucket(bucket, path, file) {
 async function uploadMedia(file, mediaType) {
     if (!file) throw new Error('No file selected.');
     const ext = safeFileName(file.name || 'file').split('.').pop() || 'bin';
-    const path = `${currentUser.uid}/${Date.now()}_${crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2)}.${ext}`;
+    const path = `${currentUser.id}/${Date.now()}_${crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2)}.${ext}`;
     const uploaded = await uploadToBucket(MEDIA_BUCKET, path, file);
     return { mediaUrl: uploaded.publicUrl, storagePath: path };
 }
@@ -2453,7 +2457,7 @@ async function saveProfilePatch(uid, patch) {
 async function loadChat() {
     if (!currentUser) return;
 
-    currentUserData = await getUserData(currentUser.uid);
+    currentUserData = await getUserData(currentUser.id);
     if (!currentUserData) return;
 
     isAdmin = currentUserData.isAdmin || ADMIN_ACCOUNTS.some(a => a.email === currentUser.email);
@@ -2639,7 +2643,7 @@ async function updateContactLastMessage(email, lastMessage) {
     try {
         const current = currentUserData?.contacts || [];
         const updatedContacts = current.map(c => c.email === email ? { ...c, lastMessage } : c);
-        await saveProfilePatch(currentUser.uid, { contacts: updatedContacts });
+        await saveProfilePatch(currentUser.id, { contacts: updatedContacts });
         if (currentUserData) currentUserData.contacts = updatedContacts;
     } catch (err) { console.error('Error updating last message:', err); }
 }
@@ -2822,7 +2826,7 @@ settingsBackBtn.addEventListener('click', () => {
 
 async function loadSettings() {
     if (!currentUserData) {
-        currentUserData = await getUserData(currentUser.uid);
+        currentUserData = await getUserData(currentUser.id);
     }
     if (!currentUserData) return;
     
@@ -2889,15 +2893,15 @@ saveProfileSettings.addEventListener('click', async () => {
     }
     
     try {
-        await saveProfilePatch(currentUser.uid, {
+        await saveProfilePatch(currentUser.id, {
             name: name,
             about: about || 'Hey there! I\'m using ChatPro',
             emoji: selectedEmoji,
             profileSetup: true
         });
         
-        currentUserData = await getUserData(currentUser.uid);
-        allUsersCache[currentUser.email.toLowerCase()] = { id: currentUser.uid, ...currentUserData };
+        currentUserData = await getUserData(currentUser.id);
+        allUsersCache[currentUser.email.toLowerCase()] = { id: currentUser.id, ...currentUserData };
         currentUserName.textContent = name;
         
         if (currentUserData.profilePhoto) {
@@ -2944,11 +2948,11 @@ profilePhotoInput.addEventListener('change', async (e) => {
         const previewUrl = URL.createObjectURL(file);
         profilePhotoPreview.innerHTML = `<img src="${previewUrl}" alt="Profile" />`;
         const ext = safeFileName(file.name || 'profile.jpg').split('.').pop() || 'jpg';
-        const path = `${currentUser.uid}/profile.${ext}`;
+        const path = `${currentUser.id}/profile.${ext}`;
         const uploaded = await uploadToBucket(AVATAR_BUCKET, path, file);
-        await saveProfilePatch(currentUser.uid, { profilePhoto: uploaded.publicUrl });
-        currentUserData = await getUserData(currentUser.uid);
-        allUsersCache[currentUser.email.toLowerCase()] = { id: currentUser.uid, ...currentUserData };
+        await saveProfilePatch(currentUser.id, { profilePhoto: uploaded.publicUrl });
+        currentUserData = await getUserData(currentUser.id);
+        allUsersCache[currentUser.email.toLowerCase()] = { id: currentUser.id, ...currentUserData };
         headerAvatar.innerHTML = `<img src="${uploaded.publicUrl}" alt="Profile" />`;
         profilePhotoPreview.innerHTML = `<img src="${uploaded.publicUrl}" alt="Profile" />`;
         settingsProfileSuccess.textContent = '✅ Profile photo saved to Supabase Storage.';
@@ -3042,7 +3046,7 @@ confirmAddContact.addEventListener('click', async () => {
         };
         const updatedContacts = [...contacts, newContact];
 
-        await saveProfilePatch(currentUser.uid, { contacts: updatedContacts });
+        await saveProfilePatch(currentUser.id, { contacts: updatedContacts });
         contacts = updatedContacts;
         if (currentUserData) currentUserData.contacts = updatedContacts;
         renderContacts();
