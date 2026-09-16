@@ -10,6 +10,7 @@
     <!-- Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <!-- Tesseract.js for OCR -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
@@ -550,6 +551,22 @@
             margin-left: auto;
         }
         
+        .admin-tools-grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(125px,1fr));gap:8px;width:100%;margin-top:8px;}
+        .admin-mini-stat {padding:8px 10px;border-radius:12px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.06);color:var(--text-secondary);font-size:11px;}
+        .admin-mini-stat strong {display:block;color:var(--text-primary);font-size:15px;margin-top:2px;}
+        .admin-modal-box {max-width:900px;max-height:88vh;overflow:auto;}
+        .admin-user-grid {display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-top:16px;}
+        .admin-user-card {padding:15px;border:1px solid rgba(255,255,255,.08);border-radius:18px;background:rgba(255,255,255,.035);}
+        .admin-user-top {display:flex;align-items:center;gap:11px;}
+        .admin-user-photo {width:48px;height:48px;border-radius:50%;object-fit:cover;background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;font-size:22px;overflow:hidden;}
+        .admin-user-photo img {width:100%;height:100%;object-fit:cover;}
+        .admin-user-meta {font-size:11px;color:var(--text-muted);line-height:1.5;margin-top:10px;}
+        .admin-user-actions {display:flex;gap:7px;flex-wrap:wrap;margin-top:11px;}
+        .admin-user-actions button {padding:7px 10px;border-radius:12px;border:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.045);color:var(--text-secondary);cursor:pointer;}
+        .admin-user-actions button:hover {background:rgba(255,255,255,.09);color:#fff;}
+        .nic-admin-preview {max-width:100%;max-height:60vh;border-radius:18px;border:1px solid rgba(255,255,255,.1);display:block;margin:12px auto;}
+        .admin-search {width:100%;padding:12px 14px;border-radius:14px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.035);color:#fff;outline:none;}
+
         .chat-layout {
             display: flex;
             flex: 1;
@@ -631,18 +648,27 @@
         .contact-item {
             display: flex;
             align-items: center;
-            padding: 12px 20px;
+            margin: 7px 10px;
+            padding: 12px 13px;
             cursor: pointer;
-            transition: all 0.2s;
-            gap: 14px;
+            transition: transform .2s ease, background .2s ease, border-color .2s ease, box-shadow .2s ease;
+            gap: 13px;
+            border: 1px solid rgba(255,255,255,.075);
             border-left: 3px solid transparent;
+            border-radius: 18px;
+            background: rgba(255,255,255,.025);
+            box-shadow: 0 5px 18px rgba(0,0,0,.08);
         }
         .contact-item:hover {
-            background: rgba(255,255,255,0.03);
+            transform: translateY(-1px);
+            background: rgba(255,255,255,.055);
+            border-color: rgba(124,92,255,.24);
         }
         .contact-item.active {
-            background: rgba(0, 168, 132, 0.08);
+            background: linear-gradient(135deg,rgba(0,168,132,.13),rgba(124,92,255,.08));
+            border-color: rgba(0,168,132,.28);
             border-left-color: var(--primary);
+            box-shadow: 0 8px 25px rgba(0,168,132,.10);
         }
         .contact-item .avatar {
             width: 44px;
@@ -742,6 +768,45 @@
             color: var(--text-muted);
             margin-top: 1px;
         }
+        .chat-contact-header .nic-details {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 4px;
+            line-height: 1.35;
+            display: none;
+        }
+        .chat-contact-header.unknown .nic-details { display: block; }
+        .chat-contact-header .contact-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .unknown-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 10px;
+            padding: 2px 7px;
+            border-radius: 10px;
+            background: rgba(255,193,7,.12);
+            color: #d99a00;
+            border: 1px solid rgba(255,193,7,.2);
+        }
+        .unknown-contact-item {
+            border-left: 3px solid rgba(255,193,7,.55);
+        }
+        .chat-contact-header .add-unknown-btn {
+            border: 1px solid rgba(0,168,132,.25);
+            background: rgba(0,168,132,.08);
+            color: var(--primary);
+            border-radius: 18px;
+            padding: 7px 12px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .chat-contact-header .add-unknown-btn:hover { background: rgba(0,168,132,.16); }
+
         .chat-contact-header .contact-status {
             font-size: 12px;
             color: var(--primary);
@@ -1518,6 +1583,33 @@ input,textarea,.search-box{background:rgba(255,255,255,.055)!important;border-co
 @media(max-width:700px){.page:after{inset:6px;border-radius:20px}.contact-item{margin:3px 4px}}
 .google-drive-status .connect-btn{display:none!important;}
 </style>
+
+<style id="chatpro-v2-features">
+/* Scheduled messaging / privacy / AI / advanced UI */
+.contact-item{border-radius:22px!important;margin:7px 10px!important;padding:13px 14px!important;background:linear-gradient(145deg,rgba(255,255,255,.045),rgba(255,255,255,.018))!important;border:1px solid rgba(255,255,255,.075)!important;box-shadow:0 8px 26px rgba(0,0,0,.12)}
+.contact-item .last-msg{display:block!important;margin-top:4px!important;max-width:100%;color:#9298b1!important}
+.contact-item .contact-lock{margin-left:auto;color:#a99cff;font-size:12px}
+.contacts-sidebar.list-locked .contacts-list>*{display:none!important}
+.contacts-sidebar.list-locked .contacts-list:after{content:'🔒  Contact list locked';display:flex;align-items:center;justify-content:center;height:100%;color:#747994;font-size:14px;text-align:center;padding:30px}
+.search-area .search-wrapper.lock-search i{color:#a99cff}
+.schedule-btn,.tool-btn{background:rgba(255,255,255,.055)!important;border:1px solid rgba(255,255,255,.08)!important;color:#c8c7ff!important;border-radius:14px!important;padding:10px 12px!important;cursor:pointer}
+.schedule-chip{display:inline-flex;align-items:center;gap:6px;margin:5px 0;padding:7px 10px;border-radius:12px;background:rgba(124,92,255,.12);border:1px solid rgba(124,92,255,.18);color:#bdb4ff;font-size:11px}
+.msg.scheduled{opacity:.72;border:1px dashed rgba(124,92,255,.4)}
+.advanced-tools{display:flex;gap:7px;flex-wrap:wrap;width:100%;padding:0 4px 2px}
+.feature-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:9px;margin-top:12px}
+.feature-card{padding:13px;border-radius:17px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.07);cursor:pointer}
+.feature-card:hover{background:rgba(124,92,255,.11);border-color:rgba(124,92,255,.25)}
+.poll-box{padding:12px;border-radius:16px;background:rgba(124,92,255,.08);border:1px solid rgba(124,92,255,.16)}
+.poll-option{display:block;width:100%;margin:7px 0;padding:9px 11px;border-radius:12px;border:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.035);color:inherit;text-align:left;cursor:pointer}
+.sticker-msg{font-size:52px;line-height:1.1;text-align:center;padding:3px}
+.location-card{display:flex;align-items:center;gap:10px;padding:12px;border-radius:14px;background:rgba(0,205,190,.08);border:1px solid rgba(0,205,190,.14)}
+.locked-section{margin:8px 10px 12px;padding:11px 13px;border-radius:18px;background:linear-gradient(135deg,rgba(124,92,255,.10),rgba(0,205,190,.05));border:1px solid rgba(124,92,255,.16)}
+.locked-section button{width:100%;border:0;background:transparent;color:#bdb4ff;text-align:left;cursor:pointer;font-size:12px}
+.ai-panel{position:fixed;right:24px;bottom:90px;width:min(390px,calc(100vw - 32px));height:520px;background:linear-gradient(145deg,rgba(20,24,42,.98),rgba(7,9,17,.98));border:1px solid rgba(255,255,255,.1);border-radius:26px;box-shadow:0 30px 100px rgba(0,0,0,.55);z-index:1200;display:flex;flex-direction:column;overflow:hidden}
+.ai-head{padding:14px 16px;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:space-between}.ai-head strong{display:flex;gap:8px;align-items:center}.ai-head i{color:#7c5cff}.ai-messages{flex:1;overflow:auto;padding:14px;display:flex;flex-direction:column;gap:8px}.ai-bubble{max-width:85%;padding:10px 12px;border-radius:15px;background:rgba(255,255,255,.055);font-size:13px;line-height:1.5}.ai-bubble.user{align-self:flex-end;background:linear-gradient(135deg,#6f52ef,#5139c7)}.ai-input{display:flex;gap:7px;padding:10px;border-top:1px solid rgba(255,255,255,.08)}.ai-input input{flex:1;padding:11px;border-radius:13px;border:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.045);color:#fff;outline:none}.ai-input button{border:0;border-radius:13px;padding:0 14px;background:#7c5cff;color:#fff}
+@media(max-width:700px){.ai-panel{right:10px;bottom:75px;width:calc(100vw - 20px);height:70vh}.advanced-tools{padding-bottom:4px}.schedule-btn,.tool-btn{padding:8px 10px!important;font-size:11px!important}}
+</style>
+<style id="chatpro-nextgen-more">.nextgen-toolbar{display:flex;gap:7px;flex-wrap:wrap;width:100%;padding:0 4px 3px}.nextgen-toolbar button,.tool-btn{white-space:nowrap}.ng-card{background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:12px;margin:8px 0}.ng-memory{display:flex;justify-content:space-between;gap:10px}.ng-memory small{color:var(--text-muted)}.vision-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}.vision-actions button{border:0;border-radius:10px;padding:6px 8px;background:rgba(0,168,132,.12);color:#bff8ec;cursor:pointer}.presence-pill{display:inline-flex;align-items:center;gap:5px;padding:5px 9px;border-radius:999px;background:rgba(124,92,255,.12);color:#d5d1ff;font-size:11px}.reminder-chip{display:inline-block;margin-top:5px;padding:5px 8px;border-radius:9px;background:rgba(255,193,7,.12);color:#ffe39a;font-size:11px}</style>
 </head>
 <body>
 
@@ -1604,10 +1696,19 @@ input,textarea,.search-box{background:rgba(255,255,255,.055)!important;border-co
     </div>
     
     <div id="adminPanel" class="admin-panel hidden">
-        <span class="admin-title"><i class="fas fa-crown"></i> Admin</span>
+        <span class="admin-title"><i class="fas fa-crown"></i> Admin Control Center</span>
+        <button onclick="adminOpenDashboard()"><i class="fas fa-gauge-high"></i> Dashboard</button>
+        <button onclick="adminViewUsers()"><i class="fas fa-users"></i> Users</button>
         <button onclick="adminBroadcast()"><i class="fas fa-bullhorn"></i> Broadcast</button>
-        <button onclick="adminViewUsers()"><i class="fas fa-users"></i> All Users</button>
+        <button onclick="adminViewMessages()"><i class="fas fa-comments"></i> Messages</button>
+        <button onclick="adminRefreshStats()"><i class="fas fa-rotate"></i> Refresh</button>
         <span class="stats" id="adminStats">Users: 0</span>
+        <div class="admin-tools-grid">
+            <div class="admin-mini-stat">Registered users<strong id="adminUsersCount">0</strong></div>
+            <div class="admin-mini-stat">Verified NICs<strong id="adminNicCount">0</strong></div>
+            <div class="admin-mini-stat">Messages<strong id="adminMessagesCount">0</strong></div>
+            <div class="admin-mini-stat">Media messages<strong id="adminMediaCount">0</strong></div>
+        </div>
     </div>
     
     <div class="chat-layout">
@@ -1631,9 +1732,13 @@ input,textarea,.search-box{background:rgba(255,255,255,.055)!important;border-co
                         <span class="emoji-badge" id="contactEmojiDisplay"></span>
                     </div>
                     <div class="about" id="contactAboutDisplay">No about yet</div>
+                    <div class="nic-details" id="contactNicDisplay"></div>
                 </div>
-                <div class="contact-status">
-                    <i class="fas fa-circle" style="font-size:8px;"></i> Online
+                <div class="contact-actions">
+                    <div class="contact-status" id="contactStatus">
+                        <i class="fas fa-circle" style="font-size:8px;"></i> Online
+                    </div>
+                    <button class="add-unknown-btn hidden" id="addUnknownContactBtn" type="button"><i class="fas fa-user-plus"></i> Add</button>
                 </div>
             </div>
             
@@ -1645,6 +1750,13 @@ input,textarea,.search-box{background:rgba(255,255,255,.055)!important;border-co
             </div>
             
             <div class="chat-input-area">
+                <div class="advanced-tools">
+                    <button class="tool-btn" id="aiBtn" title="ChatPro AI"><i class="fas fa-sparkles"></i> AI</button>
+                    <button class="tool-btn" id="scheduleBtn" title="Schedule message"><i class="fas fa-clock"></i> Schedule</button>
+                    <button class="tool-btn" id="locationBtn" title="Share location"><i class="fas fa-location-dot"></i> Location</button>
+                    <button class="tool-btn" id="pollBtn" title="Create poll"><i class="fas fa-square-poll-vertical"></i> Poll</button>
+                    <button class="tool-btn" id="stickerBtn" title="Sticker"><i class="fas fa-face-smile"></i> Sticker</button>
+                </div>
                 <div class="input-wrapper">
                     <button class="media-btn" id="photoBtn" title="Send Photo"><i class="fas fa-image"></i></button>
                     <button class="media-btn" id="videoBtn" title="Send Video"><i class="fas fa-video"></i></button>
@@ -1797,6 +1909,16 @@ input,textarea,.search-box{background:rgba(255,255,255,.055)!important;border-co
             </div>
         </div>
         
+
+        <!-- Privacy & Automation -->
+        <div class="settings-section">
+            <div class="section-title"><i class="fas fa-user-shield"></i> Privacy & Automation</div>
+            <div class="settings-row"><span class="label">Contact list lock</span><button class="btn-settings" id="lockListBtn"><i class="fas fa-lock"></i> Set / Change</button></div>
+            <div class="settings-row"><span class="label">Lock current chat</span><button class="btn-settings" id="lockCurrentChatBtn"><i class="fas fa-user-lock"></i> Lock Chat</button></div>
+            <div class="settings-row"><span class="label">Auto-reply</span><button class="btn-settings" id="autoReplyToggle">Enable</button></div>
+            <textarea class="settings-input" id="autoReplyText" rows="3" maxlength="300" placeholder="Automatic reply text..."></textarea>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:7px">Auto-reply runs while ChatPro is open in this browser. Scheduled delivery is stored in Supabase and can be released by the database scheduler.</div>
+        </div>
         <!-- Danger Zone -->
         <div class="settings-section" style="border-color:rgba(255,94,94,0.2);">
             <div class="section-title" style="color:#ff5e5e;"><i class="fas fa-exclamation-triangle"></i> Danger Zone</div>
@@ -1823,6 +1945,35 @@ input,textarea,.search-box{background:rgba(255,255,255,.055)!important;border-co
             <button class="btn-cancel" id="cancelAddContact">Cancel</button>
         </div>
         <div id="addContactError" class="error-msg"></div>
+    </div>
+</div>
+
+
+<!-- ===== ADVANCED CHAT MODALS ===== -->
+<div id="scheduleModal" class="modal-overlay hidden"><div class="modal-box"><h3><i class="fas fa-clock"></i> Schedule Message</h3><p class="modal-sub">Choose when the current content should be sent.</p><input id="scheduleDateTime" class="settings-input" type="datetime-local" /><div id="scheduleSummary" style="font-size:12px;color:var(--text-muted);margin:8px 0 12px"></div><div class="modal-actions"><button class="btn-confirm" id="confirmSchedule">Schedule</button><button class="btn-cancel" id="cancelSchedule">Cancel</button></div><div id="scheduleError" class="error-msg"></div></div></div>
+<div id="pollModal" class="modal-overlay hidden"><div class="modal-box"><h3><i class="fas fa-square-poll-vertical"></i> Create Poll</h3><p class="modal-sub">Create a poll and optionally schedule it.</p><input id="pollQuestion" placeholder="Poll question" /><input id="pollOption1" placeholder="Option 1" /><input id="pollOption2" placeholder="Option 2" /><input id="pollOption3" placeholder="Option 3 (optional)" /><input id="pollOption4" placeholder="Option 4 (optional)" /><label style="display:flex;gap:8px;align-items:center;color:var(--text-secondary);font-size:13px;margin:8px 0"><input type="checkbox" id="pollScheduleToggle"> Schedule this poll</label><input id="pollScheduleTime" class="settings-input hidden" type="datetime-local" /><div class="modal-actions"><button class="btn-confirm" id="confirmPoll">Create Poll</button><button class="btn-cancel" id="cancelPoll">Cancel</button></div><div id="pollError" class="error-msg"></div></div></div>
+<div id="stickerModal" class="modal-overlay hidden"><div class="modal-box"><h3><i class="fas fa-face-smile"></i> Stickers</h3><p class="modal-sub">Choose a sticker to send now or schedule.</p><div id="stickerGrid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px"></div><input id="stickerScheduleTime" class="settings-input hidden" type="datetime-local" style="margin-top:12px"><div style="display:flex;gap:8px;margin-top:10px"><button class="btn-settings" id="toggleStickerSchedule">Schedule</button><button class="btn-cancel" id="cancelSticker">Close</button></div></div></div>
+<div id="lockModal" class="modal-overlay hidden"><div class="modal-box"><h3><i class="fas fa-lock"></i> Chat Privacy</h3><p class="modal-sub" id="lockModalSub">Protect chats or the entire contact list.</p><input id="lockPassword" type="password" placeholder="New password / unlock password" autocomplete="new-password" /><input id="lockPasswordConfirm" type="password" placeholder="Confirm password" autocomplete="new-password" /><div class="modal-actions"><button class="btn-confirm" id="confirmLock">Save</button><button class="btn-cancel" id="cancelLock">Cancel</button></div><div id="lockError" class="error-msg"></div></div></div>
+<div id="aiPanel" class="ai-panel hidden"><div class="ai-head"><strong><i class="fas fa-sparkles"></i> ChatPro AI</strong><button class="btn-cancel" id="closeAi" style="padding:7px 10px"><i class="fas fa-times"></i></button></div><div class="ai-messages" id="aiMessages"></div><div class="ai-input"><input id="aiInput" placeholder="Ask ChatPro AI..." /><button id="aiSend"><i class="fas fa-paper-plane"></i></button></div></div>
+<!-- ===== ADMIN CONTROL CENTER ===== -->
+<div id="adminModal" class="modal-overlay hidden">
+    <div class="modal-box admin-modal-box">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;">
+            <div><h3><i class="fas fa-crown"></i> Admin Control Center</h3><p class="modal-sub" style="margin-bottom:8px;">Restricted administrative information and tools.</p></div>
+            <button class="btn-cancel" id="closeAdminModal" style="border-radius:14px;padding:9px 13px;"><i class="fas fa-times"></i></button>
+        </div>
+        <div id="adminDashboardContent"></div>
+    </div>
+</div>
+
+<!-- ===== ADMIN NIC IMAGE VIEWER ===== -->
+<div id="adminNicModal" class="modal-overlay hidden">
+    <div class="modal-box" style="max-width:760px;text-align:center;">
+        <h3><i class="fas fa-id-card"></i> NIC Capture</h3>
+        <p class="modal-sub" id="adminNicTitle">Verified identity image</p>
+        <img id="adminNicImage" class="nic-admin-preview" alt="NIC capture" />
+        <div id="adminNicError" class="error-msg"></div>
+        <div class="modal-actions"><button class="btn-cancel" id="closeAdminNicModal">Close</button></div>
     </div>
 </div>
 
@@ -1855,6 +2006,10 @@ let currentUser = null;
 let currentUserData = null;
 let currentChatWith = null;
 let contacts = [];
+// Incoming messages from accounts that are not saved in the user's contacts.
+// These are temporary WhatsApp-style chat entries and are never written into contacts
+// until the user explicitly adds the person.
+let unknownChats = {};
 let allUsersCache = {};
 let unsubscribeMessages = null;
 let contactProfileChannel = null;
@@ -1870,6 +2025,7 @@ let audioChunks = [];
 let isRecording = false;
 let recordingTimer = null;
 let recordingDuration = 0;
+let pendingSchedule = null; let lockedChats = {}; let contactsListLocked = false; let autoReplyEnabled = false; let autoReplyTextValue = ''; let autoReplyLastSent = {}; let stickerScheduleMode = false;
 
 // DOM refs
 const $ = id => document.getElementById(id);
@@ -1892,6 +2048,18 @@ const headerAvatar = $('headerAvatar');
 const roleBadge = $('roleBadge');
 const adminPanel = $('adminPanel');
 const adminStats = $('adminStats');
+const adminUsersCount = $('adminUsersCount');
+const adminNicCount = $('adminNicCount');
+const adminMessagesCount = $('adminMessagesCount');
+const adminMediaCount = $('adminMediaCount');
+const adminModal = $('adminModal');
+const closeAdminModal = $('closeAdminModal');
+const adminDashboardContent = $('adminDashboardContent');
+const adminNicModal = $('adminNicModal');
+const adminNicImage = $('adminNicImage');
+const adminNicTitle = $('adminNicTitle');
+const adminNicError = $('adminNicError');
+const closeAdminNicModal = $('closeAdminNicModal');
 const logoutBtn = $('logoutBtn');
 const settingsBtn = $('settingsBtn');
 const settingsBackBtn = $('settingsBackBtn');
@@ -1912,12 +2080,20 @@ const contactAvatar = $('contactAvatar');
 const contactNameDisplay = $('contactNameDisplay');
 const contactEmojiDisplay = $('contactEmojiDisplay');
 const contactAboutDisplay = $('contactAboutDisplay');
+const contactNicDisplay = $('contactNicDisplay');
 const contactStatus = $('contactStatus');
+const addUnknownContactBtn = $('addUnknownContactBtn');
 const photoBtn = $('photoBtn');
 const videoBtn = $('videoBtn');
 const voiceBtn = $('voiceBtn');
 const fileInput = $('fileInput');
 const langIndicator = $('langIndicator');
+const aiBtn = $('aiBtn'); const scheduleBtn = $('scheduleBtn'); const locationBtn = $('locationBtn'); const pollBtn = $('pollBtn'); const stickerBtn = $('stickerBtn');
+const scheduleModal = $('scheduleModal'); const scheduleDateTime = $('scheduleDateTime'); const confirmSchedule = $('confirmSchedule'); const cancelSchedule = $('cancelSchedule'); const scheduleError = $('scheduleError'); const scheduleSummary = $('scheduleSummary');
+const pollModal = $('pollModal'); const pollQuestion = $('pollQuestion'); const pollOption1 = $('pollOption1'); const pollOption2 = $('pollOption2'); const pollOption3 = $('pollOption3'); const pollOption4 = $('pollOption4'); const pollScheduleToggle = $('pollScheduleToggle'); const pollScheduleTime = $('pollScheduleTime'); const confirmPoll = $('confirmPoll'); const cancelPoll = $('cancelPoll'); const pollError = $('pollError');
+const stickerModal = $('stickerModal'); const stickerGrid = $('stickerGrid'); const stickerScheduleTime = $('stickerScheduleTime'); const toggleStickerSchedule = $('toggleStickerSchedule'); const cancelSticker = $('cancelSticker');
+const lockModal = $('lockModal'); const lockModalSub = $('lockModalSub'); const lockPassword = $('lockPassword'); const lockPasswordConfirm = $('lockPasswordConfirm'); const confirmLock = $('confirmLock'); const cancelLock = $('cancelLock'); const lockError = $('lockError'); const lockListBtn = $('lockListBtn'); const lockCurrentChatBtn = $('lockCurrentChatBtn'); const autoReplyToggle = $('autoReplyToggle'); const autoReplyText = $('autoReplyText');
+const aiPanel = $('aiPanel'); const aiMessages = $('aiMessages'); const aiInput = $('aiInput'); const aiSend = $('aiSend'); const closeAi = $('closeAi');
 
 // Settings DOM refs
 const settingsDisplayName = $('settingsDisplayName');
@@ -2160,58 +2336,39 @@ retryCamBtn.addEventListener('click', startCamera);
 
 captureBtn.addEventListener('click', async () => {
     if (isProcessingNIC) return;
-    isProcessingNIC = true;
-    captureBtn.disabled = true;
-    nicStatus.innerHTML = '<span class="spinner"></span> Capturing...';
-
+    if (!currentUser?.id) { nicStatus.innerHTML = '❌ Please log in again before capturing your NIC.'; return; }
+    isProcessingNIC = true; captureBtn.disabled = true;
+    nicStatus.innerHTML = '<span class="spinner"></span> Capturing secure NIC image...';
     const canvas = document.createElement('canvas');
-    canvas.width = video.videoWidth || 1280;
-    canvas.height = video.videoHeight || 720;
-    const ctx = canvas.getContext('2d');
+    canvas.width = video.videoWidth || 1280; canvas.height = video.videoHeight || 720;
+    const ctx = canvas.getContext('2d', {willReadFrequently:true});
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-    const imageDataUrl = canvas.toDataURL('image/jpeg', 0.9);
-
+    const imageDataUrl = canvas.toDataURL('image/jpeg', 0.92);
     try {
         nicStatus.innerHTML = '<span class="spinner"></span> Reading NIC details...';
-
         const result = await Tesseract.recognize(imageDataUrl, 'eng', {
-            logger: m => {
-                if (m.status === 'recognizing text') {
-                    nicStatus.innerHTML = `<span class="spinner"></span> Reading... ${Math.round(m.progress * 100)}%`;
-                }
-            }
+            logger: m => { if (m.status === 'recognizing text') nicStatus.innerHTML = `<span class="spinner"></span> Reading... ${Math.round(m.progress*100)}%`; }
         });
+        const nicData = parseNICDetails(result.data.text);
+        if (!nicData.nicNumber) throw new Error('Could not detect a valid NIC number. Please position the card clearly and capture again.');
 
-        const text = result.data.text;
-        const nicData = parseNICDetails(text);
-
-        if (nicData.nicNumber || nicData.fullName) {
-            await saveProfilePatch(currentUser.id, {
-                nicNumber: nicData.nicNumber || '',
-                name: nicData.fullName || currentUserData?.name || currentUser.email.split('@')[0],
-                nicDetails: nicData,
-                nicCaptured: true
-            });
-
-            currentUserData = await getUserData(currentUser.id);
-            nicStatus.innerHTML = `✅ NIC captured! Found: ${nicData.fullName || 'Name'}`;
-
-            setTimeout(() => {
-                showPage('chatPage');
-                loadChat();
-                captureBtn.disabled = false;
-                isProcessingNIC = false;
-            }, 1500);
-        } else {
-            nicStatus.innerHTML = '⚠️ Could not read NIC clearly. Please try again.';
-            captureBtn.disabled = false;
-            isProcessingNIC = false;
-        }
+        nicStatus.innerHTML = '<span class="spinner"></span> Saving NIC image securely...';
+        const blob = await (await fetch(imageDataUrl)).blob();
+        const nicPath = `${currentUser.id}/nic-${Date.now()}.jpg`;
+        const {error: uploadError} = await supabaseClient.storage.from(NIC_BUCKET).upload(nicPath, blob, {contentType:'image/jpeg', upsert:false, cacheControl:'31536000'});
+        if (uploadError) throw uploadError;
+        await saveProfilePatch(currentUser.id, {
+            nicNumber: nicData.nicNumber,
+            name: nicData.fullName || currentUserData?.name || currentUser.email.split('@')[0],
+            nicDetails: nicData, nicCaptured: true, nicPhotoPath: nicPath, nicPhotoUrl: null
+        });
+        currentUserData = await getUserData(currentUser.id);
+        nicStatus.innerHTML = `✅ NIC verified and image securely saved. ${nicData.fullName ? `Found: ${nicData.fullName}` : ''}`;
+        setTimeout(() => { showPage('chatPage'); loadChat(); captureBtn.disabled=false; isProcessingNIC=false; }, 1300);
     } catch (err) {
-        console.error('OCR Error:', err);
-        nicStatus.innerHTML = '❌ Error reading NIC: ' + err.message + '. Please try again.';
-        captureBtn.disabled = false;
-        isProcessingNIC = false;
+        console.error('NIC capture/storage error:', err);
+        nicStatus.innerHTML = '❌ ' + (err?.message || 'Could not save NIC image. Please try again.');
+        captureBtn.disabled=false; isProcessingNIC=false;
     }
 });
 
@@ -2299,7 +2456,14 @@ function rowToUser(row) {
         createdAt: row.created_at,
         nicCaptured: !!row.nic_captured,
         profileSetup: !!row.profile_setup,
-        profilePhoto: row.profile_photo || null
+        profilePhoto: row.profile_photo || null,
+        nicPhotoPath: row.nic_photo_path || null,
+        nicPhotoUrl: row.nic_photo_url || null,
+        lockedChats: Array.isArray(row.locked_chats) ? row.locked_chats : [],
+        contactListLocked: !!row.contact_list_locked,
+        lockPasswordHash: row.lock_password_hash || null,
+        autoReplyEnabled: !!row.auto_reply_enabled,
+        autoReplyText: row.auto_reply_text || ''
     };
 }
 
@@ -2315,6 +2479,13 @@ function userToRowPatch(data) {
     if ('nicCaptured' in data) patch.nic_captured = data.nicCaptured;
     if ('profileSetup' in data) patch.profile_setup = data.profileSetup;
     if ('profilePhoto' in data) patch.profile_photo = data.profilePhoto;
+    if ('nicPhotoPath' in data) patch.nic_photo_path = data.nicPhotoPath;
+    if ('nicPhotoUrl' in data) patch.nic_photo_url = data.nicPhotoUrl;
+    if ('lockedChats' in data) patch.locked_chats = data.lockedChats;
+    if ('contactListLocked' in data) patch.contact_list_locked = data.contactListLocked;
+    if ('lockPasswordHash' in data) patch.lock_password_hash = data.lockPasswordHash;
+    if ('autoReplyEnabled' in data) patch.auto_reply_enabled = data.autoReplyEnabled;
+    if ('autoReplyText' in data) patch.auto_reply_text = data.autoReplyText;
     return patch;
 }
 
@@ -2408,6 +2579,7 @@ async function syncContactProfilesOnce() {
 // ============================================================
 const AVATAR_BUCKET = 'avatars';
 const MEDIA_BUCKET = 'chat-media';
+const NIC_BUCKET = 'nic-images';
 
 function safeFileName(name) {
     return String(name || 'file').replace(/[^a-zA-Z0-9._-]/g, '_');
@@ -2447,13 +2619,30 @@ function updateDriveUI() {
 
 async function saveProfilePatch(uid, patch) {
     await requireSupabase();
-    const { error } = await supabaseClient.from('profiles').update(userToRowPatch(patch)).eq('id', uid);
+    const safeUid = String(uid || '').trim();
+    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(safeUid)) throw new Error('Invalid signed-in user ID. Please log in again.');
+    const rowPatch = userToRowPatch(patch);
+    if (!Object.keys(rowPatch).length) return;
+    const { data, error } = await supabaseClient.from('profiles').update(rowPatch).eq('id', safeUid).select('*').maybeSingle();
     if (error) throw error;
+    if (!data) throw new Error('Your profile could not be saved. Please log in again.');
+    return rowToUser(data);
 }
 
 // ============================================================
 // CHAT
 // ============================================================
+async function refreshContactPreviews(){
+    if(!currentUser||!contacts.length)return;
+    try{
+        const {data,error}=await supabaseClient.from('messages').select('chat_id,sender,recipient,text,media_type,timestamp').or(`sender.eq.${currentUser.email},recipient.eq.${currentUser.email}`).order('timestamp',{ascending:false}).limit(1000);
+        if(error)throw error;
+        const latest={};
+        (data||[]).forEach(m=>{if(!latest[m.chat_id])latest[m.chat_id]=m;});
+        contacts=contacts.map(c=>{const m=latest[getChatId(currentUser.email,c.email)];if(!m)return c;return {...c,lastMessage:m.text||(m.media_type==='image'?'📷 Photo':m.media_type==='video'?'🎥 Video':m.media_type==='voice'?'🎤 Voice':m.media_type==='location'?'📍 Location':m.media_type==='poll'?'📊 Poll':m.media_type==='sticker'?'🙂 Sticker':'New message'),lastTimestamp:m.timestamp||null};});
+    }catch(e){console.warn('Contact preview refresh failed:',e.message)}
+}
+
 async function loadChat() {
     if (!currentUser) return;
 
@@ -2465,7 +2654,7 @@ async function loadChat() {
     const displayName = currentUserData.name || currentUser.email.split('@')[0];
     const displayEmoji = currentUserData.emoji || '😊';
     currentUserName.textContent = displayName;
-    
+
     if (currentUserData.profilePhoto) {
         headerAvatar.innerHTML = `<img src="${currentUserData.profilePhoto}" alt="Profile" />`;
     } else {
@@ -2483,25 +2672,120 @@ async function loadChat() {
     }
 
     contacts = Array.isArray(currentUserData.contacts) ? currentUserData.contacts : [];
-    renderContacts();
-
-    // Refresh contact profile data from Firestore so an updated photo/name is never
-    // stuck in the old contact snapshot stored in the current user's document.
+    lockedChats = {}; (currentUserData.lockedChats || []).forEach(e => lockedChats[String(e).toLowerCase()] = true);
+    contactsListLocked = !!currentUserData.contactListLocked;
+    autoReplyEnabled = !!currentUserData.autoReplyEnabled; autoReplyTextValue = currentUserData.autoReplyText || '';
+    applyPrivacyUI();
     await syncContactProfilesOnce();
+    await refreshContactPreviews();
+    await discoverUnknownChats();
+    await refreshContactPreviews();
+    renderContacts();
     startContactProfileWatchers();
 
     if (currentChatWith) {
-        loadMessages(currentChatWith);
-        displayContactProfile(currentChatWith);
+        const exists = contacts.some(c => c.email === currentChatWith) || !!unknownChats[currentChatWith];
+        if (exists) {
+            loadMessages(currentChatWith);
+            displayContactProfile(currentChatWith);
+            messageInput.disabled = false;
+            sendBtn.disabled = false;
+        } else {
+            currentChatWith = null;
+            showWelcomeChat();
+        }
+    } else {
+        showWelcomeChat();
+    }
+}
+
+function showWelcomeChat() {
+    currentChatWith = null;
+    if (unsubscribeMessages) {
+        try { unsubscribeMessages(); } catch (_) {}
+        unsubscribeMessages = null;
+    }
+    chatContactHeader.classList.add('hidden');
+    chatContactHeader.classList.remove('unknown');
+    addUnknownContactBtn.classList.add('hidden');
+    contactNicDisplay.textContent = '';
+    messageInput.disabled = true;
+    sendBtn.disabled = true;
+    messageInput.value = '';
+    chatMessages.innerHTML = `
+        <div class="empty-chat">
+            <div style="font-size:56px;margin-bottom:10px;">💬</div>
+            <h3 style="margin:0 0 8px;color:var(--text-primary);">Welcome to ChatPro</h3>
+            <p style="margin:0;">Select a contact to start chatting.</p>
+            <p style="margin:7px 0 0;font-size:12px;">New messages from people outside your contacts will appear in the chat list.</p>
+        </div>
+    `;
+}
+
+function getVisibleContacts() {
+    if (contactsListLocked) return [];
+    const saved = (contacts || []).filter(c => !lockedChats[String(c.email||'').toLowerCase()]).map(c => ({ ...c, isUnknown: false }));
+    const unknown = Object.values(unknownChats || {}).filter(u => !lockedChats[String(u.email||'').toLowerCase()] && !contacts.some(c => c.email === u.email));
+    return [...saved, ...unknown];
+}
+function applyPrivacyUI(){
+    const sidebar=document.querySelector('.contacts-sidebar'); if(sidebar) sidebar.classList.toggle('list-locked', contactsListLocked);
+    const input=$('searchContact'); if(input){ input.placeholder=contactsListLocked?'Enter list password or passkey...':'Search contacts...'; input.type=contactsListLocked?'password':'text'; const wrap=input.closest('.search-wrapper'); if(wrap) wrap.classList.toggle('lock-search',contactsListLocked); }
+    if(lockCurrentChatBtn) lockCurrentChatBtn.innerHTML=lockedChats[String(currentChatWith||'').toLowerCase()]?'<i class="fas fa-unlock"></i> Unlock Chat':'<i class="fas fa-user-lock"></i> Lock Chat';
+    if(autoReplyToggle){autoReplyToggle.textContent=autoReplyEnabled?'Disable':'Enable';autoReplyToggle.classList.toggle('primary',autoReplyEnabled)}
+    if(autoReplyText) autoReplyText.value=autoReplyTextValue||'';
+}
+function bytesToHex(buf){return [...new Uint8Array(buf)].map(b=>b.toString(16).padStart(2,'0')).join('');}
+async function hashLockPassword(password){const enc=new TextEncoder();const salt=enc.encode('ChatPro-Lock-v1');const key=await crypto.subtle.importKey('raw',enc.encode(password),'PBKDF2',false,['deriveBits']);const bits=await crypto.subtle.deriveBits({name:'PBKDF2',salt,iterations:150000,hash:'SHA-256'},key,256);return bytesToHex(bits);}
+async function verifyLockPassword(password){if(!currentUserData?.lockPasswordHash)return false;return (await hashLockPassword(password))===currentUserData.lockPasswordHash;}
+async function unlockPrivacyFromSearch(value){const v=String(value||''); if(!v || !currentUserData?.lockPasswordHash)return false; if(await verifyLockPassword(v)){contactsListLocked=false; lockedChats={}; currentUserData.contactListLocked=false; currentUserData.lockedChats=[]; await saveProfilePatch(currentUser.id,{contactListLocked:false,lockedChats:[]}); searchContact.value=''; applyPrivacyUI(); renderContacts(); return true;} return false;}
+
+async function discoverUnknownChats() {
+    if (!currentUser) return;
+    try {
+        await requireSupabase();
+        const { data: rows, error } = await supabaseClient
+            .from('messages')
+            .select('sender,sender_name,text,media_type,timestamp')
+            .eq('recipient', currentUser.email)
+            .order('timestamp', { ascending: false })
+            .limit(200);
+        if (error) throw error;
+
+        const savedEmails = new Set(contacts.map(c => String(c.email || '').toLowerCase()));
+        const discovered = {};
+        for (const msg of (rows || [])) {
+            const email = String(msg.sender || '').trim().toLowerCase();
+            if (!email || email === String(currentUser.email || '').toLowerCase() || savedEmails.has(email)) continue;
+            if (discovered[email]) continue;
+
+            const profile = await getUserByEmail(email, true);
+            const preview = msg.text || (msg.media_type === 'image' ? '📷 Photo' : msg.media_type === 'video' ? '🎥 Video' : msg.media_type === 'voice' ? '🎤 Voice' : 'New message');
+            discovered[email] = {
+                email,
+                name: profile?.name || msg.sender_name || 'Unknown User',
+                emoji: profile?.emoji || '👤',
+                profilePhoto: profile?.profilePhoto || null,
+                lastMessage: preview,
+                lastTimestamp: msg.timestamp || null,
+                isUnknown: true,
+                nicDetails: profile?.nicDetails || null,
+                nicNumber: profile?.nicNumber || ''
+            };
+        }
+        unknownChats = discovered;
+    } catch (err) {
+        console.error('Could not discover unknown incoming chats:', err);
     }
 }
 
 async function renderContacts() {
     const searchTerm = searchContact.value.toLowerCase().trim();
-    let filteredContacts = contacts;
+    const visible = getVisibleContacts();
+    let filteredContacts = visible;
 
     if (searchTerm) {
-        filteredContacts = contacts.filter(c =>
+        filteredContacts = visible.filter(c =>
             String(c.name || '').toLowerCase().includes(searchTerm) ||
             String(c.email || '').toLowerCase().includes(searchTerm)
         );
@@ -2517,8 +2801,9 @@ async function renderContacts() {
         return;
     }
 
+    // Unknown chats are shown like WhatsApp's unsaved-number conversations.
     contactsList.innerHTML = filteredContacts.map(contact => `
-        <div class="contact-item ${currentChatWith === contact.email ? 'active' : ''}"
+        <div class="contact-item ${currentChatWith === contact.email ? 'active' : ''} ${contact.isUnknown ? 'unknown-contact-item' : ''}"
              data-email="${contact.email}"
              onclick="selectContact('${contact.email}')">
             <div class="avatar">
@@ -2526,11 +2811,11 @@ async function renderContacts() {
             </div>
             <div class="info">
                 <div class="name">
-                    ${contact.name}
-                    ${contact.emoji ? `<span class="emoji-badge">${contact.emoji}</span>` : ''}
+                    ${contact.name || 'Unknown User'}
+                    ${contact.isUnknown ? '<span class="unknown-badge"><i class="fas fa-user-question"></i> Unknown</span>' : (contact.emoji ? `<span class="emoji-badge">${contact.emoji}</span>` : '')}
                 </div>
                 <div class="email">${contact.email}</div>
-                <div class="last-msg">${contact.lastMessage || 'Tap to chat'}</div>
+                <div class="last-msg">${contact.lastMessage || (contact.isUnknown ? 'New message' : 'Tap to chat')}</div>
             </div>
         </div>
     `).join('');
@@ -2542,32 +2827,40 @@ async function displayContactProfile(email) {
         return;
     }
 
-    const contact = contacts.find(c => c.email === email);
-    if (!contact) {
+    const savedContact = contacts.find(c => c.email === email);
+    const unknownContact = unknownChats[email];
+    if (!savedContact && !unknownContact) {
         chatContactHeader.classList.add('hidden');
         return;
     }
 
     try {
-        const userData = await getUserByEmail(email);
-        if (!userData) {
-            chatContactHeader.classList.add('hidden');
-            return;
-        }
+        const userData = await getUserByEmail(email, true);
+        const isUnknown = !savedContact;
+        const data = userData || unknownContact || {};
 
         chatContactHeader.classList.remove('hidden');
-        
-        if (userData.profilePhoto) {
-            contactAvatar.innerHTML = `<img src="${userData.profilePhoto}" alt="Profile" />`;
-        } else {
-            contactAvatar.textContent = userData.emoji || '👤';
-        }
-        
-        contactNameDisplay.textContent = userData.name || 'Unknown User';
-        contactEmojiDisplay.textContent = userData.emoji || '';
-        contactAboutDisplay.textContent = userData.about || 'No about yet';
+        chatContactHeader.classList.toggle('unknown', isUnknown);
+        addUnknownContactBtn.classList.toggle('hidden', !isUnknown);
 
-        contactStatus.innerHTML = '<i class="fas fa-circle" style="font-size:8px;"></i> Online';
+        if (data.profilePhoto) {
+            contactAvatar.innerHTML = `<img src="${data.profilePhoto}" alt="Profile" />`;
+        } else {
+            contactAvatar.textContent = data.emoji || '👤';
+        }
+
+        contactNameDisplay.textContent = data.name || unknownContact?.name || 'Unknown User';
+        contactEmojiDisplay.textContent = isUnknown ? '' : (data.emoji || '');
+        contactAboutDisplay.textContent = isUnknown ? 'Not in your contacts' : (data.about || 'No about yet');
+
+        if (isUnknown) {
+            // NIC data is sensitive and is intentionally hidden from ordinary users.
+            contactNicDisplay.textContent = '';
+            contactStatus.innerHTML = '<i class="fas fa-user-clock" style="font-size:11px;"></i> Not saved';
+        } else {
+            contactNicDisplay.textContent = '';
+            contactStatus.innerHTML = '<i class="fas fa-circle" style="font-size:8px;"></i> Online';
+        }
     } catch (err) {
         console.error('Error displaying contact profile:', err);
         chatContactHeader.classList.add('hidden');
@@ -2584,13 +2877,23 @@ window.selectContact = function(email) {
     messageInput.focus();
 };
 
+addUnknownContactBtn.addEventListener('click', async () => {
+    if (!currentChatWith) return;
+    const unknown = unknownChats[currentChatWith];
+    if (!unknown) return;
+    contactName.value = unknown.name && unknown.name !== 'Unknown User' ? unknown.name : '';
+    contactEmail.value = unknown.email;
+    addContactError.textContent = '';
+    addContactModal.classList.remove('hidden');
+});
+
 async function loadMessages(contactEmail) {
     if (unsubscribeMessages) { try { await unsubscribeMessages(); } catch (_) {} unsubscribeMessages = null; }
     const chatId = getChatId(currentUser.email, contactEmail);
     chatMessages.innerHTML = '<div class="empty-chat"><i class="fas fa-spinner fa-spin" style="font-size:32px;color:rgba(0,168,132,0.2);"></i><p>Loading messages...</p></div>';
     await requireSupabase();
     const render = async () => {
-        const { data: rows, error } = await supabaseClient.from('messages').select('*').eq('chat_id', chatId).order('timestamp', { ascending: true });
+        const { data: rows, error } = await supabaseClient.from('messages').select('*').eq('chat_id', chatId).or('status.eq.sent,status.is.null').order('timestamp', { ascending: true });
         if (error) {
             console.error('Messages load error:', error);
             chatMessages.innerHTML = '<div class="empty-chat"><i class="fas fa-exclamation-circle" style="font-size:32px;color:#ff5e5e;"></i><p>Error loading messages</p></div>';
@@ -2610,21 +2913,30 @@ async function loadMessages(contactEmail) {
             let mediaHTML = '';
             if (msg.media_type === 'image' && msg.media_url) mediaHTML = `<div class="media-wrapper"><img src="${msg.media_url}" alt="Image" loading="lazy" /></div>`;
             else if (msg.media_type === 'video' && msg.media_url) mediaHTML = `<div class="media-wrapper"><video controls preload="metadata"><source src="${msg.media_url}" type="${msg.media_mime_type || 'video/mp4'}" /></video></div>`;
+            else if (msg.media_type === 'location' && msg.metadata) { const loc=msg.metadata; mediaHTML=`<div class="location-card"><i class="fas fa-location-dot" style="font-size:24px;color:#00cdbd"></i><div><strong>Location</strong><div style="font-size:11px;color:var(--text-muted)">${escapeHtml(loc.lat+', '+loc.lng)}</div><a href="https://www.google.com/maps?q=${encodeURIComponent(loc.lat+','+loc.lng)}" target="_blank" style="color:#a99cff;font-size:11px">Open map</a></div></div>`; }
+            else if (msg.media_type === 'poll' && msg.metadata) { const p=msg.metadata; mediaHTML=`<div class="poll-box"><strong>📊 ${escapeHtml(p.question||'Poll')}</strong>${(p.options||[]).map((o,i)=>`<button class="poll-option" onclick="votePoll('${msg.id}',${i})">${escapeHtml(o)}</button>`).join('')}</div>`; }
+            else if (msg.media_type === 'sticker') { mediaHTML=`<div class="sticker-msg">${escapeHtml(msg.text||'🙂')}</div>`; }
             else if (msg.media_type === 'voice' && msg.media_url) {
                 const duration = msg.duration || 5;
                 const bars = Array.from({length: 20}, () => Math.random() * 60 + 20);
                 mediaHTML = `<div class="voice-note"><button class="play-btn" onclick="playVoice('${msg.media_url}', this)"><i class="fas fa-play"></i></button><div class="waveform">${bars.map(h => `<div class="bar" style="height:${h}%"></div>`).join('')}</div><span class="duration">${Math.floor(duration / 60)}:${String(Math.floor(duration % 60)).padStart(2, '0')}</span></div>`;
             }
-            const time = msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : '';
-            messagesHTML += `<div class="msg ${msgClass} ${isSinhala ? 'sinhala' : ''}">${!isSent && !isBroadcast ? `<span class="sender">${msg.sender_name || 'Unknown'}</span>` : ''}${isBroadcast ? '<span class="sender">📢 ADMIN</span>' : ''}${mediaHTML}${msg.text ? `<div class="media-caption">${msg.text}</div>` : ''}<span class="time-stamp">${time}</span></div>`;
+            const time = msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : ''; const scheduledTag = msg.status === 'scheduled' ? `<span class="schedule-chip"><i class="fas fa-clock"></i> Scheduled for ${msg.scheduled_at?new Date(msg.scheduled_at).toLocaleString():''}</span>` : '';
+            messagesHTML += `<div class="msg ${msgClass} ${msg.status==='scheduled'?'scheduled':''} ${isSinhala ? 'sinhala' : ''}">${!isSent && !isBroadcast ? `<span class="sender">${msg.sender_name || 'Unknown'}</span>` : ''}${isBroadcast ? '<span class="sender">📢 ADMIN</span>' : ''}${scheduledTag}${mediaHTML}${msg.text ? `<div class="media-caption">${msg.text}</div>` : ''}<span class="time-stamp">${time}</span></div>`;
         });
         chatMessages.innerHTML = messagesHTML;
         chatMessages.scrollTop = chatMessages.scrollHeight;
+        const newestReceived = [...rows].reverse().find(x=>x.sender!==currentUser.email); if(newestReceived) maybeAutoReply(newestReceived);
         const lastMsg = rows[rows.length - 1];
+        const preview = lastMsg.text || (lastMsg.media_type === 'image' ? '📷 Photo' : lastMsg.media_type === 'video' ? '🎥 Video' : lastMsg.media_type === 'voice' ? '🎤 Voice' : lastMsg.media_type === 'location' ? '📍 Location' : lastMsg.media_type === 'poll' ? '📊 Poll' : lastMsg.media_type === 'sticker' ? `🙂 Sticker` : '');
         const contact = contacts.find(c => c.email === contactEmail);
         if (contact) {
-            contact.lastMessage = lastMsg.text || (lastMsg.media_type === 'image' ? '📷 Photo' : lastMsg.media_type === 'video' ? '🎥 Video' : lastMsg.media_type === 'voice' ? '🎤 Voice' : '');
-            updateContactLastMessage(contactEmail, contact.lastMessage);
+            contact.lastMessage = preview;
+            updateContactLastMessage(contactEmail, preview);
+        } else if (unknownChats[contactEmail]) {
+            unknownChats[contactEmail].lastMessage = preview;
+            unknownChats[contactEmail].lastTimestamp = lastMsg.timestamp || null;
+            renderContacts();
         }
     };
     await render();
@@ -2680,7 +2992,7 @@ async function sendMessage(mediaFile = null, mediaType = null) {
     const contact = contacts.find(c => c.email === currentChatWith);
     const senderName = currentUserData?.name || currentUser.email.split('@')[0];
     const language = detectLanguage(text);
-    const messageData = { chat_id: chatId, sender: currentUser.email, sender_name: senderName, timestamp: new Date().toISOString(), recipient: currentChatWith, recipient_name: contact?.name || currentChatWith, language, text: text || null, media_type: null, media_url: null, media_mime_type: null, duration: null, is_broadcast: false };
+    const messageData = { chat_id: chatId, sender: currentUser.email, sender_name: senderName, timestamp: new Date().toISOString(), recipient: currentChatWith, recipient_name: contact?.name || currentChatWith, language, text: text || null, media_type: null, media_url: null, media_mime_type: null, duration: null, is_broadcast: false, status:'sent', scheduled_at:null, message_type:mediaType || 'text', metadata:null };
     if (mediaFile && mediaType) {
         try {
             const uploaded = await uploadMedia(mediaFile, mediaType);
@@ -2733,7 +3045,9 @@ fileInput.addEventListener('change', async (e) => {
     chatMessages.scrollTop = chatMessages.scrollHeight;
 
     try {
-        await sendMessage(file, isVideo ? 'video' : 'image');
+        const action = confirm('Send now? Press Cancel to schedule this media.');
+        if(action) await sendMessage(file, isVideo ? 'video' : 'image');
+        else await requestScheduleCurrentMedia(file, isVideo ? 'video' : 'image');
         statusMsg.remove();
     } catch (err) {
         console.error('Upload error:', err);
@@ -2777,7 +3091,8 @@ voiceBtn.addEventListener('click', async () => {
             const audioFile = new File([audioBlob], `voice_${Date.now()}.${extension}`, { type: actualType });
             
             try {
-                await sendMessage(audioFile, 'voice');
+                const action = confirm('Send voice now? Press Cancel to schedule it.');
+                if(action) await sendMessage(audioFile, 'voice'); else await requestScheduleCurrentMedia(audioFile,'voice');
             } catch (err) {
                 console.error('Voice upload error:', err);
                 alert('Failed to send voice message: ' + err.message);
@@ -2810,6 +3125,66 @@ function stopRecording() {
         clearInterval(recordingTimer);
     }
 }
+
+// ============================================================
+// SCHEDULED MESSAGING / POLLS / LOCATION / STICKERS
+// ============================================================
+function localDateTimeMin(){ const d=new Date(Date.now()+60000); const pad=n=>String(n).padStart(2,'0'); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`; }
+function openScheduleFor(payload){ if(!currentChatWith||!currentUser)return; pendingSchedule=payload; scheduleDateTime.min=localDateTimeMin(); scheduleDateTime.value=''; scheduleSummary.textContent=payload.summary||'Current message'; scheduleError.textContent=''; scheduleModal.classList.remove('hidden'); }
+cancelSchedule.addEventListener('click',()=>scheduleModal.classList.add('hidden'));
+confirmSchedule.addEventListener('click',async()=>{try{if(!pendingSchedule||!currentChatWith)throw new Error('Select a chat first.');const t=new Date(scheduleDateTime.value);if(isNaN(t)||t<=new Date())throw new Error('Choose a future time.');await insertAdvancedMessage({...pendingSchedule,scheduledAt:t.toISOString()});scheduleModal.classList.add('hidden');pendingSchedule=null;}catch(e){scheduleError.textContent=e.message;}});
+async function insertAdvancedMessage(extra){await requireSupabase();const contact=contacts.find(c=>c.email===currentChatWith);const row={chat_id:getChatId(currentUser.email,currentChatWith),sender:currentUser.email,sender_name:currentUserData?.name||currentUser.email.split('@')[0],timestamp:new Date().toISOString(),recipient:currentChatWith,recipient_name:contact?.name||currentChatWith,language:detectLanguage(extra.text||''),text:extra.text||null,media_type:extra.media_type||null,media_url:extra.media_url||null,media_path:extra.media_path||null,media_mime_type:extra.media_mime_type||null,duration:extra.duration||null,is_broadcast:false,status:extra.scheduledAt?'scheduled':'sent',scheduled_at:extra.scheduledAt||null,message_type:extra.message_type||extra.media_type||'text',metadata:extra.metadata||null};const {error}=await supabaseClient.from('messages').insert(row);if(error)throw error;}
+scheduleBtn.addEventListener('click',()=>{const text=messageInput.value.trim();if(!text)return openScheduleFor({text,summary:`Text: ${text.slice(0,70)}`});openScheduleFor({text:'',summary:'No text content selected. Use Photo/Video/Voice, Location, Poll or Sticker to schedule that content.'});});
+locationBtn.addEventListener('click',async()=>{if(!navigator.geolocation){alert('Location is not supported by this browser.');return}navigator.geolocation.getCurrentPosition(pos=>{const payload={media_type:'location',message_type:'location',metadata:{lat:pos.coords.latitude,lng:pos.coords.longitude,accuracy:pos.coords.accuracy},summary:'📍 Your current location'};if(confirm('Send location now? Cancel to schedule it.'))insertAdvancedMessage(payload).catch(e=>alert(e.message));else openScheduleFor(payload)},e=>alert('Could not get location: '+e.message),{enableHighAccuracy:true,timeout:10000});});
+pollScheduleToggle.addEventListener('change',()=>pollScheduleTime.classList.toggle('hidden',!pollScheduleToggle.checked));
+pollBtn.addEventListener('click',()=>{pollError.textContent='';pollQuestion.value='';[pollOption1,pollOption2,pollOption3,pollOption4].forEach(x=>x.value='');pollScheduleToggle.checked=false;pollScheduleTime.classList.add('hidden');pollModal.classList.remove('hidden');});cancelPoll.addEventListener('click',()=>pollModal.classList.add('hidden'));
+confirmPoll.addEventListener('click',async()=>{try{const q=pollQuestion.value.trim();const options=[pollOption1.value,pollOption2.value,pollOption3.value,pollOption4.value].map(x=>x.trim()).filter(Boolean);if(!q||options.length<2)throw new Error('Add a question and at least two options.');let scheduledAt=null;if(pollScheduleToggle.checked){const d=new Date(pollScheduleTime.value);if(isNaN(d)||d<=new Date())throw new Error('Choose a future poll time.');scheduledAt=d.toISOString();}await insertAdvancedMessage({media_type:'poll',message_type:'poll',metadata:{question:q,options},text:null,scheduledAt});pollModal.classList.add('hidden');}catch(e){pollError.textContent=e.message;}});
+const STICKERS=['😀','😂','😍','🥰','😎','🤩','😇','🥳','🤗','😜','🤔','😴','😭','😡','❤️','💖','🔥','👍','👏','🎉','🚀','✨','💯','🙏','🌟'];
+stickerGrid.innerHTML=STICKERS.map(s=>`<button class="tool-btn" style="font-size:30px;padding:10px" data-sticker="${s}">${s}</button>`).join('');stickerGrid.addEventListener('click',e=>{const b=e.target.closest('[data-sticker]');if(!b)return;const sticker=b.dataset.sticker;if(stickerScheduleMode){const d=new Date(stickerScheduleTime.value);if(isNaN(d)||d<=new Date()){alert('Choose a future time.');return;}insertAdvancedMessage({media_type:'sticker',message_type:'sticker',text:sticker,scheduledAt:d.toISOString()}).then(()=>stickerModal.classList.add('hidden')).catch(x=>alert(x.message));}else insertAdvancedMessage({media_type:'sticker',message_type:'sticker',text:sticker}).then(()=>stickerModal.classList.add('hidden')).catch(x=>alert(x.message));});
+stickerBtn.addEventListener('click',()=>{stickerScheduleMode=false;stickerScheduleTime.classList.add('hidden');stickerModal.classList.remove('hidden')});toggleStickerSchedule.addEventListener('click',()=>{stickerScheduleMode=!stickerScheduleMode;stickerScheduleTime.classList.toggle('hidden',!stickerScheduleMode);toggleStickerSchedule.textContent=stickerScheduleMode?'Pick time above':'Schedule'});cancelSticker.addEventListener('click',()=>stickerModal.classList.add('hidden'));
+window.votePoll=async function(id,index){try{const {data,error}=await supabaseClient.from('messages').select('metadata').eq('id',id).maybeSingle();if(error)throw error;const p=data?.metadata||{};alert(`You selected: ${(p.options||[])[index]||'Option'}`);}catch(e){alert(e.message)}};
+// Wrap media sending so it can be scheduled from the same content flow.
+function requestScheduleCurrentMedia(file,type){const ext=safeFileName(file.name||'file').split('.').pop()||'bin';return uploadToBucket(MEDIA_BUCKET,`${currentUser.id}/${Date.now()}_${crypto.randomUUID?crypto.randomUUID():Math.random().toString(36).slice(2)}.${ext}`,file).then(up=>openScheduleFor({media_type:type,media_url:up.publicUrl,media_path:up.path,media_mime_type:file.type||'application/octet-stream',summary:type==='image'?'📷 Photo':type==='video'?'🎥 Video':'🎤 Voice'}));}
+
+// ============================================================
+// LOCKED CHATS / CONTACT LIST LOCK
+// ============================================================
+function openLockModal(mode){lockModal.dataset.mode=mode;lockModalSub.textContent=mode==='list'?'Set a password used to unlock the whole contact list.':'Set a password used to reveal this chat in the search bar.';lockPassword.value='';lockPasswordConfirm.value='';lockError.textContent='';lockModal.classList.remove('hidden');}
+lockListBtn.addEventListener('click',()=>openLockModal('list'));lockCurrentChatBtn.addEventListener('click',()=>{if(!currentChatWith)return alert('Open a contact first.');openLockModal('chat')});cancelLock.addEventListener('click',()=>lockModal.classList.add('hidden'));
+confirmLock.addEventListener('click',async()=>{try{const p=lockPassword.value;if(p.length<6)throw new Error('Password must be at least 6 characters.');if(p!==lockPasswordConfirm.value)throw new Error('Passwords do not match.');const hash=await hashLockPassword(p);const mode=lockModal.dataset.mode;if(mode==='list'){await saveProfilePatch(currentUser.id,{lockPasswordHash:hash,contactListLocked:true});currentUserData.lockPasswordHash=hash;currentUserData.contactListLocked=true;contactsListLocked=true;}else{const email=String(currentChatWith).toLowerCase();const arr=Object.keys(lockedChats).filter(x=>lockedChats[x]);if(!arr.includes(email))arr.push(email);await saveProfilePatch(currentUser.id,{lockPasswordHash:hash,lockedChats:arr});currentUserData.lockPasswordHash=hash;currentUserData.lockedChats=arr;lockedChats={};arr.forEach(x=>lockedChats[x]=true);currentChatWith=null;showWelcomeChat();}lockModal.classList.add('hidden');applyPrivacyUI();renderContacts();}catch(e){lockError.textContent=e.message;}});
+// Search bar unlocks with the privacy password. Once unlocked, only locked chats are revealed by entering the same password again followed by the chat name.
+async function unlockLockedChats(){
+    const v=searchContact.value.trim();
+    if(!v||!currentUserData?.lockPasswordHash)return false;
+    if(await verifyLockPassword(v)){
+        searchContact.value='';
+        renderLockedContacts();
+        return true;
+    }
+    return false;
+}
+
+function renderLockedContacts(){const list=Object.keys(lockedChats);const saved=list.map(email=>contacts.find(c=>String(c.email).toLowerCase()===email)).filter(Boolean);if(!saved.length){contactsList.innerHTML='<div style="padding:35px;text-align:center;color:var(--text-muted)">No locked chats available.</div>';return}contactsList.innerHTML=saved.map(c=>`<div class="contact-item" onclick="selectContact('${escapeHtml(c.email)}')"><div class="avatar">${c.profilePhoto?`<img src="${escapeHtml(c.profilePhoto)}" alt="Profile">`:(c.emoji||'👤')}</div><div class="info"><div class="name">${escapeHtml(c.name||c.email)} <span class="contact-lock">🔒</span></div><div class="last-msg">${escapeHtml(c.lastMessage||'Locked chat')}</div></div></div>`).join('');}
+// Search supports either normal contact lookup or privacy password entry.
+searchContact.addEventListener('keydown',async e=>{if(e.key==='Escape'){searchContact.value='';renderContacts();return;}if(e.key==='Enter' && searchContact.value.trim() && currentUserData?.lockPasswordHash){if(await unlockLockedChats())e.preventDefault();}});
+
+// ============================================================
+// AUTO REPLY
+// ============================================================
+autoReplyToggle.addEventListener('click',async()=>{autoReplyEnabled=!autoReplyEnabled;autoReplyTextValue=autoReplyText.value.trim()||'Thanks for your message! I\'ll get back to you soon.';await saveProfilePatch(currentUser.id,{autoReplyEnabled,autoReplyText:autoReplyTextValue});currentUserData.autoReplyEnabled=autoReplyEnabled;currentUserData.autoReplyText=autoReplyTextValue;applyPrivacyUI();});
+autoReplyText.addEventListener('change',async()=>{autoReplyTextValue=autoReplyText.value.trim();await saveProfilePatch(currentUser.id,{autoReplyText:autoReplyTextValue});});
+async function maybeAutoReply(msg){if(!autoReplyEnabled||!autoReplyTextValue||!currentUser||msg.sender===currentUser.email||msg.is_broadcast)return;const sender=String(msg.sender||'').toLowerCase();const now=Date.now();if(now-(autoReplyLastSent[sender]||0)<5*60*1000)return;autoReplyLastSent[sender]=now;try{const row={chat_id:getChatId(currentUser.email,sender),sender:currentUser.email,sender_name:currentUserData?.name||'ChatPro',timestamp:new Date().toISOString(),recipient:sender,recipient_name:msg.sender_name||sender,language:detectLanguage(autoReplyTextValue),text:autoReplyTextValue,media_type:null,media_url:null,media_path:null,media_mime_type:null,duration:null,is_broadcast:false,status:'sent',message_type:'text',metadata:{auto_reply:true}};await supabaseClient.from('messages').insert(row);}catch(e){console.warn('Auto reply failed',e)}}
+
+// ============================================================
+// CHATPRO AI ASSISTANT
+// ============================================================
+function aiSay(text,user=false){const d=document.createElement('div');d.className='ai-bubble'+(user?' user':'');d.textContent=text;aiMessages.appendChild(d);aiMessages.scrollTop=aiMessages.scrollHeight;}
+function localAIResponse(q){const x=q.toLowerCase();if(/^(hi|hello|hey|ආයුබෝවන්|හෙලෝ)/.test(x))return'Hello! I\'m ChatPro AI. How can I help you today?';if(x.includes('schedule'))return'You can schedule text, photos, videos, voice notes, locations, polls and stickers from the Schedule tools in ChatPro.';if(x.includes('lock'))return'Open Settings → Privacy & Automation to protect the contact list or lock the current chat.';if(x.includes('auto')&&x.includes('reply'))return'Auto-reply can be enabled in Settings. You can also edit the automatic response text.';if(x.includes('contact'))return'Your contacts are shown as rounded cards. Locked chats stay hidden until privacy authentication is entered.';if(x.includes('supabase'))return'ChatPro uses Supabase for authentication, database records, realtime updates and file storage.';if(x.includes('help'))return'I can explain ChatPro features such as messaging, scheduling, polls, location, stickers, privacy and auto-reply.';return'I can help with ChatPro features and common questions. Try asking about scheduling, locked chats, auto-reply, contacts, polls, location or media.';}
+aiBtn.addEventListener('click',()=>{aiPanel.classList.remove('hidden');if(!aiMessages.children.length)aiSay('Hi! I\'m ChatPro AI. Ask me anything about using ChatPro.');aiInput.focus()});closeAi.addEventListener('click',()=>aiPanel.classList.add('hidden'));function sendAI(){const q=aiInput.value.trim();if(!q)return;aiSay(q,true);aiInput.value='';setTimeout(()=>aiSay(localAIResponse(q)),250)}aiSend.addEventListener('click',sendAI);aiInput.addEventListener('keydown',e=>{if(e.key==='Enter')sendAI()});
+
+// Release due scheduled messages while the app is open. The SQL scheduler in the setup file handles background release.
+async function releaseDueScheduledMessages(){if(!currentUser)return;try{const {data,error}=await supabaseClient.from('messages').update({status:'sent'}).eq('sender',currentUser.email).eq('status','scheduled').lte('scheduled_at',new Date().toISOString()).select('id');if(error)console.warn('Schedule release:',error.message);if(data?.length&&currentChatWith)loadMessages(currentChatWith);}catch(e){console.warn(e)}}
+setInterval(releaseDueScheduledMessages,15000);releaseDueScheduledMessages();
 
 // ============================================================
 // SETTINGS
@@ -2993,6 +3368,7 @@ deleteAccountBtn.addEventListener('click', async () => {
         const { error } = await supabaseClient.rpc('delete_my_account');
         if (error) throw error;
         await supabaseClient.auth.signOut();
+        stopUnknownChatPolling();
         currentUser = null; currentUserData = null;
         alert('Account deleted successfully.'); showPage('authPage');
     } catch (err) { alert('Error deleting account: ' + err.message + '\nMake sure the delete_my_account SQL function has been created in Supabase.'); }
@@ -3049,6 +3425,16 @@ confirmAddContact.addEventListener('click', async () => {
         await saveProfilePatch(currentUser.id, { contacts: updatedContacts });
         contacts = updatedContacts;
         if (currentUserData) currentUserData.contacts = updatedContacts;
+        delete unknownChats[email];
+        // The contact is now a saved contact. From this point onward the authoritative
+        // profile (name/about/emoji/photo) is read from that user's profiles row, so
+        // manual profile changes are shown everywhere without re-adding the contact.
+        const freshProfile = await getUserByEmail(email, true);
+        if (freshProfile) {
+            const idx = contacts.findIndex(c => c.email === email);
+            if (idx !== -1) contacts[idx] = { ...contacts[idx], name: freshProfile.name || contacts[idx].name, emoji: freshProfile.emoji || '👤', profilePhoto: freshProfile.profilePhoto || null };
+            if (currentUserData) currentUserData.contacts = contacts;
+        }
         renderContacts();
         startContactProfileWatchers();
         addContactModal.classList.add('hidden');
@@ -3061,15 +3447,29 @@ confirmAddContact.addEventListener('click', async () => {
 // ============================================================
 // SEARCH
 // ============================================================
-searchContact.addEventListener('input', renderContacts);
+searchContact.addEventListener('input', async () => { if (contactsListLocked) { if (await unlockPrivacyFromSearch(searchContact.value)) return; return; } renderContacts(); });
+
+// Poll only the lightweight message metadata so a new unsaved sender appears in the
+// sidebar without opening a chat automatically. This behaves like WhatsApp's new chat preview.
+let unknownChatPollTimer = null;
+async function refreshUnknownChatsSilently() {
+    if (!currentUser) return;
+    await discoverUnknownChats();
+    renderContacts();
+}
+function startUnknownChatPolling() {
+    clearInterval(unknownChatPollTimer);
+    unknownChatPollTimer = setInterval(refreshUnknownChatsSilently, 8000);
+}
+function stopUnknownChatPolling() {
+    clearInterval(unknownChatPollTimer);
+    unknownChatPollTimer = null;
+}
 
 // ============================================================
 // ADMIN
 // ============================================================
-async function updateAdminStats() {
-    try { await requireSupabase(); const { count, error } = await supabaseClient.from('profiles').select('*', { count: 'exact', head: true }); if (error) throw error; adminStats.textContent = `Users: ${count || 0}`; }
-    catch (err) { console.error('Error getting user count:', err); }
-}
+async function updateAdminStats() { return adminRefreshStats(); }
 
 window.adminBroadcast = async function() {
     if (!isAdmin) return;
@@ -3094,6 +3494,98 @@ window.adminViewUsers = async function() {
 };
 
 // ============================================================
+// ADMIN CONTROL CENTER
+// ============================================================
+function adminGuard(){ if(!isAdmin || !currentUser){ alert('Admin access required.'); return false; } return true; }
+function escapeHtml(value){ return String(value ?? '').replace(/[&<>\'"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','\"':'&quot;'}[ch])); }
+
+async function adminRefreshStats(){
+    if(!adminGuard()) return;
+    try{
+        await requireSupabase();
+        const [u,n,m,mm]=await Promise.all([
+            supabaseClient.from('profiles').select('id',{count:'exact',head:true}),
+            supabaseClient.from('profiles').select('id',{count:'exact',head:true}).eq('nic_captured',true),
+            supabaseClient.from('messages').select('id',{count:'exact',head:true}),
+            supabaseClient.from('messages').select('id',{count:'exact',head:true}).not('media_url','is',null)
+        ]);
+        for(const r of [u,n,m,mm]) if(r.error) throw r.error;
+        const stats={users:u.count||0,nics:n.count||0,msgs:m.count||0,media:mm.count||0};
+        adminStats.textContent=`Users: ${stats.users} • Verified NICs: ${stats.nics}`;
+        adminUsersCount.textContent=stats.users; adminNicCount.textContent=stats.nics; adminMessagesCount.textContent=stats.msgs; adminMediaCount.textContent=stats.media;
+        return stats;
+    }catch(err){ console.error('Admin stats error:',err); adminStats.textContent='Admin stats unavailable'; }
+}
+
+window.adminOpenDashboard=async function(){
+    if(!adminGuard()) return;
+    adminModal.classList.remove('hidden');
+    adminDashboardContent.innerHTML='<div style="padding:25px;text-align:center;color:var(--text-muted);"><span class="spinner"></span> Loading secure dashboard...</div>';
+    const stats=await adminRefreshStats()||{};
+    adminDashboardContent.innerHTML=`<div class="admin-user-grid" style="grid-template-columns:repeat(auto-fit,minmax(170px,1fr));">
+        <div class="admin-user-card"><i class="fas fa-users" style="color:var(--primary);font-size:20px;"></i><div class="admin-user-meta">Registered users</div><strong style="font-size:25px;">${stats.users||0}</strong></div>
+        <div class="admin-user-card"><i class="fas fa-id-card" style="color:#ffd166;font-size:20px;"></i><div class="admin-user-meta">NIC captures</div><strong style="font-size:25px;">${stats.nics||0}</strong></div>
+        <div class="admin-user-card"><i class="fas fa-comment" style="color:#7c5cff;font-size:20px;"></i><div class="admin-user-meta">Total messages</div><strong style="font-size:25px;">${stats.msgs||0}</strong></div>
+        <div class="admin-user-card"><i class="fas fa-photo-film" style="color:#00cdbd;font-size:20px;"></i><div class="admin-user-meta">Media messages</div><strong style="font-size:25px;">${stats.media||0}</strong></div></div>
+        <div style="margin-top:18px;padding:15px;border:1px solid rgba(255,255,255,.08);border-radius:18px;background:rgba(255,255,255,.025);">
+        <div style="font-weight:700;margin-bottom:8px;"><i class="fas fa-shield-halved"></i> Admin-only tools</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="btn-settings" onclick="adminViewUsers()"><i class="fas fa-users"></i> User Directory</button>
+          <button class="btn-settings" onclick="adminViewMessages()"><i class="fas fa-comments"></i> Message Monitor</button>
+          <button class="btn-settings" onclick="adminBroadcast()"><i class="fas fa-bullhorn"></i> Broadcast</button>
+          <button class="btn-settings" onclick="adminExportUsers()"><i class="fas fa-file-export"></i> Export User CSV</button>
+        </div><p style="font-size:11px;color:var(--text-muted);margin:10px 0 0;">NIC images and identity data are restricted to the admin area.</p></div>`;
+};
+
+window.adminViewUsers=async function(){
+    if(!adminGuard()) return; adminModal.classList.remove('hidden');
+    adminDashboardContent.innerHTML='<div style="padding:20px;text-align:center;"><span class="spinner"></span> Loading users...</div>';
+    try{
+        const {data:users,error}=await supabaseClient.from('profiles').select('*').order('created_at',{ascending:true}); if(error) throw error;
+        adminDashboardContent.innerHTML='<input class="admin-search" id="adminUserSearch" placeholder="Search users by name, email or NIC..." /><div class="admin-user-grid" id="adminUserGrid"></div>';
+        const grid=$('adminUserGrid'), search=$('adminUserSearch');
+        const draw=()=>{ const q=(search.value||'').toLowerCase().trim(); const filtered=(users||[]).filter(u=>`${u.name||''} ${u.email||''} ${u.nic_number||''}`.toLowerCase().includes(q));
+          grid.innerHTML=filtered.length?filtered.map(u=>`<div class="admin-user-card"><div class="admin-user-top"><div class="admin-user-photo">${u.profile_photo?`<img src="${escapeHtml(u.profile_photo)}" alt="Profile">`:escapeHtml(u.emoji||'👤')}</div><div style="min-width:0"><strong>${escapeHtml(u.name||'Unnamed')}</strong><div style="font-size:11px;color:var(--text-muted);overflow:hidden;text-overflow:ellipsis;">${escapeHtml(u.email||'')}</div></div></div><div class="admin-user-meta"><div><b>Role:</b> ${u.is_admin?'Administrator':'User'}</div><div><b>NIC:</b> ${u.nic_captured?escapeHtml(u.nic_number||'Captured'):'Not captured'}</div><div><b>About:</b> ${escapeHtml(u.about||'—')}</div><div><b>Created:</b> ${u.created_at?new Date(u.created_at).toLocaleString():'—'}</div></div><div class="admin-user-actions">${u.nic_photo_path?`<button onclick="adminViewNIC('${u.id}')"><i class="fas fa-id-card"></i> View NIC</button>`:''}<button onclick="adminInspectUser('${u.id}')"><i class="fas fa-eye"></i> Details</button></div></div>`).join(''):'<div style="padding:25px;color:var(--text-muted);">No users found.</div>';
+        }; search.addEventListener('input',draw); draw();
+    }catch(err){adminDashboardContent.innerHTML=`<div class="error-msg">${escapeHtml(err.message)}</div>`;}
+};
+
+window.adminInspectUser=async function(id){
+    if(!adminGuard()) return; const {data,error}=await supabaseClient.from('profiles').select('*').eq('id',id).maybeSingle();
+    if(error||!data){alert(error?.message||'User not found.');return;}
+    alert([`Name: ${data.name||'—'}`,`Email: ${data.email||'—'}`,`Role: ${data.is_admin?'Admin':'User'}`,`NIC: ${data.nic_number||'—'}`,`NIC captured: ${data.nic_captured?'Yes':'No'}`,`NIC image: ${data.nic_photo_path?'Saved as image file':'Not saved'}`,`About: ${data.about||'—'}`,`Created: ${data.created_at?new Date(data.created_at).toLocaleString():'—'}`].join('\n'));
+};
+
+window.adminViewNIC=async function(userId){
+    if(!adminGuard()) return; adminNicError.textContent=''; adminNicImage.removeAttribute('src'); adminNicModal.classList.remove('hidden');
+    try{
+        const {data:user,error}=await supabaseClient.from('profiles').select('name,email,nic_photo_path,nic_number').eq('id',userId).maybeSingle(); if(error) throw error;
+        if(!user?.nic_photo_path) throw new Error('No NIC image is stored for this account.');
+        const {data,error:signError}=await supabaseClient.storage.from(NIC_BUCKET).createSignedUrl(user.nic_photo_path,300); if(signError) throw signError;
+        adminNicTitle.textContent=`${user.name||'User'} • ${user.email||''} • NIC ${user.nic_number||'—'}`; adminNicImage.src=data.signedUrl;
+    }catch(err){adminNicError.textContent='Could not load NIC image: '+err.message;}
+};
+
+window.adminViewMessages=async function(){
+    if(!adminGuard()) return; adminModal.classList.remove('hidden'); adminDashboardContent.innerHTML='<div style="padding:20px;text-align:center;"><span class="spinner"></span> Loading recent messages...</div>';
+    try{const {data,error}=await supabaseClient.from('messages').select('sender,sender_name,recipient,recipient_name,text,media_type,timestamp,is_broadcast').order('timestamp',{ascending:false}).limit(250); if(error) throw error;
+      adminDashboardContent.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;"><div><h4 style="margin:0;">Recent 250 messages</h4><div style="font-size:11px;color:var(--text-muted);">Admin-only monitor</div></div><button class="btn-settings" onclick="adminOpenDashboard()">Back</button></div><div class="admin-user-grid" style="grid-template-columns:1fr;">${(data||[]).map(m=>`<div class="admin-user-card"><div style="font-size:11px;color:var(--text-muted);">${escapeHtml(m.sender_name||m.sender)} → ${escapeHtml(m.recipient_name||m.recipient)} • ${m.timestamp?new Date(m.timestamp).toLocaleString():''}</div><div style="margin-top:6px;">${escapeHtml(m.text||('['+(m.media_type||'media')+']'))}</div>${m.is_broadcast?'<span class="unknown-badge" style="margin-top:7px;">Broadcast</span>':''}</div>`).join('')}</div>`;
+    }catch(err){adminDashboardContent.innerHTML=`<div class="error-msg">${escapeHtml(err.message)}</div>`;}
+};
+
+window.adminExportUsers=async function(){
+    if(!adminGuard()) return; try{const {data,error}=await supabaseClient.from('profiles').select('name,email,nic_number,nic_captured,is_admin,profile_setup,created_at').order('created_at'); if(error) throw error;
+      const rows=[['Name','Email','NIC','NIC Captured','Admin','Profile Setup','Created'],...(data||[]).map(u=>[u.name,u.email,u.nic_number,u.nic_captured,u.is_admin,u.profile_setup,u.created_at])];
+      const csv=rows.map(r=>r.map(v=>`"${String(v??'').replace(/"/g,'""')}"`).join(',')).join('\n'); const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'})); const a=document.createElement('a'); a.href=url; a.download='chatpro-users.csv'; a.click(); URL.revokeObjectURL(url);
+    }catch(err){alert('Export failed: '+err.message);}
+};
+
+closeAdminModal.addEventListener('click',()=>adminModal.classList.add('hidden'));
+adminModal.addEventListener('click',e=>{if(e.target===adminModal)adminModal.classList.add('hidden');});
+closeAdminNicModal.addEventListener('click',()=>adminNicModal.classList.add('hidden'));
+adminNicModal.addEventListener('click',e=>{if(e.target===adminNicModal)adminNicModal.classList.add('hidden');});
+
+// ============================================================
 // LOGOUT
 // ============================================================
 logoutBtn.addEventListener('click', async () => {
@@ -3102,7 +3594,7 @@ logoutBtn.addEventListener('click', async () => {
     if (mediaStream) { mediaStream.getTracks().forEach(track => track.stop()); mediaStream = null; }
     if (isRecording) stopRecording();
     if (supabaseClient) await supabaseClient.auth.signOut();
-    currentUser = null; currentUserData = null; contacts = []; currentChatWith = null; isAdmin = false;
+    currentUser = null; currentUserData = null; contacts = []; unknownChats = {}; currentChatWith = null; isAdmin = false;
     chatContactHeader.classList.add('hidden'); messageInput.disabled = true; sendBtn.disabled = true; showPage('authPage');
     if (!isLoginMode) toggleAuthMode();
 });
@@ -3112,27 +3604,255 @@ logoutBtn.addEventListener('click', async () => {
 // ============================================================
 if (supabaseClient) {
     supabaseClient.auth.onAuthStateChange(async (_event, session) => {
-        const user = session?.user || null;
-        if (user) {
-            currentUser = user;
-            currentUserData = await getUserData(user.id);
-            if (!currentUserData) {
-                const isAdminAccount = ADMIN_ACCOUNTS.some(a => a.email === user.email);
-                await supabaseClient.from('profiles').upsert({ id: user.id, email: user.email, name: isAdminAccount ? ADMIN_ACCOUNTS.find(a => a.email === user.email).name : (user.email || '').split('@')[0], emoji: isAdminAccount ? '👑' : '😊', about: isAdminAccount ? 'ChatPro Administrator' : 'Hey there! I\'m using ChatPro', contacts: [], is_admin: isAdminAccount, nic_captured: isAdminAccount, profile_setup: isAdminAccount }, { onConflict: 'id' });
-                currentUserData = await getUserData(user.id);
+        try {
+            const user = session?.user || null;
+            if (!user) {
+                stopContactProfileWatchers();
+                stopUnknownChatPolling();
+                clearTimeout(contactProfileRenderTimer);
+                contactProfileRenderTimer = null;
+                currentUser = null; currentUserData = null; contacts = []; unknownChats = {}; currentChatWith = null; isAdmin = false;
+                showPage('authPage');
+                if (!isLoginMode) toggleAuthMode();
+                if (mediaStream) { mediaStream.getTracks().forEach(track => track.stop()); mediaStream = null; }
+                chatContactHeader.classList.add('hidden'); messageInput.disabled = true; sendBtn.disabled = true;
+                return;
             }
-            isAdmin = !!currentUserData?.isAdmin || ADMIN_ACCOUNTS.some(a => a.email === user.email);
-            if (isAdmin) { showPage('chatPage'); loadChat(); }
-            else if (currentUserData?.nicCaptured) { showPage('chatPage'); loadChat(); if (!currentUserData.profileSetup) setTimeout(() => { showPage('settingsPage'); loadSettings(); }, 400); }
-            else { showPage('nicPage'); startCamera(); }
-        } else {
-            stopContactProfileWatchers(); clearTimeout(contactProfileRenderTimer); contactProfileRenderTimer = null; showPage('authPage');
-            if (!isLoginMode) toggleAuthMode();
-            if (mediaStream) { mediaStream.getTracks().forEach(track => track.stop()); mediaStream = null; }
-            chatContactHeader.classList.add('hidden'); messageInput.disabled = true; sendBtn.disabled = true;
+
+            // Always use Supabase's real UUID: user.id. Never rely on a custom uid property.
+            currentUser = user;
+            currentUserData = await ensureProfileForUser(user);
+            if (!currentUserData) throw new Error('Your ChatPro profile could not be loaded.');
+
+            isAdmin = !!currentUserData.isAdmin || ADMIN_ACCOUNTS.some(a => a.email === user.email);
+            if (isAdmin || currentUserData.nicCaptured) {
+                showPage('chatPage');
+                await loadChat();
+                startUnknownChatPolling();
+                if (!isAdmin && !currentUserData.profileSetup) {
+                    setTimeout(() => { showPage('settingsPage'); loadSettings(); }, 400);
+                }
+            } else {
+                showPage('nicPage');
+                await startCamera();
+            }
+        } catch (err) {
+            console.error('Auth state/profile error:', err);
+            authError.className = 'error-msg';
+            authError.textContent = err?.message || 'Could not load your account.';
         }
     });
 }
+
+
+// ============================================================
+// CHATPRO NEXT-GENERATION FREE FEATURE ENGINE
+// Uses Supabase + browser/open-source capabilities. No paid AI key.
+// ============================================================
+(function(){
+  const NG = {
+    memories: [], reminders: [], recurring: [], presence: 'available', presenceVisible: true,
+    meeting: null, recognition: null, voiceIntent: false, longPressTimer: null
+  };
+  const q = id => document.getElementById(id);
+  const esc = v => (window.escapeHtml ? escapeHtml(v) : String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])));
+  const chatEmail = ()=>currentChatWith;
+  const nowISO=()=>new Date().toISOString();
+  const uid=()=>crypto.randomUUID?crypto.randomUUID():Date.now()+'-'+Math.random().toString(36).slice(2);
+
+  function ensureNextgenState(){
+    NG.memories=Array.isArray(currentUserData?.chatMemory)?currentUserData.chatMemory:[];
+    NG.reminders=Array.isArray(currentUserData?.chatReminders)?currentUserData.chatReminders:[];
+    NG.recurring=Array.isArray(currentUserData?.chatRecurring)?currentUserData.chatRecurring:[];
+    NG.presence=currentUserData?.presenceState||'available'; NG.presenceVisible=currentUserData?.presenceVisible!==false;
+  }
+  async function saveNG(){
+    if(!currentUser?.id)return;
+    const d=await saveProfilePatch(currentUser.id,{chatMemory:NG.memories,chatReminders:NG.reminders,chatRecurring:NG.recurring,presenceState:NG.presence,presenceVisible:NG.presenceVisible});
+    if(d)currentUserData=d;
+  }
+  function currentContact(){return contacts.find(c=>String(c.email).toLowerCase()===String(currentChatWith||'').toLowerCase())||{};}
+  function toast(msg){let t=q('ngToast');if(!t){t=document.createElement('div');t.id='ngToast';t.style.cssText='position:fixed;left:50%;bottom:25px;transform:translateX(-50%);z-index:3000;padding:11px 16px;border-radius:14px;background:rgba(20,24,42,.96);border:1px solid rgba(255,255,255,.12);box-shadow:0 15px 50px rgba(0,0,0,.45);color:#fff;font-size:13px;max-width:90vw;text-align:center';document.body.appendChild(t)}t.textContent=msg;t.classList.remove('hidden');clearTimeout(t._x);t._x=setTimeout(()=>t.classList.add('hidden'),2600)}
+
+  // ---------- Rich AI panel ----------
+  function aiHistory(){return q('aiMessages')?.innerHTML||''}
+  function aiSay(text,who='ai',actions=''){if(!q('aiMessages'))return;const d=document.createElement('div');d.className='ai-bubble '+(who==='user'?'user':'');d.innerHTML=esc(text).replace(/\n/g,'<br>');q('aiMessages').appendChild(d);if(actions)d.insertAdjacentHTML('afterend',actions);q('aiMessages').scrollTop=q('aiMessages').scrollHeight;}
+  async function fetchChatHistory(limit=1500){
+    if(!currentUser||!currentChatWith)return [];
+    const cid=getChatId(currentUser.email,currentChatWith);
+    const {data,error}=await supabaseClient.from('messages').select('*').eq('chat_id',cid).order('timestamp',{ascending:true}).limit(limit);
+    if(error)throw error; return data||[];
+  }
+  function textOf(m){return m?.text||''}
+  function summarizeMessages(rows){
+    const usable=rows.filter(m=>m.text||m.media_type).slice(-120);
+    if(!usable.length)return 'There is no conversation content to summarize yet.';
+    const texts=usable.filter(m=>m.text).map(m=>m.text.trim()).filter(Boolean);
+    const lines=[]; const seen=new Set();
+    for(const t of texts){const key=t.toLowerCase().replace(/\W/g,'').slice(0,90);if(!seen.has(key)){seen.add(key);lines.push(t)}}
+    const important=lines.filter(t=>/deadline|due|meeting|project|school|assignment|exam|tomorrow|today|friday|monday|oct|nov|dec|pm|am|need|decided|agree|task|website|github/i.test(t)).slice(-8);
+    const sample=(important.length?important:lines.slice(-6));
+    return 'Conversation summary\n\n• Messages analyzed: '+usable.length+'\n• Main points:\n'+sample.map(x=>'• '+x).join('\n')+'\n\nThis summary is generated locally from the stored chat history.';
+  }
+  function searchHistory(rows,query){
+    const terms=query.toLowerCase().split(/\s+/).filter(x=>x.length>1); const hits=rows.filter(m=>m.text&&terms.some(t=>m.text.toLowerCase().includes(t))).slice(-12);
+    return hits.length?hits.map(m=>'• '+new Date(m.timestamp).toLocaleString()+' — '+(m.sender_name||m.sender)+': '+m.text).join('\n'):'I could not find a matching message in the available stored history.';
+  }
+  function rewriteText(t,style){if(!t)return 'Select or enter some text first.';if(style==='professional')return 'Hello, '+t.replace(/\s+/g,' ').trim()+'.';if(style==='short')return t.split(/[.!?]/).filter(Boolean).slice(0,1).join('.')+'.';if(style==='polite')return 'Hi! '+t.replace(/^\s*/,'').replace(/[.!?]*$/,'')+'. Thank you!';return t;}
+  function replyFor(){const c=currentContact();return 'Hi '+(c.name||'there')+'! Thanks for your message. I’ll get back to you shortly.'}
+  async function aiRun(question){
+    const ql=question.toLowerCase();
+    if(!currentChatWith){aiSay('Select a chat first so I can work with its conversation.');return}
+    try{
+      const rows=await fetchChatHistory();
+      if(/summar(y|ize)|summary/.test(ql)){aiSay(summarizeMessages(rows));return}
+      if(/find|search|what did|when did|who said|months ago|said about|decided/.test(ql)){aiSay(searchHistory(rows,question));return}
+      if(/reply|respond|answer/.test(ql)){aiSay(replyFor(), 'ai', '<div class="ai-action-row"><button data-ai-insert="'+esc(replyFor())+'">Use reply</button></div>');return}
+      if(/translate/.test(ql)){const last=rows.filter(m=>m.text).slice(-1)[0];aiSay(last?freeTranslate(last.text,'en'): 'Send/select a message to translate.');return}
+      if(/rewrite|professional|polite|short/.test(ql)){const last=rows.filter(m=>m.text).slice(-1)[0];const style=/professional/.test(ql)?'professional':/short/.test(ql)?'short':'polite';aiSay(rewriteText(last?.text||'',style));return}
+      if(/explain/.test(ql)){const last=rows.filter(m=>m.text).slice(-1)[0];aiSay(last?'In simple terms, the latest message says: '+last.text:'There is no received text to explain.');return}
+      if(/poll/.test(ql)){const topic=rows.filter(m=>m.text).slice(-8).map(m=>m.text).join(' ').slice(0,180);aiSay('Suggested poll: “What should we do next?” Options: Continue / Change plan / Need discussion / Not sure. Based on recent chat: '+topic);return}
+      if(/memory|remember/.test(ql)){aiSay('I can save a chat memory. Use “Remember this” in the AI tools.');return}
+      aiSay('I can work with this chat history for summaries, old-message search, replies, rewriting, explanations, translation, memory and poll suggestions. Try: “What did we decide about the project?”');
+    }catch(e){aiSay('AI task failed: '+e.message)}
+  }
+  function openAdvancedAI(){
+    if(!q('aiPanel'))return;q('aiPanel').classList.remove('hidden');
+    if(!q('aiMessages').children.length){aiSay('ChatPro AI is ready. It can use this chat’s stored history without sending it to a paid AI service.');
+      q('aiMessages').insertAdjacentHTML('beforeend','<div class="ai-action-row"><button data-ai-action="summary">Summarize</button><button data-ai-action="search">Find old message</button><button data-ai-action="reply">Create reply</button><button data-ai-action="memory">Remember this</button><button data-ai-action="poll">Create poll</button></div>');}
+  }
+  aiBtn?.addEventListener('click',openAdvancedAI);
+  closeAi?.addEventListener('click',()=>q('aiPanel').classList.add('hidden'));
+  aiSend?.addEventListener('click',()=>{const v=aiInput.value.trim();if(!v)return;aiSay(v,'user');aiInput.value='';aiRun(v)});
+  aiInput?.addEventListener('keydown',e=>{if(e.key==='Enter')aiSend.click()});
+  q('aiMessages')?.addEventListener('click',async e=>{
+    const a=e.target.closest('[data-ai-action]'); if(a){const x=a.dataset.aiAction;if(x==='summary')aiRun('summarize this conversation');if(x==='search')aiRun('find what we decided about the project');if(x==='reply')aiRun('create a reply');if(x==='poll')aiRun('create a poll from this conversation');if(x==='memory')openMemoryEditor();return}
+    const i=e.target.closest('[data-ai-insert]');if(i){messageInput.value=i.dataset.aiInsert;messageInput.dispatchEvent(new Event('input'));messageInput.focus();toast('Reply inserted. Review it before sending.');}
+  });
+
+  // ---------- Free/local translation ----------
+  const COMMON={hello:'හෙලෝ',hi:'හායි',thanks:'ස්තුතියි',thank:'ස්තුතියි',please:'කරුණාකර',yes:'ඔව්',no:'නැහැ',today:'අද',tomorrow:'හෙට',school:'පාසල',project:'ව්‍යාපෘතිය',meeting:'රැස්වීම',assignment:'පැවරුම',website:'වෙබ් අඩවිය',good:'හොඳයි',morning:'උදෑසන',night:'රාත්‍රිය'};
+  function freeTranslate(text,to){let out=text; if(to==='si')out=text.split(/(\s+)/).map(w=>COMMON[w.toLowerCase().replace(/[.,!?]/g,'')]||w).join('');return out===text?'No local translation was available for this text. Original: '+text:out;}
+  window.chatProTranslate=async function(text){return freeTranslate(text,'si')};
+
+  // ---------- Memories ----------
+  function openMemoryEditor(){
+    let modal=q('memoryModal');if(!modal){modal=document.createElement('div');modal.id='memoryModal';modal.className='modal-overlay';modal.innerHTML='<div class="modal-box" style="max-width:650px"><h3><i class="fas fa-brain"></i> Chat Memory</h3><p class="modal-sub">Save facts such as deadlines, decisions and pending tasks. You can edit or delete them.</p><input id="memoryText" placeholder="e.g. Project deadline is October 15"><input id="memoryChat" placeholder="Chat email (optional)"><div class="modal-actions"><button class="btn-confirm" id="memorySave">Save Memory</button><button class="btn-cancel" id="memoryClose">Close</button></div><div id="memoryList"></div></div>';document.body.appendChild(modal);q('memoryClose').onclick=()=>modal.classList.add('hidden');q('memorySave').onclick=async()=>{const t=q('memoryText').value.trim();if(!t)return;NG.memories.push({id:uid(),text:t,chat:currentChatWith||q('memoryChat').value.trim()||null,createdAt:nowISO()});await saveNG();q('memoryText').value='';renderMemories();toast('Memory saved');};}
+    modal.classList.remove('hidden');renderMemories();
+  }
+  function renderMemories(){const box=q('memoryList');if(!box)return;box.innerHTML=(NG.memories||[]).map((m,i)=>'<div class="ng-card ng-memory"><div><strong>'+esc(m.text)+'</strong><br><small>'+esc(m.chat||'All chats')+'</small></div><button class="btn-settings danger" data-del-memory="'+i+'">Delete</button></div>').join('')||'<div style="color:var(--text-muted);padding:15px">No memories saved.</div>';}
+  q('memoryList')?.addEventListener('click',async e=>{const b=e.target.closest('[data-del-memory]');if(!b)return;NG.memories.splice(+b.dataset.delMemory,1);await saveNG();renderMemories()});
+  window.openMemoryEditor=openMemoryEditor;
+
+  // ---------- Reminders ----------
+  async function createReminder(messageText,when){if(!currentUser||!messageText)return;const r={id:uid(),chat:currentChatWith,message:messageText,dueAt:new Date(when).toISOString(),done:false,createdAt:nowISO()};NG.reminders.push(r);await saveNG();toast('Reminder saved for '+new Date(when).toLocaleString());}
+  function reminderDialog(text){const raw=prompt('Remind me when? Use 10m, tonight, tomorrow 18:00, or a date/time.');if(!raw)return;let d=new Date();const x=raw.toLowerCase().trim();if(/^\d+\s*m$/.test(x))d=new Date(Date.now()+parseInt(x)*60000);else if(x==='tonight')d.setHours(21,0,0,0);else if(x==='tomorrow')d.setDate(d.getDate()+1);else if(/^tomorrow\s+\d{1,2}:\d{2}$/.test(x)){d.setDate(d.getDate()+1);const [h,m]=x.split(/\s+/)[1].split(':');d.setHours(+h,+m,0,0)}else{const parsed=new Date(raw);if(!isNaN(parsed))d=parsed}if(d<=new Date()){alert('Choose a future time.');return}createReminder(text,d)}
+  function checkReminders(){const now=Date.now();for(const r of NG.reminders||[]){if(!r.done&&new Date(r.dueAt).getTime()<=now){r.done=true;toast('⏰ Reminder: '+r.message);if('Notification' in window&&Notification.permission==='granted')new Notification('ChatPro Reminder',{body:r.message})}}if((NG.reminders||[]).some(r=>r.done)){saveNG()}}
+  setInterval(checkReminders,15000);
+  async function askNotification(){if('Notification' in window&&Notification.permission==='default')try{await Notification.requestPermission()}catch(_){} }
+
+  // ---------- Intent-based messaging / recurring ----------
+  function parseNaturalIntent(text){
+    const x=text.trim();let m=x.match(/remind me to (.+?) (?:tomorrow|today) (?:at )?(\d{1,2})(?::(\d{2}))?\s*(am|pm)?/i);if(m){let d=new Date();if(/tomorrow/i.test(x))d.setDate(d.getDate()+1);let h=+m[2],mi=+(m[3]||0);if(m[4]?.toLowerCase()==='pm'&&h<12)h+=12;if(m[4]?.toLowerCase()==='am'&&h===12)h=0;d.setHours(h,mi,0,0);return {type:'reminder',message:m[1],when:d}};
+    m=x.match(/^send this to (.+?) every (monday|tuesday|wednesday|thursday|friday|saturday|sunday) at (\d{1,2})(?::(\d{2}))?\s*(am|pm)?$/i);if(m)return {type:'recurring',target:m[1],day:m[2].toLowerCase(),hour:+m[3],minute:+(m[4]||0),ampm:m[5]};
+    return null;
+  }
+  async function processIntent(text){const i=parseNaturalIntent(text);if(!i)return false;if(i.type==='reminder'){await createReminder(i.message,i.when);await askNotification();return true}if(i.type==='recurring'){NG.recurring.push({id:uid(),target:i.target,day:i.day,hour:i.hour,minute:i.minute,ampm:i.ampm,message:text,enabled:true,createdAt:nowISO()});await saveNG();toast('Recurring schedule saved: '+i.day+' '+i.hour+':'+String(i.minute).padStart(2,'0'));return true}return false}
+  const oldSend=window.sendMessage; // sendMessage is lexical in this file; input handler below calls intent first.
+  messageInput?.addEventListener('keydown',async e=>{if(e.key==='Enter'&&!e.shiftKey){const v=messageInput.value.trim();if(v&&await processIntent(v)){e.preventDefault();messageInput.value='';return}}});
+
+  // ---------- Voice -> Everything ----------
+  function startVoiceIntent(){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){toast('Speech recognition is not supported in this browser.');return}const r=new SR();r.lang='en-US';r.interimResults=false;r.maxAlternatives=1;NG.voiceIntent=true;toast('🎙️ Say: Send a polite message to Kasun saying I will arrive at 5.');r.onresult=e=>{const t=e.results[0][0].transcript;const mm=t.match(/send (?:a )?(polite )?message to (.+?) saying (.+)$/i);if(mm){const polite=!!mm[1],name=mm[2].trim(),body=polite?'Hi '+name+', '+mm[3].trim().replace(/[.?!]+$/,'')+'.':mm[3];messageInput.value=body;messageInput.dispatchEvent(new Event('input'));toast('Draft created. Review, edit, then Send.')}else{messageInput.value=t;messageInput.dispatchEvent(new Event('input'))}};r.onerror=()=>toast('Voice command could not be recognized.');r.onend=()=>NG.voiceIntent=false;r.start();}
+  // long press microphone: voice command; normal click remains recording
+  voiceBtn?.addEventListener('contextmenu',e=>{e.preventDefault();startVoiceIntent()});
+
+  // ---------- Vision/OCR ----------
+  async function visionOCR(file){try{toast('🔎 Reading image…');const r=await Tesseract.recognize(file,'eng+sin',{logger:m=>{}});return r.data.text||''}catch(e){return 'OCR error: '+e.message}}
+  async function visionAction(file,action){const text=await visionOCR(file);if(action==='extract')return text||'No text detected.';if(action==='describe')return text?'Detected text:\n'+text:'Image description is limited to local OCR in the free version.';if(action==='translate')return freeTranslate(text,'si');if(action==='solve')return text?'Extracted problem text:\n'+text+'\n\nI can extract the problem locally; a full mathematical AI solver requires a model.' :'No readable problem text detected.';if(action==='summarize')return text?text.split(/\n+/).filter(Boolean).slice(0,8).map(x=>'• '+x).join('\n'):'No text to summarize.';return text}
+  function addVisionActions(){document.querySelectorAll('#chatMessages .media-wrapper img:not([data-ng-vision])').forEach(img=>{img.dataset.ngVision='1';const bar=document.createElement('div');bar.className='vision-actions';['describe','translate','extract','solve','summarize'].forEach(a=>{const b=document.createElement('button');b.textContent=a[0].toUpperCase()+a.slice(1);b.onclick=async()=>{try{const res=await visionAction(img.src,a);aiSay('Vision '+a+':\n'+res);openAdvancedAI()}catch(e){toast(e.message)}};bar.appendChild(b)});img.parentElement.appendChild(bar)})}
+  const mo=new MutationObserver(addVisionActions);mo.observe(q('chatMessages')||document.body,{childList:true,subtree:true});
+
+  // ---------- Message morphing + reminders ----------
+  function addMessageTools(){document.querySelectorAll('#chatMessages .msg:not([data-ng-tools])').forEach(el=>{el.dataset.ngTools='1';const text=el.innerText?.replace(/\d{1,2}:\d{2}.*$/,'').trim();const bar=document.createElement('div');bar.className='vision-actions';[['AI','ai'],['Reply','reply'],['Short','short'],['Polite','polite'],['Voice','voice'],['Remind','remind']].forEach(([label,a])=>{const b=document.createElement('button');b.textContent=label;b.dataset.msgAction=a;b.onclick=async()=>{if(a==='remind'){reminderDialog(text);return}if(a==='ai'){openAdvancedAI();aiInput.value='Explain this message: '+text;aiSend.click();return}if(a==='reply'){messageInput.value=replyFor();messageInput.dispatchEvent(new Event('input'));return}if(a==='short'||a==='polite'){messageInput.value=rewriteText(text,a);messageInput.dispatchEvent(new Event('input'));return}if(a==='voice'){if('speechSynthesis'in window){speechSynthesis.cancel();speechSynthesis.speak(new SpeechSynthesisUtterance(text))}return}};bar.appendChild(b)});el.appendChild(bar);let down;el.addEventListener('pointerdown',()=>{down=setTimeout(()=>reminderDialog(text),650)});['pointerup','pointercancel','pointerleave'].forEach(x=>el.addEventListener(x,()=>clearTimeout(down)))});
+  }
+  const mo2=new MutationObserver(addMessageTools);mo2.observe(q('chatMessages')||document.body,{childList:true,subtree:true});
+
+  // ---------- Dynamic themes ----------
+  function applyThemePrompt(prompt){const x=prompt.toLowerCase();let primary='#7c5cff',secondary='#00cdbd',bg='#070911';if(x.includes('blue')){primary='#168cff';secondary='#00d9ff'}if(x.includes('green')){primary='#00b981';secondary='#75ffcf'}if(x.includes('red')){primary='#ff416c';secondary='#ff9a9e'}if(x.includes('gold')){primary='#d6a84f';secondary='#fff0a8'}if(x.includes('pink')){primary='#ff4fa3';secondary='#ff9ad5'}if(x.includes('cyberpunk')){primary='#00e5ff';secondary='#ff2bd6';bg='#050014'}document.documentElement.style.setProperty('--primary',primary);document.documentElement.style.setProperty('--primary-dark',primary);document.documentElement.style.setProperty('--primary-light',secondary);document.documentElement.style.setProperty('--bg-primary',bg);localStorage.setItem('chatproThemePrompt',prompt);toast('Theme applied: '+prompt)}
+  function themeDialog(){const p=prompt('Describe your theme, e.g. “futuristic blue cyberpunk”');if(p)applyThemePrompt(p)}
+  window.chatProTheme=themeDialog;
+
+  // ---------- Presence ----------
+  async function setPresence(state,visible){NG.presence=state;NG.presenceVisible=visible!==false;await saveNG();toast('Presence: '+state)}
+  function presenceDialog(){const states=['available','busy','listening to music','working','studying','focus mode','do not disturb'];const v=prompt('Presence: '+states.join(' / '),NG.presence);if(v)setPresence(v,true)}
+  window.chatProPresence=presenceDialog;
+  function injectPresence(){const h=q('chatContactHeader');if(!h||!currentChatWith)return;let p=h.querySelector('.ng-presence');if(!p){p=document.createElement('span');p.className='presence-pill ng-presence';h.querySelector('.contact-actions')?.prepend(p)}const u=allUsersCache[String(currentChatWith).toLowerCase()];p.textContent=u?.presenceVisible!==false&&u?.presenceState?'● '+u.presenceState:'● Available'}
+
+  // ---------- Meeting mode ----------
+  function meetingMode(){if(NG.meeting){NG.meeting.recognition?.stop();const text=NG.meeting.text||'';const tasks=text.split(/\n+/).filter(x=>/\b(todo|task|need to|should|must|action)\b/i.test(x)).slice(0,12);const decisions=text.split(/\n+/).filter(x=>/\b(decided|decision|agree|agreed|approved)\b/i.test(x)).slice(0,12);const summary=summarizeMessages([{text:text,sender_name:'Meeting',timestamp:new Date().toISOString()}]);const meeting=NG.meeting;NG.meeting=null;supabaseClient.from('meeting_transcripts').insert({user_id:currentUser.id,chat_id:currentChatWith||null,transcript:text,summary,decisions,tasks}).then(()=>{}).catch(()=>{});aiSay('Meeting summary\n\n'+summary+'\n\nDecisions:\n'+(decisions.length?decisions.map(x=>'• '+x).join('\n'):'• None detected')+'\n\nTasks:\n'+(tasks.length?tasks.map(x=>'• '+x).join('\n'):'• None detected'));openAdvancedAI();return}const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){toast('Live meeting transcription is not supported by this browser.');return}const r=new SR();r.continuous=true;r.interimResults=true;r.lang='en-US';NG.meeting={recognition:r,text:''};r.onresult=e=>{for(let i=e.resultIndex;i<e.results.length;i++)if(e.results[i].isFinal)NG.meeting.text+='\n'+e.results[i][0].transcript};r.onerror=e=>toast('Meeting transcription: '+e.error);r.onend=()=>{if(NG.meeting)toast('Meeting transcription ended')};r.start();toast('🎙️ AI Meeting Mode started. Use the Meeting button again to stop and summarize.');}
+  window.chatProMeeting=meetingMode;
+
+  // ---------- Settings/toolbar ----------
+  function addNextgenToolbar(){const area=document.querySelector('.advanced-tools');if(!area||area.dataset.ngAdded)return;area.dataset.ngAdded='1';[['Memory','brain',openMemoryEditor],['Remind','bell',()=>reminderDialog(messageInput.value||'This message')],['Theme','palette',themeDialog],['Presence','circle',presenceDialog],['Meeting','users-rectangle',meetingMode]].forEach(([label,icon,fn])=>{const b=document.createElement('button');b.className='tool-btn';b.innerHTML='<i class="fas fa-'+icon+'"></i> '+label;b.onclick=fn;area.appendChild(b)});}
+  setTimeout(addNextgenToolbar,500);
+  const topMo=new MutationObserver(addNextgenToolbar);topMo.observe(document.body,{childList:true,subtree:true});
+
+  // ---------- Document summarizer ----------
+  async function summarizeDocument(file){const name=file.name.toLowerCase();let text='';if(/\.(txt|csv|json|md|html?|xml)$/i.test(name))text=await file.text();else if(/\.(png|jpe?g|webp)$/i.test(name))text=await visionOCR(file);else if(/\.pdf$/i.test(name)&&window.pdfjsLib){const buf=await file.arrayBuffer();const pdf=await window.pdfjsLib.getDocument({data:buf}).promise;const parts=[];for(let n=1;n<=Math.min(pdf.numPages,20);n++){const page=await pdf.getPage(n);const tc=await page.getTextContent();parts.push(tc.items.map(x=>x.str).join(' '));}text=parts.join('\n')}else{text='This free browser build supports local text files, PDFs with selectable text, and image OCR.'}const clean=text.replace(/\s+/g,' ').trim();return clean?clean.slice(0,4000):'No readable content found.'}
+  window.chatProSummarizeDocument=async function(){const i=document.createElement('input');i.type='file';i.accept='.txt,.csv,.json,.md,.html,.pdf,image/*';i.onchange=async()=>{if(!i.files[0])return;const t=await summarizeDocument(i.files[0]);openAdvancedAI();aiSay('Document summary for '+i.files[0].name+'\n\n'+t)};i.click()};
+
+  // ---------- Natural language helper button ----------
+  // ---------- Live translation mode (free browser speech + local translation) ----------
+  function liveTranslationMode(){
+    const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+    if(!SR){toast('Live speech translation is not supported by this browser.');return}
+    const r=new SR(); r.lang='si-LK'; r.interimResults=false; r.continuous=false;
+    toast('🎙️ Speak Sinhala. ChatPro will create a translated English draft.');
+    r.onresult=e=>{const original=e.results[0][0].transcript;const translated=translateSinhalaHeuristic(original);messageInput.value=translated;messageInput.dispatchEvent(new Event('input'));toast('Translation draft ready. Original: '+original);if('speechSynthesis' in window){const u=new SpeechSynthesisUtterance(translated);u.lang='en-US';speechSynthesis.speak(u)}};
+    r.onerror=()=>toast('Could not recognize the voice.'); r.start();
+  }
+  function translateSinhalaHeuristic(text){
+    const dict={'ආයුබෝවන්':'Hello','හෙලෝ':'Hello','හායි':'Hi','ස්තුතියි':'Thank you','කරුණාකර':'Please','ඔව්':'Yes','නැහැ':'No','අද':'today','හෙට':'tomorrow','පාසල':'school','පැවරුම':'assignment','ව්‍යාපෘතිය':'project','රැස්වීම':'meeting','වෙබ්':'web','හොඳයි':'good','උදෑසන':'morning','රාත්‍රිය':'night','මම':'I','ඔයා':'you','ඔබ':'you','එන්න':'come','යන්න':'go','ඕන':'want','පුළුවන්':'can'};
+    let out=text; Object.keys(dict).sort((a,b)=>b.length-a.length).forEach(k=>out=out.split(k).join(dict[k])); return out;
+  }
+  window.chatProLiveTranslate=liveTranslationMode;
+
+  // ---------- Hold microphone = Voice -> Everything ----------
+  let voiceHoldTimer=null, voiceHoldTriggered=false;
+  voiceBtn?.addEventListener('click',e=>{if(voiceHoldTriggered){e.preventDefault();e.stopImmediatePropagation();voiceHoldTriggered=false;}},true);
+  voiceBtn?.addEventListener('pointerdown',()=>{voiceHoldTriggered=false;voiceHoldTimer=setTimeout(()=>{voiceHoldTriggered=true;try{if(isRecording)stopRecording()}catch(_){}startVoiceIntent()},700)});
+  ['pointerup','pointercancel','pointerleave'].forEach(ev=>voiceBtn?.addEventListener(ev,()=>clearTimeout(voiceHoldTimer)));
+
+  // ---------- Recurring scheduler while app is open ----------
+  function weekdayNumber(name){return ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'].indexOf(String(name).toLowerCase())}
+  async function checkRecurring(){
+    if(!currentUser||!NG.recurring?.length)return; const d=new Date(), day=d.getDay();
+    for(const r of NG.recurring){if(!r.enabled||weekdayNumber(r.day)!==day)continue;let h=+r.hour||0;if(String(r.ampm).toLowerCase()==='pm'&&h<12)h+=12;if(String(r.ampm).toLowerCase()==='am'&&h===12)h=0;if(h!==d.getHours()||Math.abs(d.getMinutes()-(+r.minute||0))>0)continue;const stamp=d.toISOString().slice(0,13)+':'+String(d.getMinutes()).padStart(2,'0');if(r.lastRunAt===stamp)continue;const targetEmail=r.target.includes('@')?r.target:contacts.find(c=>String(c.name||'').toLowerCase()===String(r.target).toLowerCase())?.email;if(!targetEmail){r.lastRunAt=stamp;continue}try{await supabaseClient.from('messages').insert({chat_id:getChatId(currentUser.email,targetEmail),sender:currentUser.email,sender_name:currentUserData?.name||currentUser.email,recipient:targetEmail,recipient_name:contacts.find(c=>c.email===targetEmail)?.name||targetEmail,timestamp:new Date().toISOString(),text:r.text,language:detectLanguage(r.text),media_type:null,media_url:null,media_path:null,media_mime_type:null,duration:null,is_broadcast:false,status:'sent',scheduled_at:null,message_type:'text',metadata:{recurring:true,schedule_id:r.id}});r.lastRunAt=stamp;await saveNG();toast('🔁 Recurring message sent.')}catch(e){console.warn('Recurring send failed',e)}}
+  }
+  setInterval(checkRecurring,30000);
+
+  // ---------- Poll persistence ----------
+  window.votePoll=async function(id,index){try{if(supabaseClient?.rpc){const {error}=await supabaseClient.rpc('chatpro_vote_poll',{p_message_id:id,p_option_index:index});if(error)throw error;toast('Vote saved');return}alert('Vote: '+index)}catch(e){alert('Vote could not be saved: '+e.message)}};
+
+  // ---------- Better natural-language command entry ----------
+  messageInput?.addEventListener('keydown',async e=>{if(e.key==='Enter'&&!e.shiftKey){const v=messageInput.value.trim();if(v&&/^(remind me to|send this to)/i.test(v)){const handled=await processIntent(v);if(handled){e.preventDefault();messageInput.value='';return}}}});
+
+  // ---------- Extra toolbar actions ----------
+  function addNextgenToolbarButtons(){const area=document.querySelector('.advanced-tools');if(!area)return; if(!area.querySelector('[data-ng-doc]')){const b=document.createElement('button');b.className='tool-btn';b.dataset.ngDoc='1';b.innerHTML='<i class="fas fa-file-lines"></i> Document';b.onclick=window.chatProSummarizeDocument;area.appendChild(b)}if(!area.querySelector('[data-ng-live]')){const b=document.createElement('button');b.className='tool-btn';b.dataset.ngLive='1';b.innerHTML='<i class="fas fa-language"></i> Live Translate';b.onclick=liveTranslationMode;area.appendChild(b)}}
+  setInterval(addNextgenToolbarButtons,1200);
+  addNextgenToolbarButtons();
+
+  window.chatProFeatures={ai:openAdvancedAI,memory:openMemoryEditor,reminder:reminderDialog,theme:themeDialog,presence:presenceDialog,meeting:meetingMode,document:window.chatProSummarizeDocument,liveTranslate:liveTranslationMode,voiceEverything:startVoiceIntent};
+
+
+  // ---------- Startup ----------
+  const originalLoadChat=window.loadChat;
+  setTimeout(()=>{ensureNextgenState();checkReminders();},1000);
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkReminders()});
+  if(window.Notification&&Notification.permission==='default')setTimeout(askNotification,4000);
+  // Restore saved visual theme.
+  try{const t=localStorage.getItem('chatproThemePrompt');if(t)applyThemePrompt(t)}catch(_){}
+})();
 
 console.log('🚀 ChatPro Premium loaded!');
 console.log('👑 Admin: admin1@chatapp.com / admin2@chatapp.com (pass: admin123)');
