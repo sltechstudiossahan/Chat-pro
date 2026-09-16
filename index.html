@@ -1608,6 +1608,75 @@ input,textarea,.search-box{background:rgba(255,255,255,.055)!important;border-co
 .ai-head{padding:14px 16px;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:space-between}.ai-head strong{display:flex;gap:8px;align-items:center}.ai-head i{color:#7c5cff}.ai-messages{flex:1;overflow:auto;padding:14px;display:flex;flex-direction:column;gap:8px}.ai-bubble{max-width:85%;padding:10px 12px;border-radius:15px;background:rgba(255,255,255,.055);font-size:13px;line-height:1.5}.ai-bubble.user{align-self:flex-end;background:linear-gradient(135deg,#6f52ef,#5139c7)}.ai-input{display:flex;gap:7px;padding:10px;border-top:1px solid rgba(255,255,255,.08)}.ai-input input{flex:1;padding:11px;border-radius:13px;border:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.045);color:#fff;outline:none}.ai-input button{border:0;border-radius:13px;padding:0 14px;background:#7c5cff;color:#fff}
 @media(max-width:700px){.ai-panel{right:10px;bottom:75px;width:calc(100vw - 20px);height:70vh}.advanced-tools{padding-bottom:4px}.schedule-btn,.tool-btn{padding:8px 10px!important;font-size:11px!important}}
 </style>
+<style id="chatpro-whatsapp-ui">
+/* WhatsApp-style contact header, menus, calls and message context actions */
+.chat-contact-header{position:relative!important;display:flex!important;align-items:center!important;gap:12px!important;min-height:72px!important;padding:10px 14px!important;background:rgba(11,14,28,.86)!important;border-bottom:1px solid rgba(255,255,255,.08)!important;backdrop-filter:blur(22px)!important;z-index:50!important}
+.chat-contact-header .avatar{width:46px!important;height:46px!important;min-width:46px!important;border-radius:50%!important;overflow:hidden!important;display:flex!important;align-items:center!important;justify-content:center!important;background:rgba(255,255,255,.06)!important}
+.chat-contact-header .avatar img{width:100%!important;height:100%!important;object-fit:cover!important}
+.chat-contact-header .contact-info{min-width:0!important;flex:1!important}
+.chat-contact-header .contact-info .name{display:flex!important;align-items:center!important;gap:6px!important;font-size:15px!important;font-weight:700!important;color:#f7f7ff!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+.chat-contact-header .contact-info .about{font-size:11px!important;color:#8f95ad!important;margin-top:3px!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;max-width:420px!important}
+.contact-actions{display:flex!important;align-items:center!important;gap:5px!important;margin-left:auto!important;flex-shrink:0!important}
+.contact-status{display:flex!important;align-items:center!important;gap:5px!important;font-size:10px!important;color:#aab0c7!important;white-space:nowrap!important;margin-right:4px!important}
+.presence-dot{width:7px!important;height:7px!important;border-radius:50%!important;display:inline-block!important;background:#747994!important;box-shadow:0 0 0 3px rgba(116,121,148,.08)!important}
+.presence-dot.online{background:#25d366!important;box-shadow:0 0 0 3px rgba(37,211,102,.12)!important}
+.presence-dot.busy{background:#ffb020!important}
+.call-btn{width:38px!important;height:38px!important;border-radius:50%!important;border:1px solid rgba(255,255,255,.08)!important;background:rgba(255,255,255,.045)!important;color:#c8c7ff!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;cursor:pointer!important}
+.call-btn:hover{background:rgba(124,92,255,.18)!important;transform:translateY(-1px)!important}
+.contact-more-btn{font-size:16px!important}
+.mobile-top-more{display:none!important}
+.wa-menu{position:fixed;min-width:225px;max-width:290px;padding:7px;background:rgba(18,21,38,.98);border:1px solid rgba(255,255,255,.11);border-radius:17px;box-shadow:0 24px 70px rgba(0,0,0,.5);backdrop-filter:blur(25px);z-index:5000;animation:waMenuIn .14s ease}
+.wa-menu.hidden{display:none!important}
+.wa-menu button{width:100%;display:flex;align-items:center;gap:12px;padding:11px 12px;border:0;background:transparent;color:#eef0fa;border-radius:11px;cursor:pointer;text-align:left;font-size:13px}
+.wa-menu button:hover{background:rgba(255,255,255,.075)}
+.wa-menu button i{width:18px;text-align:center;color:#aaa1ff}
+.message-context-menu{min-width:205px}
+@keyframes waMenuIn{from{opacity:0;transform:scale(.96) translateY(-4px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.msg[data-message-id]{touch-action:manipulation;user-select:none;-webkit-user-select:none}
+.msg.context-selected{outline:2px solid rgba(124,92,255,.55);outline-offset:2px}
+.call-overlay{position:fixed;inset:0;background:rgba(2,4,12,.84);backdrop-filter:blur(15px);z-index:7000;display:flex;align-items:center;justify-content:center;padding:18px}
+.call-box{width:min(760px,96vw);height:min(650px,90vh);background:#0b0e1a;border:1px solid rgba(255,255,255,.12);border-radius:28px;overflow:hidden;position:relative;box-shadow:0 35px 100px rgba(0,0,0,.65)}
+.call-remote{width:100%;height:100%;object-fit:cover;background:#05070e}
+.call-local{position:absolute;right:18px;top:18px;width:170px;height:125px;object-fit:cover;border-radius:16px;border:2px solid rgba(255,255,255,.18);background:#111522}
+.call-label{position:absolute;left:18px;top:18px;padding:8px 12px;border-radius:12px;background:rgba(0,0,0,.45);color:#fff;font-size:12px}
+.call-end{position:absolute;left:50%;bottom:22px;transform:translateX(-50%);width:56px;height:56px;border-radius:50%;border:0;background:#ef4444;color:#fff;font-size:20px;cursor:pointer}
+.call-incoming{position:fixed;right:18px;top:88px;width:min(350px,calc(100vw - 36px));z-index:7100;background:rgba(18,21,38,.98);border:1px solid rgba(255,255,255,.12);border-radius:22px;padding:18px;box-shadow:0 25px 80px rgba(0,0,0,.55)}
+.call-incoming-actions{display:flex;gap:8px;margin-top:14px}.call-incoming-actions button{flex:1;border:0;border-radius:12px;padding:11px;cursor:pointer}.call-answer{background:#25d366;color:#06150b}.call-reject{background:#ef4444;color:#fff}
+@media(max-width:700px){
+  .chat-header{padding:7px 10px!important;min-height:54px!important}
+  .chat-header .brand{display:none!important}
+  .chat-header .user-section{width:100%!important;justify-content:flex-end!important}
+  .chat-header .user-section .role-badge{display:none!important}
+  .chat-header .user-section #settingsBtn,.chat-header .user-section #logoutBtn{display:none!important}
+  .mobile-top-more{display:inline-flex!important;width:38px!important;height:38px!important;border-radius:50%!important}
+  .chat-contact-header{min-height:62px!important;padding:8px 8px!important;gap:8px!important}
+  .chat-contact-header .avatar{width:42px!important;height:42px!important;min-width:42px!important}
+  .chat-contact-header .contact-info .name{font-size:14px!important}
+  .chat-contact-header .contact-info .about{font-size:10px!important;max-width:180px!important}
+  .contact-status{position:absolute!important;left:58px!important;bottom:6px!important;margin:0!important;font-size:9px!important;transform:translateY(2px)}
+  .contact-info{padding-bottom:9px!important}
+  .contact-actions{gap:2px!important}
+  .contact-actions .call-btn{width:34px!important;height:34px!important}
+  .contact-actions .add-unknown-btn{font-size:10px!important;padding:7px!important}
+  .wa-menu{min-width:230px;max-width:calc(100vw - 24px)}
+  .message-context-menu{min-width:215px}
+  .call-local{width:105px;height:145px;right:10px;top:10px}
+}
+</style>
+<style id="chatpro-mobile-whatsapp-layout">
+@media(max-width:700px){
+  body{overflow:hidden!important}
+  #chatPage{height:100dvh!important;overflow:hidden!important}
+  #chatPage .chat-layout{position:relative!important;height:calc(100dvh - 54px)!important;overflow:hidden!important;display:block!important}
+  #chatPage .contacts-sidebar{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;transform:translateX(0)!important;transition:transform .25s ease!important;z-index:10!important}
+  #chatPage .chat-area{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;transform:translateX(100%)!important;transition:transform .25s ease!important;z-index:20!important}
+  #chatPage .chat-layout.mobile-chat-open .contacts-sidebar{transform:translateX(-100%)!important}
+  #chatPage .chat-layout.mobile-chat-open .chat-area{transform:translateX(0)!important}
+  #chatPage .chat-contact-header .back-mobile-btn{display:inline-flex!important}
+}
+@media(min-width:701px){#chatPage .chat-contact-header .back-mobile-btn{display:none!important}}
+.back-mobile-btn{display:none!important}
+</style>
 </head>
 <body>
 
@@ -1686,6 +1755,7 @@ input,textarea,.search-box{background:rgba(255,255,255,.055)!important;border-co
                 <span class="name" id="currentUserName">User</span>
             </div>
             <span class="role-badge" id="roleBadge">User</span>
+            <button class="btn-header mobile-top-more" id="mobileTopMoreBtn" type="button" title="More options" aria-label="More options"><i class="fas fa-ellipsis-vertical"></i></button>
             <button class="btn-header" id="settingsBtn"><i class="fas fa-cog"></i></button>
             <button class="btn-logout" id="logoutBtn">
                 <i class="fas fa-sign-out-alt"></i>
@@ -1723,6 +1793,7 @@ input,textarea,.search-box{background:rgba(255,255,255,.055)!important;border-co
         
         <div class="chat-area">
             <div id="chatContactHeader" class="chat-contact-header hidden">
+                <button class="call-btn back-mobile-btn" id="backToContactsBtn" type="button" title="Back"><i class="fas fa-arrow-left"></i></button>
                 <div class="avatar" id="contactAvatar">👤</div>
                 <div class="contact-info">
                     <div class="name">
@@ -1734,8 +1805,11 @@ input,textarea,.search-box{background:rgba(255,255,255,.055)!important;border-co
                 </div>
                 <div class="contact-actions">
                     <div class="contact-status" id="contactStatus">
-                        <i class="fas fa-circle" style="font-size:8px;"></i> Online
+                        <span class="presence-dot offline"></span><span>Offline</span>
                     </div>
+                    <button class="call-btn" id="voiceCallBtn" type="button" title="Voice call" aria-label="Voice call"><i class="fas fa-phone"></i></button>
+                    <button class="call-btn" id="videoCallBtn" type="button" title="Video call" aria-label="Video call"><i class="fas fa-video"></i></button>
+                    <button class="call-btn contact-more-btn" id="contactMoreBtn" type="button" title="More options" aria-label="More options"><i class="fas fa-ellipsis-vertical"></i></button>
                     <button class="add-unknown-btn hidden" id="addUnknownContactBtn" type="button"><i class="fas fa-user-plus"></i> Add</button>
                 </div>
             </div>
@@ -1768,6 +1842,30 @@ input,textarea,.search-box{background:rgba(255,255,255,.055)!important;border-co
         </div>
     </div>
 </div>
+
+<!-- ===== WHATSAPP-STYLE MENUS ===== -->
+<div id="contactMoreMenu" class="wa-menu hidden" role="menu" aria-label="Chat options">
+    <button data-wa-action="contact-info"><i class="fas fa-circle-info"></i><span>Contact info</span></button>
+    <button data-wa-action="media"><i class="fas fa-photo-film"></i><span>Media, links & docs</span></button>
+    <button data-wa-action="search"><i class="fas fa-magnifying-glass"></i><span>Search</span></button>
+    <button data-wa-action="mute"><i class="fas fa-bell-slash"></i><span>Mute notifications</span></button>
+    <button data-wa-action="wallpaper"><i class="fas fa-image"></i><span>Chat wallpaper</span></button>
+    <button data-wa-action="lock"><i class="fas fa-lock"></i><span>Lock chat</span></button>
+    <button data-wa-action="clear"><i class="fas fa-broom"></i><span>Clear chat</span></button>
+    <button data-wa-action="export"><i class="fas fa-file-export"></i><span>Export chat</span></button>
+    <button data-wa-action="ai"><i class="fas fa-sparkles"></i><span>ChatPro AI</span></button>
+    <button data-wa-action="schedule"><i class="fas fa-clock"></i><span>Scheduled messages</span></button>
+</div>
+<div id="mobileTopMenu" class="wa-menu hidden" role="menu" aria-label="Application options">
+    <button data-wa-top="settings"><i class="fas fa-cog"></i><span>Settings</span></button>
+    <button data-wa-top="profile"><i class="fas fa-user"></i><span>Profile</span></button>
+    <button data-wa-top="memory"><i class="fas fa-brain"></i><span>Chat memory</span></button>
+    <button data-wa-top="theme"><i class="fas fa-palette"></i><span>Chat theme</span></button>
+    <button data-wa-top="presence"><i class="fas fa-circle"></i><span>Presence</span></button>
+    <button data-wa-top="meeting"><i class="fas fa-headset"></i><span>AI meeting mode</span></button>
+    <button data-wa-top="logout"><i class="fas fa-right-from-bracket"></i><span>Log out</span></button>
+</div>
+<div id="messageContextMenu" class="wa-menu message-context-menu hidden" role="menu" aria-label="Message actions"></div>
 
 <!-- ===== SETTINGS PAGE ===== -->
 <div id="settingsPage" class="page hidden">
@@ -2095,6 +2193,7 @@ const pollModal = $('pollModal'); const pollQuestion = $('pollQuestion'); const 
 const stickerModal = $('stickerModal'); const stickerGrid = $('stickerGrid'); const stickerScheduleTime = $('stickerScheduleTime'); const toggleStickerSchedule = $('toggleStickerSchedule'); const cancelSticker = $('cancelSticker');
 const lockModal = $('lockModal'); const lockModalSub = $('lockModalSub'); const lockPassword = $('lockPassword'); const lockPasswordConfirm = $('lockPasswordConfirm'); const confirmLock = $('confirmLock'); const cancelLock = $('cancelLock'); const lockError = $('lockError'); const lockListBtn = $('lockListBtn'); const lockCurrentChatBtn = $('lockCurrentChatBtn'); const autoReplyToggle = $('autoReplyToggle'); const autoReplyText = $('autoReplyText');
 const aiPanel = $('aiPanel'); const aiMessages = $('aiMessages'); const aiInput = $('aiInput'); const aiSend = $('aiSend'); const closeAi = $('closeAi');
+const mobileTopMoreBtn = $('mobileTopMoreBtn'); const mobileTopMenu = $('mobileTopMenu'); const contactMoreBtn = $('contactMoreBtn'); const contactMoreMenu = $('contactMoreMenu'); const messageContextMenu = $('messageContextMenu'); const voiceCallBtn = $('voiceCallBtn'); const videoCallBtn = $('videoCallBtn');
 
 // Settings DOM refs
 const settingsDisplayName = $('settingsDisplayName');
@@ -2654,11 +2753,26 @@ async function refreshContactPreviews(){
     }catch(e){console.warn('Contact preview refresh failed:',e.message)}
 }
 
+async function presenceHeartbeat(){
+    if(!currentUser||!supabaseClient)return;
+    try{
+        await supabaseClient.from('profiles').update({last_seen:new Date().toISOString()}).eq('id',currentUser.id);
+        if(currentUserData) currentUserData.lastSeen=new Date().toISOString();
+    }catch(e){console.warn('Presence heartbeat failed:',e.message)}
+}
+let presenceHeartbeatTimer=null;
+function startPresenceHeartbeat(){
+    clearInterval(presenceHeartbeatTimer); presenceHeartbeat();
+    presenceHeartbeatTimer=setInterval(presenceHeartbeat,30000);
+    window.addEventListener('focus',presenceHeartbeat);
+}
+
 async function loadChat() {
     if (!currentUser) return;
 
     currentUserData = await getUserData(currentUser.id);
     if (!currentUserData) return;
+    startPresenceHeartbeat();
 
     isAdmin = currentUserData.isAdmin || ADMIN_ACCOUNTS.some(a => a.email === currentUser.email);
 
@@ -2832,6 +2946,33 @@ async function renderContacts() {
     `).join('');
 }
 
+function formatLastSeen(v){
+    if(!v) return 'last seen recently';
+    const d=new Date(v); if(Number.isNaN(d.getTime())) return 'last seen recently';
+    const now=new Date(); const diff=now.getTime()-d.getTime();
+    if(diff>=0 && diff<75000) return 'online';
+    const sameDay=d.toDateString()===now.toDateString();
+    const time=d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+    if(sameDay) return `last seen today at ${time}`;
+    const yesterday=new Date(now); yesterday.setDate(now.getDate()-1);
+    if(d.toDateString()===yesterday.toDateString()) return `last seen yesterday at ${time}`;
+    return `last seen ${d.toLocaleDateString([], {day:'2-digit',month:'short'})} at ${time}`;
+}
+function updateWhatsAppContactHeaderFromData(data){
+    if(!contactStatus) return;
+    const lastSeen=data?.lastSeen || data?.last_seen || null;
+    const visible=data?.presenceVisible !== false;
+    const online=visible && lastSeen && (Date.now()-new Date(lastSeen).getTime()<75000);
+    const state=String(data?.presenceState||data?.presence_state||'available');
+    const label=online ? (state && state!=='available' ? state : 'online') : formatLastSeen(lastSeen);
+    const cls=online ? (state==='busy'?'busy':'online') : 'offline';
+    contactStatus.innerHTML=`<span class="presence-dot ${cls}"></span><span>${escapeHtml(label)}</span>`;
+}
+window.updateWhatsAppContactHeader=async function(email){
+    if(!email||!currentUser)return;
+    try{ const d=await getUserByEmail(email,true); if(d && currentChatWith===email) updateWhatsAppContactHeaderFromData(d); }catch(e){console.warn('presence refresh',e);}
+};
+
 async function displayContactProfile(email) {
     if (!email) {
         chatContactHeader.classList.add('hidden');
@@ -2864,14 +3005,8 @@ async function displayContactProfile(email) {
         contactEmojiDisplay.textContent = isUnknown ? '' : (data.emoji || '');
         contactAboutDisplay.textContent = isUnknown ? 'Not in your contacts' : (data.about || 'No about yet');
 
-        if (isUnknown) {
-            // NIC data is sensitive and is intentionally hidden from ordinary users.
-            contactNicDisplay.textContent = '';
-            contactStatus.innerHTML = '<i class="fas fa-user-clock" style="font-size:11px;"></i> Not saved';
-        } else {
-            contactNicDisplay.textContent = '';
-            contactStatus.innerHTML = '<i class="fas fa-circle" style="font-size:8px;"></i> Online';
-        }
+        contactNicDisplay.textContent = '';
+        updateWhatsAppContactHeaderFromData(data);
     } catch (err) {
         console.error('Error displaying contact profile:', err);
         chatContactHeader.classList.add('hidden');
@@ -2885,7 +3020,9 @@ window.selectContact = function(email) {
     displayContactProfile(email);
     messageInput.disabled = false;
     sendBtn.disabled = false;
+    document.querySelector('.chat-layout')?.classList.add('mobile-chat-open');
     messageInput.focus();
+    setTimeout(()=>window.updateWhatsAppContactHeader(email),300);
 };
 
 addUnknownContactBtn.addEventListener('click', async () => {
@@ -3670,7 +3807,56 @@ adminNicModal.addEventListener('click',e=>{if(e.target===adminNicModal)adminNicM
         img.parentElement.appendChild(b);
       });
     }
-    function startLongPress(el){let timer;const clear=()=>clearTimeout(timer);el.addEventListener('pointerdown',()=>{timer=setTimeout(()=>{const id=el.dataset.messageId;if(id)showReminderMenu(id);},650)},{passive:true});['pointerup','pointerleave','pointercancel'].forEach(ev=>el.addEventListener(ev,clear,{passive:true}));}
+    function startLongPress(el){
+      let timer=null,moved=false;
+      const clear=()=>{if(timer){clearTimeout(timer);timer=null}};
+      el.addEventListener('pointerdown',()=>{moved=false;clear();timer=setTimeout(()=>{if(!moved)showMessageContextMenu(el)},520)},{passive:true});
+      el.addEventListener('pointermove',()=>{moved=true;clear()},{passive:true});
+      ['pointerup','pointerleave','pointercancel'].forEach(ev=>el.addEventListener(ev,clear,{passive:true}));
+      el.addEventListener('contextmenu',e=>{e.preventDefault();showMessageContextMenu(el);});
+    }
+    async function getMessageById(id){
+      if(!id||!supabaseClient)return null;
+      const {data,error}=await supabaseClient.from('messages').select('*').eq('id',id).maybeSingle();
+      if(error) throw error; return data||null;
+    }
+    function positionMenu(menu,x,y){
+      menu.classList.remove('hidden');
+      const r=menu.getBoundingClientRect();
+      menu.style.left=Math.max(8,Math.min(x,innerWidth-r.width-8))+'px';
+      menu.style.top=Math.max(8,Math.min(y,innerHeight-r.height-8))+'px';
+    }
+    function showMessageContextMenu(el){
+      const id=el?.dataset?.messageId;if(!id||!messageContextMenu)return;
+      document.querySelectorAll('.msg.context-selected').forEach(x=>x.classList.remove('context-selected'));el.classList.add('context-selected');
+      const mine=el.classList.contains('sent');
+      messageContextMenu.innerHTML=`
+        <button data-msg-action="reply"><i class="fas fa-reply"></i><span>Reply</span></button>
+        <button data-msg-action="copy"><i class="fas fa-copy"></i><span>Copy</span></button>
+        <button data-msg-action="star"><i class="fas fa-star"></i><span>Star message</span></button>
+        <button data-msg-action="pin"><i class="fas fa-thumbtack"></i><span>Pin message</span></button>
+        <button data-msg-action="translate"><i class="fas fa-language"></i><span>Translate</span></button>
+        <button data-msg-action="remind"><i class="fas fa-bell"></i><span>Remind me</span></button>
+        <button data-msg-action="forward"><i class="fas fa-share"></i><span>Forward</span></button>
+        <button data-msg-action="read"><i class="fas fa-volume-high"></i><span>Read aloud</span></button>
+        ${mine?'<button data-msg-action="delete" class="danger-menu"><i class="fas fa-trash"></i><span>Delete for me</span></button>':''}`;
+      const rect=el.getBoundingClientRect();positionMenu(messageContextMenu,Math.min(rect.right,innerWidth-220),Math.min(rect.top,innerHeight-300));
+      messageContextMenu.dataset.messageId=id;
+    }
+    async function handleMessageContextAction(action,id){
+      try{
+        const msg=await getMessageById(id);if(!msg)return;
+        if(action==='reply'){messageInput.value=msg.text||'';messageInput.focus();return}
+        if(action==='copy'){await navigator.clipboard?.writeText(msg.text||msg.media_url||'');return}
+        if(action==='star'){const k='chatproStarredMessages';const a=JSON.parse(localStorage.getItem(k)||'[]');if(!a.includes(id))a.push(id);else a.splice(a.indexOf(id),1);localStorage.setItem(k,JSON.stringify(a));alert(a.includes(id)?'⭐ Message starred.':'⭐ Star removed.');return}
+        if(action==='pin'){const k='chatproPinnedMessages';const a=JSON.parse(localStorage.getItem(k)||'[]');if(!a.includes(id))a.push(id);else a.splice(a.indexOf(id),1);localStorage.setItem(k,JSON.stringify(a));alert(a.includes(id)?'📌 Message pinned.':'📌 Pin removed.');return}
+        if(action==='translate'){if(window.chatproNextGen?.runAIAction){if(aiBtn)aiBtn.click();setTimeout(()=>{if(aiInput){aiInput.value='Translate this message to English or Sinhala: '+(msg.text||'');aiSend?.click()}},150)}else alert('Translation tool is unavailable.');return}
+        if(action==='remind'){showReminderMenu(id);return}
+        if(action==='forward'){const to=prompt('Enter the contact email to forward this message to:');if(!to)return;const target=await getUserByEmail(to.trim().toLowerCase(),true);if(!target){alert('Contact not found.');return}const payload={chat_id:getChatId(currentUser.email,to.trim().toLowerCase()),sender:currentUser.email,sender_name:currentUserData.name||currentUser.email,recipient:to.trim().toLowerCase(),recipient_name:target.name||to,text:msg.text||'',media_type:msg.media_type||null,media_url:msg.media_url||null,media_path:msg.media_path||null,media_mime_type:msg.media_mime_type||null,duration:msg.duration||null,language:msg.language||detectLanguage(msg.text||''),status:'sent',message_type:'forwarded',metadata:{forwarded_from:id}};const {error}=await supabaseClient.from('messages').insert(payload);if(error)throw error;alert('↗️ Message forwarded.');return}
+        if(action==='read'){const text=msg.text||'Media message';if('speechSynthesis'in window){speechSynthesis.cancel();speechSynthesis.speak(new SpeechSynthesisUtterance(text))}return}
+        if(action==='delete'){if(msg.sender!==currentUser.email){alert('You can only delete your own messages.');return}if(!confirm('Delete this message for you?'))return;const {error}=await supabaseClient.from('messages').delete().eq('id',id).eq('sender',currentUser.email);if(error)throw error;if(currentChatWith)loadMessages(currentChatWith);return}
+      }catch(e){alert('Message action failed: '+(e.message||e))}
+    }
     function showReminderMenu(messageId){const choice=prompt('🔔 Remind me\n\n1. In 10 minutes\n2. Tonight\n3. Tomorrow\n4. Custom\n\nType 1-4');if(!choice)return;let when=new Date();if(choice==='1')when=new Date(Date.now()+10*60000);else if(choice==='2'){when.setHours(20,0,0,0);if(when<=new Date())when.setDate(when.getDate()+1)}else if(choice==='3'){when.setDate(when.getDate()+1);when.setHours(9,0,0,0)}else{when=new Date(prompt('Enter date/time, e.g. 2026-10-15 18:00')||'')}if(isNaN(when)||when<=new Date()){alert('Choose a future date/time.');return}const list=Array.isArray(currentUserData?.chatReminders)?currentUserData.chatReminders:[];list.push({id:Date.now().toString(),chat:currentChatWith,messageId,when:when.toISOString(),created_at:new Date().toISOString()});profilePatch({chatReminders:list.slice(-200)}).then(()=>alert('🔔 Reminder saved for '+when.toLocaleString())).catch(e=>alert(e.message));}
     function checkReminders(){const list=Array.isArray(currentUserData?.chatReminders)?currentUserData.chatReminders:[];const due=list.filter(r=>!r.notified&&new Date(r.when).getTime()<=Date.now());if(!due.length)return;due.forEach(r=>{r.notified=true;alert('🔔 ChatPro Reminder\nYou asked to be reminded about this chat message.');});profilePatch({chatReminders:list}).catch(()=>{});}
     function attachLongPress(){document.querySelectorAll('.msg[data-message-id]').forEach(startLongPress)}
@@ -3679,6 +3865,56 @@ adminNicModal.addEventListener('click',e=>{if(e.target===adminNicModal)adminNicM
     // Expose safe public helpers.
     window.chatproNextGen={runAIAction,voiceEverything,processIntent,showMemory,themeDialog,presenceDialog,meetingMode};
 })();
+
+// ============================================================
+// WHATSAPP-STYLE MENUS + REAL-TIME PRESENCE + CALLS
+// ============================================================
+function closeWaMenus(){[mobileTopMenu,contactMoreMenu,messageContextMenu].forEach(m=>{if(m){m.classList.add('hidden');m.style.left='';m.style.top='';}});document.querySelectorAll('.msg.context-selected').forEach(x=>x.classList.remove('context-selected'));}
+mobileTopMoreBtn?.addEventListener('click',e=>{e.stopPropagation();contactMoreMenu?.classList.add('hidden');messageContextMenu?.classList.add('hidden');if(mobileTopMenu?.classList.contains('hidden'))positionMenu(mobileTopMenu,e.clientX||innerWidth-240,e.clientY||60);else mobileTopMenu.classList.add('hidden');});
+contactMoreBtn?.addEventListener('click',e=>{e.stopPropagation();mobileTopMenu?.classList.add('hidden');messageContextMenu?.classList.add('hidden');if(contactMoreMenu?.classList.contains('hidden')){const r=contactMoreBtn.getBoundingClientRect();positionMenu(contactMoreMenu,r.right-235,r.bottom+5)}else contactMoreMenu.classList.add('hidden');});
+mobileTopMenu?.addEventListener('click',e=>{const b=e.target.closest('[data-wa-top]');if(!b)return;closeWaMenus();const a=b.dataset.waTop;if(a==='settings')settingsBtn?.click();if(a==='profile'){settingsBtn?.click();setTimeout(()=>document.querySelector('[data-section="profile"]')?.click(),150)}if(a==='memory')window.chatproNextGen?.showMemory?.();if(a==='theme')window.chatproNextGen?.themeDialog?.();if(a==='presence')window.chatproNextGen?.presenceDialog?.();if(a==='meeting')window.chatproNextGen?.meetingMode?.();if(a==='logout')logoutBtn?.click();});
+contactMoreMenu?.addEventListener('click',async e=>{const b=e.target.closest('[data-wa-action]');if(!b)return;closeWaMenus();const a=b.dataset.waAction;if(a==='contact-info'){if(currentChatWith)displayContactProfile(currentChatWith);return}if(a==='media'){alert('Media, links & documents are available through the messages in this chat.');return}if(a==='search'){aiBtn?.click();setTimeout(()=>{if(aiInput){aiInput.value='Find a message in this conversation';aiInput.focus()}},100);return}if(a==='mute'){alert('🔕 Notifications muted for this browser session.');return}if(a==='wallpaper'){window.chatproNextGen?.themeDialog?.();return}if(a==='lock'){lockCurrentChatBtn?.click();return}if(a==='clear'){if(confirm('Clear this chat from the current view?'))chatMessages.innerHTML='<div class="empty-chat"><i class="fas fa-comment"></i><p>Chat cleared from this view.</p></div>';return}if(a==='export'){if(window.chatproNextGen?.runAIAction){aiBtn?.click();setTimeout(()=>{aiInput.value='Summarize and prepare an export of this conversation';aiSend?.click()},120)}return}if(a==='ai'){aiBtn?.click();return}if(a==='schedule'){scheduleBtn?.click();return}});
+messageContextMenu?.addEventListener('click',e=>{const b=e.target.closest('[data-msg-action]');if(!b)return;const id=messageContextMenu.dataset.messageId;closeWaMenus();handleMessageContextAction(b.dataset.msgAction,id)});
+document.addEventListener('click',e=>{if(!e.target.closest('.wa-menu')&&!e.target.closest('.contact-more-btn')&&!e.target.closest('.mobile-top-more'))closeWaMenus();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeWaMenus();});
+
+let callChannel=null, callPc=null, callLocalStream=null, callRemoteStream=null, activeCallPeer=null, activeCallVideo=false, pendingIce=[];
+async function ensureCallChannel(){
+  if(callChannel||!currentUser||!supabaseClient)return;
+  callChannel=supabaseClient.channel('chatpro-calls-'+encodeURIComponent(currentUser.email));
+  callChannel.on('broadcast',{event:'signal'},({payload})=>handleCallSignal(payload)).subscribe();
+}
+async function sendCallSignal(to,payload){await ensureCallChannel();const ch=supabaseClient.channel('chatpro-calls-'+encodeURIComponent(to));ch.subscribe(status=>{if(status==='SUBSCRIBED')ch.send({type:'broadcast',event:'signal',payload:{...payload,to,from:currentUser.email}})});setTimeout(()=>{try{supabaseClient.removeChannel(ch)}catch(_){ }},5000)}
+function closeCallUI(){document.querySelector('.call-overlay')?.remove();if(callLocalStream)callLocalStream.getTracks().forEach(t=>t.stop());callLocalStream=null;if(callPc){callPc.onicecandidate=null;callPc.ontrack=null;callPc.close();}callPc=null;activeCallPeer=null;pendingIce=[];}
+function showCallUI(video,peer){
+  document.querySelector('.call-overlay')?.remove();const box=document.createElement('div');box.className='call-overlay';box.innerHTML=`<div class="call-box"><video class="call-remote" autoplay playsinline></video><video class="call-local" autoplay muted playsinline></video><div class="call-label">${video?'📹 Video call':'📞 Voice call'} · ${escapeHtml(peer)}</div><button class="call-end" title="End call"><i class="fas fa-phone-slash"></i></button></div>`;document.body.appendChild(box);box.querySelector('.call-end').onclick=async()=>{if(activeCallPeer)await sendCallSignal(activeCallPeer,{type:'hangup'});closeCallUI()};return box;
+}
+async function createPeer(video,peer){
+  callPc=new RTCPeerConnection({iceServers:[{urls:'stun:stun.l.google.com:19302'}]});
+  callPc.onicecandidate=e=>{if(e.candidate)sendCallSignal(peer,{type:'ice',candidate:e.candidate.toJSON?.()||e.candidate})};
+  callPc.ontrack=e=>{const v=document.querySelector('.call-remote');if(v){if(!callRemoteStream)callRemoteStream=new MediaStream();callRemoteStream.addTrack(e.track);v.srcObject=callRemoteStream}};
+  callLocalStream=await navigator.mediaDevices.getUserMedia({audio:true,video:video});callLocalStream.getTracks().forEach(t=>callPc.addTrack(t,callLocalStream));const lv=document.querySelector('.call-local');if(lv)lv.srcObject=callLocalStream;
+}
+async function startCall(video){
+  if(!currentUser||!currentChatWith){alert('Select a contact first.');return}
+  try{await ensureCallChannel();activeCallPeer=currentChatWith;activeCallVideo=video;showCallUI(video,currentChatWith);await createPeer(video,currentChatWith);const offer=await callPc.createOffer();await callPc.setLocalDescription(offer);await sendCallSignal(currentChatWith,{type:'offer',video,offer});}catch(e){closeCallUI();alert('Call could not start: '+(e.message||e))}
+}
+async function handleCallSignal(p){
+  if(!p||p.to!==currentUser?.email)return;
+  try{
+    if(p.type==='offer'){
+      if(callPc)return;activeCallPeer=p.from;activeCallVideo=!!p.video;const incoming=document.createElement('div');incoming.className='call-incoming';incoming.innerHTML=`<strong>${activeCallVideo?'📹 Incoming video call':'📞 Incoming voice call'}</strong><div style="margin-top:6px;color:#aeb4ca">${escapeHtml(p.from)}</div><div class="call-incoming-actions"><button class="call-answer">Answer</button><button class="call-reject">Decline</button></div>`;document.body.appendChild(incoming);incoming.querySelector('.call-reject').onclick=async()=>{await sendCallSignal(p.from,{type:'hangup'});incoming.remove()};incoming.querySelector('.call-answer').onclick=async()=>{incoming.remove();showCallUI(!!p.video,p.from);await createPeer(!!p.video,p.from);await callPc.setRemoteDescription(new RTCSessionDescription(p.offer));for(const c of pendingIce){try{await callPc.addIceCandidate(c)}catch(_){}}pendingIce=[];const ans=await callPc.createAnswer();await callPc.setLocalDescription(ans);await sendCallSignal(p.from,{type:'answer',answer:ans});};
+    }else if(p.type==='answer'&&callPc){await callPc.setRemoteDescription(new RTCSessionDescription(p.answer));for(const c of pendingIce){try{await callPc.addIceCandidate(c)}catch(_){}}pendingIce=[];
+    }else if(p.type==='ice'){if(callPc?.remoteDescription)await callPc.addIceCandidate(new RTCIceCandidate(p.candidate));else pendingIce.push(new RTCIceCandidate(p.candidate));
+    }else if(p.type==='hangup'){document.querySelector('.call-incoming')?.remove();closeCallUI();}
+  }catch(e){console.warn('Call signal error:',e)}
+}
+voiceCallBtn?.addEventListener('click',()=>startCall(false));videoCallBtn?.addEventListener('click',()=>startCall(true));
+document.getElementById('backToContactsBtn')?.addEventListener('click',()=>{currentChatWith=null;document.querySelector('.chat-layout')?.classList.remove('mobile-chat-open');chatContactHeader?.classList.add('hidden');messageInput.disabled=true;sendBtn.disabled=true;});
+
+let selectedContactPresenceTimer=null;
+clearInterval(selectedContactPresenceTimer);
+selectedContactPresenceTimer=setInterval(()=>{if(currentChatWith)window.updateWhatsAppContactHeader(currentChatWith);},30000);
 
 // ============================================================
 // LOGOUT
@@ -3717,6 +3953,7 @@ if (supabaseClient) {
             // Always use Supabase's real UUID: user.id. Never rely on a custom uid property.
             currentUser = user;
             currentUserData = await ensureProfileForUser(user);
+            await ensureCallChannel();
             if (!currentUserData) throw new Error('Your ChatPro profile could not be loaded.');
 
             isAdmin = !!currentUserData.isAdmin || ADMIN_ACCOUNTS.some(a => a.email === user.email);
