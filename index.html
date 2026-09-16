@@ -10,7 +10,6 @@
     <!-- Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <!-- Tesseract.js for OCR -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
@@ -1609,68 +1608,6 @@ input,textarea,.search-box{background:rgba(255,255,255,.055)!important;border-co
 .ai-head{padding:14px 16px;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:space-between}.ai-head strong{display:flex;gap:8px;align-items:center}.ai-head i{color:#7c5cff}.ai-messages{flex:1;overflow:auto;padding:14px;display:flex;flex-direction:column;gap:8px}.ai-bubble{max-width:85%;padding:10px 12px;border-radius:15px;background:rgba(255,255,255,.055);font-size:13px;line-height:1.5}.ai-bubble.user{align-self:flex-end;background:linear-gradient(135deg,#6f52ef,#5139c7)}.ai-input{display:flex;gap:7px;padding:10px;border-top:1px solid rgba(255,255,255,.08)}.ai-input input{flex:1;padding:11px;border-radius:13px;border:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.045);color:#fff;outline:none}.ai-input button{border:0;border-radius:13px;padding:0 14px;background:#7c5cff;color:#fff}
 @media(max-width:700px){.ai-panel{right:10px;bottom:75px;width:calc(100vw - 20px);height:70vh}.advanced-tools{padding-bottom:4px}.schedule-btn,.tool-btn{padding:8px 10px!important;font-size:11px!important}}
 </style>
-<style id="chatpro-nextgen-more">.nextgen-toolbar{display:flex;gap:7px;flex-wrap:wrap;width:100%;padding:0 4px 3px}.nextgen-toolbar button,.tool-btn{white-space:nowrap}.ng-card{background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:12px;margin:8px 0}.ng-memory{display:flex;justify-content:space-between;gap:10px}.ng-memory small{color:var(--text-muted)}.vision-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}.vision-actions button{border:0;border-radius:10px;padding:6px 8px;background:rgba(0,168,132,.12);color:#bff8ec;cursor:pointer}.presence-pill{display:inline-flex;align-items:center;gap:5px;padding:5px 9px;border-radius:999px;background:rgba(124,92,255,.12);color:#d5d1ff;font-size:11px}.reminder-chip{display:inline-block;margin-top:5px;padding:5px 8px;border-radius:9px;background:rgba(255,193,7,.12);color:#ffe39a;font-size:11px}</style>
-
-<style id="call-ui-polish">
-.call-box{max-width:720px;text-align:center}.call-box video{width:100%;max-height:55vh;border-radius:18px;background:#05070d;margin:8px 0;object-fit:cover}.call-box #localCallVideo{max-width:180px;max-height:130px;position:absolute;right:28px;bottom:90px;border:2px solid rgba(255,255,255,.15)}.call-title{font-size:18px;font-weight:700;margin-bottom:4px}.call-state{font-size:12px;color:var(--text-muted);margin:6px 0 12px}
-</style>
-<style id="whatsapp-mobile-polish">
-/* Keep the desktop layout intact; mobile becomes a clean WhatsApp-style surface. */
-.mobile-more-btn,.call-btn{display:none}
-.wa-more-menu,.chat-context-menu{position:fixed;z-index:5000;min-width:230px;padding:7px;background:rgba(17,20,32,.98);border:1px solid rgba(255,255,255,.10);border-radius:15px;box-shadow:0 18px 60px rgba(0,0,0,.5);backdrop-filter:blur(18px)}
-.wa-more-menu button,.chat-context-menu button{width:100%;display:flex;align-items:center;gap:12px;border:0;background:transparent;color:#edf0f7;padding:11px 13px;border-radius:10px;text-align:left;font:500 13px Inter,sans-serif;cursor:pointer}
-.wa-more-menu button:hover,.chat-context-menu button:hover{background:rgba(124,92,255,.12)}
-.wa-more-menu button i,.chat-context-menu button i{width:18px;color:#aaa0ff;text-align:center}
-.wa-more-menu button.danger{color:#ff8d8d}.wa-more-menu button.danger i{color:#ff7777}
-.chat-context-menu{min-width:220px}
-.chat-context-menu .ctx-sep{height:1px;background:rgba(255,255,255,.07);margin:5px 4px}
-.chat-context-menu .ctx-message-preview{padding:8px 11px;color:#8d94aa;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:280px}
-.vision-actions{display:none!important}
-.contact-call-preview{font-size:11px;color:#8c93aa;margin-top:3px}
-
-@media (max-width:700px){
-  body{overflow:hidden}
-  #chatPage{height:100dvh;height:100vh;background:#0b0f18}
-  .chat-header{height:58px;min-height:58px;padding:7px 10px!important;background:#111725!important;border-bottom:1px solid rgba(255,255,255,.07)!important}
-  .chat-header .brand span{font-size:16px}.header-logo-image{width:35px!important;height:35px!important}
-  .chat-header .user-section{gap:5px}.chat-header .user-section .user-badge{padding:4px 8px 4px 4px;border:0;background:transparent}.chat-header .user-section .user-badge .avatar{width:34px;height:34px}.chat-header .user-section .user-badge .name,.chat-header .role-badge,.desktop-settings-btn,.desktop-logout-btn{display:none!important}
-  .mobile-more-btn{display:flex!important;border:0!important;font-size:19px;padding:8px!important;border-radius:50%!important}
-  .admin-panel{display:none!important}
-  .chat-layout{position:relative;height:calc(100dvh - 58px);height:calc(100vh - 58px);display:block!important}
-  .contacts-sidebar{position:absolute;inset:0;width:100%!important;height:100%;z-index:2;background:#0b101a!important;border:0!important;transition:transform .25s ease}
-  .contacts-sidebar.mobile-chat-open{transform:translateX(-100%)}
-  .contacts-sidebar .search-area{padding:9px 10px;border-bottom:1px solid rgba(255,255,255,.06)}
-  .contacts-sidebar .search-area input{height:40px;padding-left:40px;background:#151b28;border:0}
-  .btn-add-contact{height:40px;padding:0 13px;font-size:12px}
-  .contacts-list{padding:4px 4px 20px}
-  .contact-item{margin:2px 2px!important;padding:10px 9px!important;border-radius:15px!important;background:transparent!important;border:0!important;box-shadow:none!important;min-height:66px}
-  .contact-item.active{background:#172030!important}
-  .contact-item .avatar{width:49px;height:49px}.contact-item .info .name{font-size:14px}.contact-item .last-msg{font-size:11px!important}.contact-item .info .email{display:none!important}
-  .chat-area{position:absolute;inset:0;z-index:3;height:100%!important;background:#0b1018;transform:translateX(100%);transition:transform .25s ease}
-  .chat-area.mobile-chat-open{transform:translateX(0)}
-  .chat-contact-header{height:58px;min-height:58px;padding:5px 7px!important;gap:8px!important;background:#111725!important;border-bottom:1px solid rgba(255,255,255,.07)!important}
-  .chat-contact-header .avatar{width:42px;height:42px}.chat-contact-header .contact-info .name{font-size:14px}.chat-contact-header .contact-info .about{font-size:10px;max-width:155px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .chat-contact-header .contact-actions{gap:2px!important}.contact-status{position:absolute!important;left:57px;top:34px;border:0!important;background:transparent!important;padding:0!important;font-size:9px!important;color:#8690a8!important;white-space:nowrap}
-  .call-btn{display:flex!important;width:36px;height:36px;align-items:center;justify-content:center;border:0;background:transparent;color:#d9deea;border-radius:50%;font-size:15px;cursor:pointer}.call-btn:hover{background:rgba(255,255,255,.07)}
-  .add-unknown-btn{font-size:10px!important;padding:6px 8px!important}
-  .chat-messages{padding:12px 8px 10px!important;background:radial-gradient(circle at 20% 10%,rgba(124,92,255,.035),transparent 30%),#0b1018}
-  .chat-messages .msg{max-width:82%;font-size:13px;padding:7px 9px;margin:3px 0;border-radius:10px}
-  .chat-messages .msg.sent{border-bottom-right-radius:3px}.chat-messages .msg.received{border-bottom-left-radius:3px}
-  .desktop-advanced-tools{display:none!important}
-  .chat-input-area{padding:6px 7px!important;background:#111725!important;border-top:1px solid rgba(255,255,255,.06)!important}
-  .input-wrapper{gap:2px!important;border-radius:24px!important;background:#1a2130!important;border:0!important;padding:3px!important}
-  .input-wrapper .media-btn{width:35px;height:35px;padding:0!important;border:0!important;background:transparent!important}.input-wrapper .media-btn i{font-size:15px}
-  #messageInput{height:37px;font-size:13px;background:transparent!important;border:0!important;padding:0 5px!important}
-  #sendBtn{width:42px;height:42px;border-radius:50%!important;padding:0!important;font-size:0!important}.chat-input-area #sendBtn i{font-size:15px}
-  .language-indicator{display:none!important}
-  .wa-more-menu{top:50px;right:7px}.contact-menu{top:53px;right:5px}
-  .chat-context-menu{position:fixed;min-width:205px;max-width:calc(100vw - 20px)}
-  .chat-context-menu button{padding:10px 12px;font-size:12px}
-  .chat-context-menu .ctx-message-preview{max-width:calc(100vw - 45px)}
-  .back-mobile-btn{display:flex!important}
-}
-@media(min-width:701px){.back-mobile-btn{display:none!important}}
-
 </head>
 <body>
 
@@ -1749,9 +1686,8 @@ input,textarea,.search-box{background:rgba(255,255,255,.055)!important;border-co
                 <span class="name" id="currentUserName">User</span>
             </div>
             <span class="role-badge" id="roleBadge">User</span>
-            <button class="btn-header mobile-more-btn" id="mobileTopMoreBtn" aria-label="More options" title="More options"><i class="fas fa-ellipsis-vertical"></i></button>
-            <button class="btn-header desktop-settings-btn" id="settingsBtn"><i class="fas fa-cog"></i></button>
-            <button class="btn-logout desktop-logout-btn" id="logoutBtn">
+            <button class="btn-header" id="settingsBtn"><i class="fas fa-cog"></i></button>
+            <button class="btn-logout" id="logoutBtn">
                 <i class="fas fa-sign-out-alt"></i>
             </button>
         </div>
@@ -1787,7 +1723,6 @@ input,textarea,.search-box{background:rgba(255,255,255,.055)!important;border-co
         
         <div class="chat-area">
             <div id="chatContactHeader" class="chat-contact-header hidden">
-                <button class="call-btn back-mobile-btn" id="backToContactsBtn" type="button" aria-label="Back to chats"><i class="fas fa-arrow-left"></i></button>
                 <div class="avatar" id="contactAvatar">👤</div>
                 <div class="contact-info">
                     <div class="name">
@@ -1801,39 +1736,10 @@ input,textarea,.search-box{background:rgba(255,255,255,.055)!important;border-co
                     <div class="contact-status" id="contactStatus">
                         <i class="fas fa-circle" style="font-size:8px;"></i> Online
                     </div>
-                    <button class="call-btn" id="voiceCallBtn" type="button" title="Voice call" aria-label="Voice call"><i class="fas fa-phone"></i></button>
-                    <button class="call-btn" id="videoCallBtn" type="button" title="Video call" aria-label="Video call"><i class="fas fa-video"></i></button>
-                    <button class="call-btn contact-more-btn" id="contactMoreBtn" type="button" title="More options" aria-label="More options"><i class="fas fa-ellipsis-vertical"></i></button>
                     <button class="add-unknown-btn hidden" id="addUnknownContactBtn" type="button"><i class="fas fa-user-plus"></i> Add</button>
                 </div>
             </div>
-
-            <div class="wa-more-menu hidden" id="mobileTopMenu" role="menu">
-                <button data-top-action="settings"><i class="fas fa-gear"></i> Settings</button>
-                <button data-top-action="profile"><i class="fas fa-user"></i> Profile</button>
-                <button data-top-action="memory"><i class="fas fa-brain"></i> Chat memory</button>
-                <button data-top-action="theme"><i class="fas fa-palette"></i> Chat theme</button>
-                <button data-top-action="presence"><i class="fas fa-circle"></i> Presence</button>
-                <button data-top-action="meeting"><i class="fas fa-users"></i> AI meeting mode</button>
-                <button data-top-action="logout" class="danger"><i class="fas fa-right-from-bracket"></i> Log out</button>
-            </div>
-
-            <div class="wa-more-menu contact-menu hidden" id="contactMoreMenu" role="menu">
-                <button data-contact-action="contact-info"><i class="fas fa-circle-info"></i> Contact info</button>
-                <button data-contact-action="media"><i class="fas fa-photo-film"></i> Media, links & docs</button>
-                <button data-contact-action="search"><i class="fas fa-search"></i> Search</button>
-                <button data-contact-action="mute"><i class="fas fa-bell-slash"></i> Mute notifications</button>
-                <button data-contact-action="wallpaper"><i class="fas fa-image"></i> Chat wallpaper</button>
-                <button data-contact-action="lock"><i class="fas fa-lock"></i> Lock chat</button>
-                <button data-contact-action="clear"><i class="fas fa-broom"></i> Clear chat</button>
-                <button data-contact-action="export"><i class="fas fa-download"></i> Export chat</button>
-                <button data-contact-action="ai"><i class="fas fa-sparkles"></i> AI tools</button>
-                <button data-contact-action="schedule"><i class="fas fa-clock"></i> Scheduled messages</button>
-                <button data-contact-action="more"><i class="fas fa-ellipsis"></i> More</button>
-            </div>
-
-            <div class="chat-context-menu hidden" id="messageContextMenu" role="menu"></div>
-
+            
             <div class="chat-messages" id="chatMessages">
                 <div class="empty-chat">
                     <i class="fas fa-comments"></i>
@@ -1842,7 +1748,7 @@ input,textarea,.search-box{background:rgba(255,255,255,.055)!important;border-co
             </div>
             
             <div class="chat-input-area">
-                <div class="advanced-tools desktop-advanced-tools">
+                <div class="advanced-tools">
                     <button class="tool-btn" id="aiBtn" title="ChatPro AI"><i class="fas fa-sparkles"></i> AI</button>
                     <button class="tool-btn" id="scheduleBtn" title="Schedule message"><i class="fas fa-clock"></i> Schedule</button>
                     <button class="tool-btn" id="locationBtn" title="Share location"><i class="fas fa-location-dot"></i> Location</button>
@@ -2069,6 +1975,9 @@ input,textarea,.search-box{background:rgba(255,255,255,.055)!important;border-co
     </div>
 </div>
 
+<style id="chatpro-nextgen-css">
+.nextgen-toolbar{display:flex;gap:7px;flex-wrap:wrap;width:100%;padding:0 4px 3px}.nextgen-toolbar button{background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.08);color:#c8c7ff;border-radius:14px;padding:8px 10px;cursor:pointer}.ai-action-row{display:flex;gap:6px;flex-wrap:wrap;padding:8px;border-top:1px solid rgba(255,255,255,.06)}.ai-action-row button{border:0;border-radius:12px;padding:7px 9px;background:rgba(124,92,255,.12);color:#d5d1ff;cursor:pointer}.ng-card{background:linear-gradient(145deg,rgba(255,255,255,.06),rgba(255,255,255,.025));border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:14px;margin:8px 0}.ng-memory{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.ng-memory small{color:var(--text-muted)}.presence-pill{display:inline-flex;align-items:center;gap:6px;padding:5px 9px;border-radius:999px;background:rgba(124,92,255,.12);font-size:11px;color:#cfcaff}.vision-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}.vision-actions button{border:0;border-radius:10px;padding:6px 8px;background:rgba(0,168,132,.12);color:#bff8ec;cursor:pointer}.reminder-chip{display:inline-block;margin-top:5px;padding:5px 8px;border-radius:9px;background:rgba(255,193,7,.12);color:#ffe39a;font-size:11px}
+</style>
 <script>
 // ============================================================
 // SUPABASE CONFIG
@@ -2556,9 +2465,11 @@ function rowToUser(row) {
         lockPasswordHash: row.lock_password_hash || null,
         autoReplyEnabled: !!row.auto_reply_enabled,
         autoReplyText: row.auto_reply_text || '',
+        chatMemory: Array.isArray(row.chat_memory) ? row.chat_memory : [],
+        chatReminders: Array.isArray(row.chat_reminders) ? row.chat_reminders : [],
+        chatRecurring: Array.isArray(row.chat_recurring) ? row.chat_recurring : [],
         presenceState: row.presence_state || 'available',
-        presenceVisible: row.presence_visible !== false,
-        lastSeen: row.last_seen || null,
+        presenceVisible: row.presence_visible !== false
     };
 }
 
@@ -2581,9 +2492,11 @@ function userToRowPatch(data) {
     if ('lockPasswordHash' in data) patch.lock_password_hash = data.lockPasswordHash;
     if ('autoReplyEnabled' in data) patch.auto_reply_enabled = data.autoReplyEnabled;
     if ('autoReplyText' in data) patch.auto_reply_text = data.autoReplyText;
+    if ('chatMemory' in data) patch.chat_memory = data.chatMemory;
+    if ('chatReminders' in data) patch.chat_reminders = data.chatReminders;
+    if ('chatRecurring' in data) patch.chat_recurring = data.chatRecurring;
     if ('presenceState' in data) patch.presence_state = data.presenceState;
     if ('presenceVisible' in data) patch.presence_visible = data.presenceVisible;
-    if ('lastSeen' in data) patch.last_seen = data.lastSeen;
     return patch;
 }
 
@@ -3020,7 +2933,7 @@ async function loadMessages(contactEmail) {
                 mediaHTML = `<div class="voice-note"><button class="play-btn" onclick="playVoice('${msg.media_url}', this)"><i class="fas fa-play"></i></button><div class="waveform">${bars.map(h => `<div class="bar" style="height:${h}%"></div>`).join('')}</div><span class="duration">${Math.floor(duration / 60)}:${String(Math.floor(duration % 60)).padStart(2, '0')}</span></div>`;
             }
             const time = msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : ''; const scheduledTag = msg.status === 'scheduled' ? `<span class="schedule-chip"><i class="fas fa-clock"></i> Scheduled for ${msg.scheduled_at?new Date(msg.scheduled_at).toLocaleString():''}</span>` : '';
-            messagesHTML += `<div class="msg ${msgClass} ${msg.status==='scheduled'?'scheduled':''} ${isSinhala ? 'sinhala' : ''}" data-message-id="${escapeHtml(msg.id || '')}">${!isSent && !isBroadcast ? `<span class="sender">${msg.sender_name || 'Unknown'}</span>` : ''}${isBroadcast ? '<span class="sender">📢 ADMIN</span>' : ''}${scheduledTag}${mediaHTML}${msg.text ? `<div class="media-caption">${msg.text}</div>` : ''}<span class="time-stamp">${time}</span></div>`;
+            messagesHTML += `<div class="msg ${msgClass} ${msg.status==='scheduled'?'scheduled':''} ${isSinhala ? 'sinhala' : ''}" data-message-id="${escapeHtml(msg.id)}">${!isSent && !isBroadcast ? `<span class="sender">${msg.sender_name || 'Unknown'}</span>` : ''}${isBroadcast ? '<span class="sender">📢 ADMIN</span>' : ''}${scheduledTag}${mediaHTML}${msg.text ? `<div class="media-caption">${msg.text}</div>` : ''}<span class="time-stamp">${time}</span></div>`;
         });
         chatMessages.innerHTML = messagesHTML;
         chatMessages.scrollTop = chatMessages.scrollHeight;
@@ -3683,6 +3596,90 @@ adminModal.addEventListener('click',e=>{if(e.target===adminModal)adminModal.clas
 closeAdminNicModal.addEventListener('click',()=>adminNicModal.classList.add('hidden'));
 adminNicModal.addEventListener('click',e=>{if(e.target===adminNicModal)adminNicModal.classList.add('hidden');});
 
+
+// ============================================================
+// CHATPRO NEXT-GENERATION FEATURE LAYER
+// Adds AI tools, chat memory, intent scheduling, voice commands,
+// vision actions, reminders, themes, message morphing, presence,
+// and meeting mode without replacing existing messaging functions.
+// ============================================================
+(function initChatProNextGen(){
+    const NG={memory:[],reminders:[],presence:'available',presenceVisible:true,meeting:null};
+    let voiceRecognition=null;
+    const q=s=>document.querySelector(s);
+    const esc=v=>typeof escapeHtml==='function'?escapeHtml(String(v??'')):String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+    const chatRows=async()=>{if(!currentUser||!currentChatWith)return[];const {data,error}=await supabaseClient.from('messages').select('*').eq('chat_id',getChatId(currentUser.email,currentChatWith)).or('status.eq.sent,status.is.null').order('timestamp',{ascending:true});if(error)throw error;return data||[]};
+    const profilePatch=async patch=>{if(typeof saveProfilePatch==='function')await saveProfilePatch(currentUser.id,patch);Object.assign(currentUserData,patch);};
+    function addToolBar(){
+      const area=q('.chat-input-area'); if(!area||q('#nextGenToolbar'))return;
+      const d=document.createElement('div');d.id='nextGenToolbar';d.className='nextgen-toolbar';
+      d.innerHTML='<button id="ngMemoryBtn">🧠 Memory</button><button id="ngReminderBtn">🔔 Remind</button><button id="ngMorphBtn">🪄 Morph</button><button id="ngThemeBtn">🎨 Theme</button><button id="ngPresenceBtn">🛰️ Presence</button><button id="ngMeetingBtn">📞 Meeting AI</button>';
+      area.insertBefore(d,area.firstElementChild);
+      q('#ngMemoryBtn').onclick=showMemory; q('#ngReminderBtn').onclick=makeReminderFromInput; q('#ngMorphBtn').onclick=morphDialog; q('#ngThemeBtn').onclick=themeDialog; q('#ngPresenceBtn').onclick=presenceDialog; q('#ngMeetingBtn').onclick=meetingMode;
+    }
+    function aiActions(){
+      if(!aiPanel||q('#ngAiActions'))return;const r=document.createElement('div');r.id='ngAiActions';r.className='ai-action-row';
+      r.innerHTML='<button data-ai="summarize">Summarize</button><button data-ai="find">Find</button><button data-ai="translate">Translate</button><button data-ai="rewrite">Rewrite</button><button data-ai="explain">Explain</button><button data-ai="reply">Create Reply</button><button data-ai="memory">Save Memory</button><button data-ai="poll">Create Poll</button><button data-ai="vision">Analyze Image</button><button data-ai="doc">Summarize Document</button>';
+      aiPanel.insertBefore(r,aiPanel.querySelector('.ai-input'));r.onclick=e=>{const b=e.target.closest('[data-ai]');if(b)runAIAction(b.dataset.ai)};
+    }
+    async function runAIAction(action){
+      try{const rows=await chatRows();if(!rows.length&&action!=='doc'&&action!=='vision'){aiSay('There are no messages in this chat yet.');return;}
+        if(action==='summarize'){aiSay('🧠 '+summarizeRows(rows));return}
+        if(action==='find'){const term=prompt('What should I find in this conversation?');if(term)aiSay(findInRows(rows,term));return}
+        if(action==='translate'){const m=[...rows].reverse().find(x=>x.text);if(!m){aiSay('No text message found.');return}const lang=prompt('Translate to which language? (English/Sinhala)')||'English';aiSay('🌐 '+simpleTranslate(m.text,lang));return}
+        if(action==='rewrite'){const m=[...rows].reverse().find(x=>x.text);if(!m)return;aiSay('✍️ '+rewriteText(m.text));return}
+        if(action==='explain'){const m=[...rows].reverse().find(x=>x.text);if(!m)return;aiSay('💡 '+explainText(m.text));return}
+        if(action==='reply'){const m=[...rows].reverse().find(x=>x.sender!==currentUser.email&&x.text);if(!m){aiSay('No received text found.');return}const r=makeReply(m.text);messageInput.value=r;messageInput.dispatchEvent(new Event('input'));aiSay('✉️ Suggested reply: '+r);return}
+        if(action==='memory'){const m=[...rows].reverse().find(x=>x.text);if(m){await addMemory(currentChatWith,m.text);aiSay('🧠 Saved a chat memory from the latest message.');}return}
+        if(action==='poll'){const topic=summarizeRows(rows).slice(0,120);openPollFromAI(topic);return}
+        if(action==='vision'){await visionFromLastImage(rows);return}
+        if(action==='doc'){await documentAssistant();return}
+      }catch(e){aiSay('AI action error: '+e.message)}
+    }
+    function summarizeRows(rows){const texts=rows.filter(r=>r.text).map(r=>`${r.sender===currentUser.email?'You':(r.sender_name||r.sender)}: ${r.text}`);if(!texts.length)return'No text content to summarize.';const tail=texts.slice(-30);const keywords=extractKeyFacts(tail.join(' '));return `Conversation summary: ${tail.slice(-8).join(' | ')}${keywords.length?'\nKey facts: '+keywords.join('; '):''}`}
+    function findInRows(rows,term){const t=term.toLowerCase();const hits=rows.filter(r=>(r.text||'').toLowerCase().includes(t));if(!hits.length)return`I couldn't find “${term}” in this loaded conversation.`;return `Found ${hits.length} message(s):\n`+hits.slice(-10).map(r=>`${new Date(r.timestamp).toLocaleString()} — ${r.sender_name||r.sender}: ${r.text}`).join('\n')}
+    function extractKeyFacts(text){const out=[];const patterns=[/\b(?:deadline|due|meeting|meet|date|time)\b[^.!?\n]{0,100}/gi,/\b(?:github|website|project|assignment|exam|test)\b[^.!?\n]{0,100}/gi];patterns.forEach(p=>(text.match(p)||[]).slice(0,4).forEach(x=>{if(!out.some(y=>y.toLowerCase()===x.toLowerCase()))out.push(x.trim())}));return out.slice(0,8)}
+    function simpleTranslate(t,lang){if(lang.toLowerCase().startsWith('english'))return t.replace(/ආයුබෝවන්/g,'Hello').replace(/ස්තුතියි/g,'Thank you').replace(/හරි/g,'Okay').replace(/ඔව්/g,'Yes').replace(/නැහැ/g,'No');if(lang.toLowerCase().startsWith('sinh'))return t.replace(/hello/gi,'ආයුබෝවන්').replace(/thank you/gi,'ස්තුතියි').replace(/okay/gi,'හරි').replace(/yes/gi,'ඔව්').replace(/no/gi,'නැහැ');return `Translation engine not configured for ${lang}.`}
+    function rewriteText(t){return `Polite version: ${t.replace(/\s+/g,' ').trim()}\n\nProfessional version: Please note that ${t.charAt(0).toLowerCase()+t.slice(1)}`}
+    function explainText(t){return `This message appears to say: “${t}”. In simple terms, the sender is communicating the main point expressed in that sentence.`}
+    function makeReply(t){if(/thank/i.test(t))return"You're welcome! 😊";if(/sorry/i.test(t))return"No worries, thanks for letting me know.";if(/where|when|time/i.test(t))return"Sure, I'll confirm the details and let you know shortly.";return"Thanks for the message. I'll check this and get back to you soon."}
+    async function addMemory(chat,key){const list=Array.isArray(currentUserData?.chatMemory)?currentUserData.chatMemory:[];list.push({id:crypto.randomUUID?crypto.randomUUID():Date.now().toString(),chat,email:chat,key:key.slice(0,300),created_at:new Date().toISOString()});await profilePatch({chatMemory:list.slice(-200)});}
+    async function showMemory(){const list=Array.isArray(currentUserData?.chatMemory)?currentUserData.chatMemory:[];const own=list.filter(m=>!currentChatWith||m.chat===currentChatWith);const body=own.length?own.map((m,i)=>`<div class="ng-card ng-memory"><div><strong>${esc(m.key)}</strong><small>${esc(m.chat||'General')} · ${new Date(m.created_at).toLocaleString()}</small></div><button onclick="window.chatproDeleteMemory('${esc(m.id)}')">Delete</button></div>`).join(''):'<div class="ng-card">No saved memories for this chat.</div>';const box=document.createElement('div');box.className='modal-overlay';box.innerHTML=`<div class="modal-box" style="max-width:680px;max-height:80vh;overflow:auto"><h3>🧠 Chat Memory</h3><p class="modal-sub">Important facts can be edited or deleted.</p>${body}<div class="modal-actions"><button class="btn-cancel">Close</button><button class="btn-confirm" id="addManualMemory">Add Memory</button></div></div>`;document.body.appendChild(box);box.querySelector('.btn-cancel').onclick=()=>box.remove();box.querySelector('#addManualMemory').onclick=async()=>{const v=prompt('Memory:');if(v){await addMemory(currentChatWith,v);box.remove();showMemory()}}}
+    window.chatproDeleteMemory=async id=>{const list=(currentUserData.chatMemory||[]).filter(m=>m.id!==id);await profilePatch({chatMemory:list});document.querySelectorAll('.modal-overlay').forEach(x=>x.remove());showMemory()};
+    function makeReminderFromInput(){const text=(messageInput?.value||'').trim();const when=prompt('Reminder time (e.g. 2026-10-15 18:00 or "tomorrow 6")');if(!when)return;const r={id:Date.now().toString(),chat:currentChatWith,text,when,created_at:new Date().toISOString()};NG.reminders.push(r);saveReminderState();alert('🔔 Reminder created.');}
+    async function saveReminderState(){await profilePatch({chatReminders:NG.reminders.slice(-200)})}
+    function intentParser(text){const x=text.toLowerCase();let m=x.match(/(?:remind me to|remind me)\s+(.+?)\s+(?:tomorrow|tonight|today|at)\s+(.+)/i);if(m)return{type:'reminder',task:m[1],when:m[2]};m=x.match(/send (?:this|it) to (.+?) every (monday|tuesday|wednesday|thursday|friday|saturday|sunday) at (\d{1,2}(?::\d{2})?\s*(?:am|pm)?)/i);if(m)return{type:'recurring',target:m[1],day:m[2],time:m[3]};return null}
+    async function processIntent(text){const intent=intentParser(text);if(!intent)return false;if(intent.type==='reminder'){NG.reminders.push({id:Date.now().toString(),chat:currentChatWith,text:intent.task,when:intent.when,created_at:new Date().toISOString()});await saveReminderState();aiSay(`⚡ Intent understood. Reminder created for “${intent.task}” at ${intent.when}.`);return true}if(intent.type==='recurring'){const arr=Array.isArray(currentUserData.chatRecurring)?currentUserData.chatRecurring:[];arr.push({...intent,created_at:new Date().toISOString()});await profilePatch({chatRecurring:arr});aiSay(`🔁 Recurring schedule created: ${intent.day} at ${intent.time}.`);return true}return false}
+    function voiceEverything(){if(!('webkitSpeechRecognition'in window||'SpeechRecognition'in window)){alert('Voice recognition is not supported in this browser.');return}const SR=window.SpeechRecognition||window.webkitSpeechRecognition;voiceRecognition=new SR();voiceRecognition.lang='en-US';voiceRecognition.interimResults=false;voiceRecognition.onresult=async e=>{const text=e.results[0][0].transcript;const m=text.match(/^send (?:a )?(?:polite )?message to (.+?) saying (.+)$/i);if(m){const target=m[1],body=m[2];const reply=makeReply(body).startsWith('Thanks')?`Hi ${target}, ${body}`:`Hi ${target}, ${body}`;messageInput.value=reply;messageInput.dispatchEvent(new Event('input'));if(confirm(`Send this message?\n\n${reply}`))sendMessage();}else{messageInput.value=text;messageInput.dispatchEvent(new Event('input'));await processIntent(text)}};voiceRecognition.start()}
+    function morphDialog(){const t=(messageInput?.value||'').trim();if(!t){alert('Type a message first.');return}const type=prompt('Morph to: voice / sticker / poll / professional / summary / image');if(!type)return;if(type.toLowerCase()==='voice'){alert('Use the microphone button to record the generated wording.');messageInput.value=t;return}if(type.toLowerCase()==='sticker'){insertAdvancedMessage({media_type:'sticker',message_type:'sticker',text:'✨ '+t.slice(0,30)});return}if(type.toLowerCase()==='poll'){openPollFromAI(t);return}if(type.toLowerCase()==='professional'){messageInput.value=rewriteText(t).split('\n')[0];messageInput.dispatchEvent(new Event('input'));return}if(type.toLowerCase()==='summary'){messageInput.value=t.length>120?t.slice(0,117)+'...':t;messageInput.dispatchEvent(new Event('input'));return}if(type.toLowerCase()==='image'){alert('Image generation needs a configured AI image provider/Edge Function; the text remains untouched.');}}
+    function openPollFromAI(topic){pollQuestion.value=topic||'What do you think?';pollOption1.value='Yes';pollOption2.value='No';pollOption3.value='Maybe';pollModal.classList.remove('hidden')}
+    function themeDialog(){const p=prompt('Describe your theme (e.g. futuristic blue cyberpunk):');if(!p)return;const x=p.toLowerCase();let bg='#0a0f1e',accent='#7c5cff',bubble='rgba(124,92,255,.18)';if(x.includes('green')){accent='#00a884';bubble='rgba(0,168,132,.18)'}if(x.includes('red')){accent='#ff5e7a';bubble='rgba(255,94,122,.18)'}if(x.includes('blue')){accent='#4da3ff';bubble='rgba(77,163,255,.18)'}document.documentElement.style.setProperty('--primary',accent);document.documentElement.style.setProperty('--bubble-sent',bubble);document.body.style.background=`radial-gradient(circle at 20% 10%,${accent}22,transparent 35%),${bg}`;localStorage.setItem('chatproThemePrompt',p);alert('🎨 Theme applied and saved on this device.');}
+    function presenceDialog(){const states=['available','busy','listening to music','working','studying','focus mode','do not disturb'];const p=prompt('Presence state:\n'+states.join(' · '),NG.presence)||NG.presence;NG.presence=p;profilePatch({presenceState:p,presenceVisible:true}).then(()=>{const h=q('#contactStatus');if(h)h.innerHTML=`<i class="fas fa-circle" style="font-size:8px;"></i> ${esc(p)}`;alert('🛰️ Presence updated.')})}
+    function meetingMode(){if(!currentUser){return}if(!('webkitSpeechRecognition'in window||'SpeechRecognition'in window)){alert('Live transcription is not supported by this browser.');return}const SR=window.SpeechRecognition||window.webkitSpeechRecognition;const sr=new SR();sr.continuous=true;sr.interimResults=true;sr.lang='en-US';const box=document.createElement('div');box.className='modal-overlay';box.innerHTML='<div class="modal-box" style="max-width:720px"><h3>📞 LIVE AI Meeting Mode</h3><p class="modal-sub">Live browser transcription, notes, tasks and decisions.</p><div id="meetingLive" class="ng-card" style="min-height:160px">Listening…</div><div class="modal-actions"><button id="stopMeeting" class="btn-confirm">Stop & Summarize</button><button class="btn-cancel">Close</button></div></div>';document.body.appendChild(box);let transcript='';sr.onresult=e=>{transcript=Array.from(e.results).map(r=>r[0].transcript).join(' ');box.querySelector('#meetingLive').textContent=transcript};sr.start();box.querySelector('.btn-cancel').onclick=()=>{sr.stop();box.remove()};box.querySelector('#stopMeeting').onclick=()=>{sr.stop();const tasks=(transcript.match(/(?:todo|task|need to|must)\b[^.!?]*/gi)||[]).slice(0,8);const decisions=(transcript.match(/(?:decided|agree|agreed|decision)\b[^.!?]*/gi)||[]).slice(0,8);box.querySelector('#meetingLive').innerHTML=`<strong>Meeting Summary</strong><p>${esc(transcript.slice(0,1200)||'No transcript captured.')}</p><p><b>Tasks:</b> ${esc(tasks.join(' · ')||'None detected')}</p><p><b>Decisions:</b> ${esc(decisions.join(' · ')||'None detected')}</p>`};}
+    async function visionFromLastImage(rows){const m=[...rows].reverse().find(x=>x.media_type==='image'&&x.media_url);if(!m){aiSay('No image message was found in this chat.');return}const action=prompt('Vision action: Describe / Translate / Extract Text / Solve / Summarize / Identify')||'Describe';try{const img=await fetch(m.media_url).then(r=>r.blob());if(typeof Tesseract!=='undefined'&&/extract|solve|translate|summarize/i.test(action)){aiSay('👁️ Reading image…');const res=await Tesseract.recognize(img,'eng');const text=res.data.text.trim();aiSay(`👁️ ${action}:\n${text||'No readable text detected.'}`)}else aiSay(`👁️ ${action}: Image received. For full visual understanding, configure the optional AI vision Edge Function.`)}catch(e){aiSay('Vision error: '+e.message)}}
+    async function documentAssistant(){const input=document.createElement('input');input.type='file';input.accept='.txt,.md,.csv,.json,.pdf,.doc,.docx';input.onchange=async()=>{const f=input.files[0];if(!f)return;if(f.type==='application/pdf'){aiSay('📄 PDF selected. Browser-only extraction is limited; connect the optional AI document Edge Function for full PDF summarization.');return}const text=await f.text();aiSay('📄 Document summary:\n'+summarizeRows([{text}]))};input.click()}
+    function addVisionButtons(){
+      document.querySelectorAll('.msg .media-wrapper img').forEach(img=>{
+        if(img.parentElement.querySelector('.vision-actions')) return;
+        const b=document.createElement('div'); b.className='vision-actions';
+        b.innerHTML='<button>✨ Describe</button><button>Extract Text</button><button>🌐 Translate</button><button>🧮 Solve</button>';
+        b.querySelectorAll('button').forEach(x=>x.onclick=async()=>{
+          if(typeof Tesseract==='undefined'){alert('Vision OCR is unavailable.');return;}
+          try{const r=await Tesseract.recognize(img.src,'eng');alert(x.textContent+':\n\n'+(r.data.text.trim()||'No text detected.'));}catch(e){alert(e.message);}
+        });
+        img.parentElement.appendChild(b);
+      });
+    }
+    function startLongPress(el){let timer;const clear=()=>clearTimeout(timer);el.addEventListener('pointerdown',()=>{timer=setTimeout(()=>{const id=el.dataset.messageId;if(id)showReminderMenu(id);},650)},{passive:true});['pointerup','pointerleave','pointercancel'].forEach(ev=>el.addEventListener(ev,clear,{passive:true}));}
+    function showReminderMenu(messageId){const choice=prompt('🔔 Remind me\n\n1. In 10 minutes\n2. Tonight\n3. Tomorrow\n4. Custom\n\nType 1-4');if(!choice)return;let when=new Date();if(choice==='1')when=new Date(Date.now()+10*60000);else if(choice==='2'){when.setHours(20,0,0,0);if(when<=new Date())when.setDate(when.getDate()+1)}else if(choice==='3'){when.setDate(when.getDate()+1);when.setHours(9,0,0,0)}else{when=new Date(prompt('Enter date/time, e.g. 2026-10-15 18:00')||'')}if(isNaN(when)||when<=new Date()){alert('Choose a future date/time.');return}const list=Array.isArray(currentUserData?.chatReminders)?currentUserData.chatReminders:[];list.push({id:Date.now().toString(),chat:currentChatWith,messageId,when:when.toISOString(),created_at:new Date().toISOString()});profilePatch({chatReminders:list.slice(-200)}).then(()=>alert('🔔 Reminder saved for '+when.toLocaleString())).catch(e=>alert(e.message));}
+    function checkReminders(){const list=Array.isArray(currentUserData?.chatReminders)?currentUserData.chatReminders:[];const due=list.filter(r=>!r.notified&&new Date(r.when).getTime()<=Date.now());if(!due.length)return;due.forEach(r=>{r.notified=true;alert('🔔 ChatPro Reminder\nYou asked to be reminded about this chat message.');});profilePatch({chatReminders:list}).catch(()=>{});}
+    function attachLongPress(){document.querySelectorAll('.msg[data-message-id]').forEach(startLongPress)}
+    setInterval(checkReminders,15000);setInterval(attachLongPress,1200);
+
+    // Expose safe public helpers.
+    window.chatproNextGen={runAIAction,voiceEverything,processIntent,showMemory,themeDialog,presenceDialog,meetingMode};
+})();
+
 // ============================================================
 // LOGOUT
 // ============================================================
@@ -3741,324 +3738,6 @@ if (supabaseClient) {
         }
     });
 }
-
-
-// ============================================================
-// CHATPRO NEXT-GENERATION FREE FEATURE ENGINE
-// Uses Supabase + browser/open-source capabilities. No paid AI key.
-// ============================================================
-(function(){
-  const NG = {
-    memories: [], reminders: [], recurring: [], presence: 'available', presenceVisible: true,
-    meeting: null, recognition: null, voiceIntent: false, longPressTimer: null
-  };
-  const q = id => document.getElementById(id);
-  const esc = v => (window.escapeHtml ? escapeHtml(v) : String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])));
-  const chatEmail = ()=>currentChatWith;
-  const nowISO=()=>new Date().toISOString();
-  const uid=()=>crypto.randomUUID?crypto.randomUUID():Date.now()+'-'+Math.random().toString(36).slice(2);
-
-  function ensureNextgenState(){
-    NG.memories=Array.isArray(currentUserData?.chatMemory)?currentUserData.chatMemory:[];
-    NG.reminders=Array.isArray(currentUserData?.chatReminders)?currentUserData.chatReminders:[];
-    NG.recurring=Array.isArray(currentUserData?.chatRecurring)?currentUserData.chatRecurring:[];
-    NG.presence=currentUserData?.presenceState||'available'; NG.presenceVisible=currentUserData?.presenceVisible!==false;
-  }
-  async function saveNG(){
-    if(!currentUser?.id)return;
-    const d=await saveProfilePatch(currentUser.id,{chatMemory:NG.memories,chatReminders:NG.reminders,chatRecurring:NG.recurring,presenceState:NG.presence,presenceVisible:NG.presenceVisible});
-    if(d)currentUserData=d;
-  }
-  function currentContact(){return contacts.find(c=>String(c.email).toLowerCase()===String(currentChatWith||'').toLowerCase())||{};}
-  function toast(msg){let t=q('ngToast');if(!t){t=document.createElement('div');t.id='ngToast';t.style.cssText='position:fixed;left:50%;bottom:25px;transform:translateX(-50%);z-index:3000;padding:11px 16px;border-radius:14px;background:rgba(20,24,42,.96);border:1px solid rgba(255,255,255,.12);box-shadow:0 15px 50px rgba(0,0,0,.45);color:#fff;font-size:13px;max-width:90vw;text-align:center';document.body.appendChild(t)}t.textContent=msg;t.classList.remove('hidden');clearTimeout(t._x);t._x=setTimeout(()=>t.classList.add('hidden'),2600)}
-
-  // ---------- Rich AI panel ----------
-  function aiHistory(){return q('aiMessages')?.innerHTML||''}
-  function aiSay(text,who='ai',actions=''){if(!q('aiMessages'))return;const d=document.createElement('div');d.className='ai-bubble '+(who==='user'?'user':'');d.innerHTML=esc(text).replace(/\n/g,'<br>');q('aiMessages').appendChild(d);if(actions)d.insertAdjacentHTML('afterend',actions);q('aiMessages').scrollTop=q('aiMessages').scrollHeight;}
-  async function fetchChatHistory(limit=1500){
-    if(!currentUser||!currentChatWith)return [];
-    const cid=getChatId(currentUser.email,currentChatWith);
-    const {data,error}=await supabaseClient.from('messages').select('*').eq('chat_id',cid).order('timestamp',{ascending:true}).limit(limit);
-    if(error)throw error; return data||[];
-  }
-  function textOf(m){return m?.text||''}
-  function summarizeMessages(rows){
-    const usable=rows.filter(m=>m.text||m.media_type).slice(-120);
-    if(!usable.length)return 'There is no conversation content to summarize yet.';
-    const texts=usable.filter(m=>m.text).map(m=>m.text.trim()).filter(Boolean);
-    const lines=[]; const seen=new Set();
-    for(const t of texts){const key=t.toLowerCase().replace(/\W/g,'').slice(0,90);if(!seen.has(key)){seen.add(key);lines.push(t)}}
-    const important=lines.filter(t=>/deadline|due|meeting|project|school|assignment|exam|tomorrow|today|friday|monday|oct|nov|dec|pm|am|need|decided|agree|task|website|github/i.test(t)).slice(-8);
-    const sample=(important.length?important:lines.slice(-6));
-    return 'Conversation summary\n\n• Messages analyzed: '+usable.length+'\n• Main points:\n'+sample.map(x=>'• '+x).join('\n')+'\n\nThis summary is generated locally from the stored chat history.';
-  }
-  function searchHistory(rows,query){
-    const terms=query.toLowerCase().split(/\s+/).filter(x=>x.length>1); const hits=rows.filter(m=>m.text&&terms.some(t=>m.text.toLowerCase().includes(t))).slice(-12);
-    return hits.length?hits.map(m=>'• '+new Date(m.timestamp).toLocaleString()+' — '+(m.sender_name||m.sender)+': '+m.text).join('\n'):'I could not find a matching message in the available stored history.';
-  }
-  function rewriteText(t,style){if(!t)return 'Select or enter some text first.';if(style==='professional')return 'Hello, '+t.replace(/\s+/g,' ').trim()+'.';if(style==='short')return t.split(/[.!?]/).filter(Boolean).slice(0,1).join('.')+'.';if(style==='polite')return 'Hi! '+t.replace(/^\s*/,'').replace(/[.!?]*$/,'')+'. Thank you!';return t;}
-  function replyFor(){const c=currentContact();return 'Hi '+(c.name||'there')+'! Thanks for your message. I’ll get back to you shortly.'}
-  async function aiRun(question){
-    const ql=question.toLowerCase();
-    if(!currentChatWith){aiSay('Select a chat first so I can work with its conversation.');return}
-    try{
-      const rows=await fetchChatHistory();
-      if(/summar(y|ize)|summary/.test(ql)){aiSay(summarizeMessages(rows));return}
-      if(/find|search|what did|when did|who said|months ago|said about|decided/.test(ql)){aiSay(searchHistory(rows,question));return}
-      if(/reply|respond|answer/.test(ql)){aiSay(replyFor(), 'ai', '<div class="ai-action-row"><button data-ai-insert="'+esc(replyFor())+'">Use reply</button></div>');return}
-      if(/translate/.test(ql)){const last=rows.filter(m=>m.text).slice(-1)[0];aiSay(last?freeTranslate(last.text,'en'): 'Send/select a message to translate.');return}
-      if(/rewrite|professional|polite|short/.test(ql)){const last=rows.filter(m=>m.text).slice(-1)[0];const style=/professional/.test(ql)?'professional':/short/.test(ql)?'short':'polite';aiSay(rewriteText(last?.text||'',style));return}
-      if(/explain/.test(ql)){const last=rows.filter(m=>m.text).slice(-1)[0];aiSay(last?'In simple terms, the latest message says: '+last.text:'There is no received text to explain.');return}
-      if(/poll/.test(ql)){const topic=rows.filter(m=>m.text).slice(-8).map(m=>m.text).join(' ').slice(0,180);aiSay('Suggested poll: “What should we do next?” Options: Continue / Change plan / Need discussion / Not sure. Based on recent chat: '+topic);return}
-      if(/memory|remember/.test(ql)){aiSay('I can save a chat memory. Use “Remember this” in the AI tools.');return}
-      aiSay('I can work with this chat history for summaries, old-message search, replies, rewriting, explanations, translation, memory and poll suggestions. Try: “What did we decide about the project?”');
-    }catch(e){aiSay('AI task failed: '+e.message)}
-  }
-  function openAdvancedAI(){
-    if(!q('aiPanel'))return;q('aiPanel').classList.remove('hidden');
-    if(!q('aiMessages').children.length){aiSay('ChatPro AI is ready. It can use this chat’s stored history without sending it to a paid AI service.');
-      q('aiMessages').insertAdjacentHTML('beforeend','<div class="ai-action-row"><button data-ai-action="summary">Summarize</button><button data-ai-action="search">Find old message</button><button data-ai-action="reply">Create reply</button><button data-ai-action="memory">Remember this</button><button data-ai-action="poll">Create poll</button></div>');}
-  }
-  aiBtn?.addEventListener('click',openAdvancedAI);
-  closeAi?.addEventListener('click',()=>q('aiPanel').classList.add('hidden'));
-  aiSend?.addEventListener('click',()=>{const v=aiInput.value.trim();if(!v)return;aiSay(v,'user');aiInput.value='';aiRun(v)});
-  aiInput?.addEventListener('keydown',e=>{if(e.key==='Enter')aiSend.click()});
-  q('aiMessages')?.addEventListener('click',async e=>{
-    const a=e.target.closest('[data-ai-action]'); if(a){const x=a.dataset.aiAction;if(x==='summary')aiRun('summarize this conversation');if(x==='search')aiRun('find what we decided about the project');if(x==='reply')aiRun('create a reply');if(x==='poll')aiRun('create a poll from this conversation');if(x==='memory')openMemoryEditor();return}
-    const i=e.target.closest('[data-ai-insert]');if(i){messageInput.value=i.dataset.aiInsert;messageInput.dispatchEvent(new Event('input'));messageInput.focus();toast('Reply inserted. Review it before sending.');}
-  });
-
-  // ---------- Free/local translation ----------
-  const COMMON={hello:'හෙලෝ',hi:'හායි',thanks:'ස්තුතියි',thank:'ස්තුතියි',please:'කරුණාකර',yes:'ඔව්',no:'නැහැ',today:'අද',tomorrow:'හෙට',school:'පාසල',project:'ව්‍යාපෘතිය',meeting:'රැස්වීම',assignment:'පැවරුම',website:'වෙබ් අඩවිය',good:'හොඳයි',morning:'උදෑසන',night:'රාත්‍රිය'};
-  function freeTranslate(text,to){let out=text; if(to==='si')out=text.split(/(\s+)/).map(w=>COMMON[w.toLowerCase().replace(/[.,!?]/g,'')]||w).join('');return out===text?'No local translation was available for this text. Original: '+text:out;}
-  window.chatProTranslate=async function(text){return freeTranslate(text,'si')};
-
-  // ---------- Memories ----------
-  function openMemoryEditor(){
-    let modal=q('memoryModal');if(!modal){modal=document.createElement('div');modal.id='memoryModal';modal.className='modal-overlay';modal.innerHTML='<div class="modal-box" style="max-width:650px"><h3><i class="fas fa-brain"></i> Chat Memory</h3><p class="modal-sub">Save facts such as deadlines, decisions and pending tasks. You can edit or delete them.</p><input id="memoryText" placeholder="e.g. Project deadline is October 15"><input id="memoryChat" placeholder="Chat email (optional)"><div class="modal-actions"><button class="btn-confirm" id="memorySave">Save Memory</button><button class="btn-cancel" id="memoryClose">Close</button></div><div id="memoryList"></div></div>';document.body.appendChild(modal);q('memoryClose').onclick=()=>modal.classList.add('hidden');q('memorySave').onclick=async()=>{const t=q('memoryText').value.trim();if(!t)return;NG.memories.push({id:uid(),text:t,chat:currentChatWith||q('memoryChat').value.trim()||null,createdAt:nowISO()});await saveNG();q('memoryText').value='';renderMemories();toast('Memory saved');};}
-    modal.classList.remove('hidden');renderMemories();
-  }
-  function renderMemories(){const box=q('memoryList');if(!box)return;box.innerHTML=(NG.memories||[]).map((m,i)=>'<div class="ng-card ng-memory"><div><strong>'+esc(m.text)+'</strong><br><small>'+esc(m.chat||'All chats')+'</small></div><button class="btn-settings danger" data-del-memory="'+i+'">Delete</button></div>').join('')||'<div style="color:var(--text-muted);padding:15px">No memories saved.</div>';}
-  q('memoryList')?.addEventListener('click',async e=>{const b=e.target.closest('[data-del-memory]');if(!b)return;NG.memories.splice(+b.dataset.delMemory,1);await saveNG();renderMemories()});
-  window.openMemoryEditor=openMemoryEditor;
-
-  // ---------- Reminders ----------
-  async function createReminder(messageText,when){if(!currentUser||!messageText)return;const r={id:uid(),chat:currentChatWith,message:messageText,dueAt:new Date(when).toISOString(),done:false,createdAt:nowISO()};NG.reminders.push(r);await saveNG();toast('Reminder saved for '+new Date(when).toLocaleString());}
-  function reminderDialog(text){const raw=prompt('Remind me when? Use 10m, tonight, tomorrow 18:00, or a date/time.');if(!raw)return;let d=new Date();const x=raw.toLowerCase().trim();if(/^\d+\s*m$/.test(x))d=new Date(Date.now()+parseInt(x)*60000);else if(x==='tonight')d.setHours(21,0,0,0);else if(x==='tomorrow')d.setDate(d.getDate()+1);else if(/^tomorrow\s+\d{1,2}:\d{2}$/.test(x)){d.setDate(d.getDate()+1);const [h,m]=x.split(/\s+/)[1].split(':');d.setHours(+h,+m,0,0)}else{const parsed=new Date(raw);if(!isNaN(parsed))d=parsed}if(d<=new Date()){alert('Choose a future time.');return}createReminder(text,d)}
-  function checkReminders(){const now=Date.now();for(const r of NG.reminders||[]){if(!r.done&&new Date(r.dueAt).getTime()<=now){r.done=true;toast('⏰ Reminder: '+r.message);if('Notification' in window&&Notification.permission==='granted')new Notification('ChatPro Reminder',{body:r.message})}}if((NG.reminders||[]).some(r=>r.done)){saveNG()}}
-  setInterval(checkReminders,15000);
-  async function askNotification(){if('Notification' in window&&Notification.permission==='default')try{await Notification.requestPermission()}catch(_){} }
-
-  // ---------- Intent-based messaging / recurring ----------
-  function parseNaturalIntent(text){
-    const x=text.trim();let m=x.match(/remind me to (.+?) (?:tomorrow|today) (?:at )?(\d{1,2})(?::(\d{2}))?\s*(am|pm)?/i);if(m){let d=new Date();if(/tomorrow/i.test(x))d.setDate(d.getDate()+1);let h=+m[2],mi=+(m[3]||0);if(m[4]?.toLowerCase()==='pm'&&h<12)h+=12;if(m[4]?.toLowerCase()==='am'&&h===12)h=0;d.setHours(h,mi,0,0);return {type:'reminder',message:m[1],when:d}};
-    m=x.match(/^send this to (.+?) every (monday|tuesday|wednesday|thursday|friday|saturday|sunday) at (\d{1,2})(?::(\d{2}))?\s*(am|pm)?$/i);if(m)return {type:'recurring',target:m[1],day:m[2].toLowerCase(),hour:+m[3],minute:+(m[4]||0),ampm:m[5]};
-    return null;
-  }
-  async function processIntent(text){const i=parseNaturalIntent(text);if(!i)return false;if(i.type==='reminder'){await createReminder(i.message,i.when);await askNotification();return true}if(i.type==='recurring'){NG.recurring.push({id:uid(),target:i.target,day:i.day,hour:i.hour,minute:i.minute,ampm:i.ampm,message:text,enabled:true,createdAt:nowISO()});await saveNG();toast('Recurring schedule saved: '+i.day+' '+i.hour+':'+String(i.minute).padStart(2,'0'));return true}return false}
-  const oldSend=window.sendMessage; // sendMessage is lexical in this file; input handler below calls intent first.
-  messageInput?.addEventListener('keydown',async e=>{if(e.key==='Enter'&&!e.shiftKey){const v=messageInput.value.trim();if(v&&await processIntent(v)){e.preventDefault();messageInput.value='';return}}});
-
-  // ---------- Voice -> Everything ----------
-  function startVoiceIntent(){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){toast('Speech recognition is not supported in this browser.');return}const r=new SR();r.lang='en-US';r.interimResults=false;r.maxAlternatives=1;NG.voiceIntent=true;toast('🎙️ Say: Send a polite message to Kasun saying I will arrive at 5.');r.onresult=e=>{const t=e.results[0][0].transcript;const mm=t.match(/send (?:a )?(polite )?message to (.+?) saying (.+)$/i);if(mm){const polite=!!mm[1],name=mm[2].trim(),body=polite?'Hi '+name+', '+mm[3].trim().replace(/[.?!]+$/,'')+'.':mm[3];messageInput.value=body;messageInput.dispatchEvent(new Event('input'));toast('Draft created. Review, edit, then Send.')}else{messageInput.value=t;messageInput.dispatchEvent(new Event('input'))}};r.onerror=()=>toast('Voice command could not be recognized.');r.onend=()=>NG.voiceIntent=false;r.start();}
-  // long press microphone: voice command; normal click remains recording
-  voiceBtn?.addEventListener('contextmenu',e=>{e.preventDefault();startVoiceIntent()});
-
-  // ---------- Vision/OCR ----------
-  async function visionOCR(file){try{toast('🔎 Reading image…');const r=await Tesseract.recognize(file,'eng+sin',{logger:m=>{}});return r.data.text||''}catch(e){return 'OCR error: '+e.message}}
-  async function visionAction(file,action){const text=await visionOCR(file);if(action==='extract')return text||'No text detected.';if(action==='describe')return text?'Detected text:\n'+text:'Image description is limited to local OCR in the free version.';if(action==='translate')return freeTranslate(text,'si');if(action==='solve')return text?'Extracted problem text:\n'+text+'\n\nI can extract the problem locally; a full mathematical AI solver requires a model.' :'No readable problem text detected.';if(action==='summarize')return text?text.split(/\n+/).filter(Boolean).slice(0,8).map(x=>'• '+x).join('\n'):'No text to summarize.';return text}
-  function addVisionActions(){document.querySelectorAll('#chatMessages .media-wrapper img:not([data-ng-vision])').forEach(img=>{img.dataset.ngVision='1';const bar=document.createElement('div');bar.className='vision-actions';['describe','translate','extract','solve','summarize'].forEach(a=>{const b=document.createElement('button');b.textContent=a[0].toUpperCase()+a.slice(1);b.onclick=async()=>{try{const res=await visionAction(img.src,a);aiSay('Vision '+a+':\n'+res);openAdvancedAI()}catch(e){toast(e.message)}};bar.appendChild(b)});img.parentElement.appendChild(bar)})}
-  const mo=new MutationObserver(addVisionActions);mo.observe(q('chatMessages')||document.body,{childList:true,subtree:true});
-
-  // ---------- Message morphing + reminders ----------
-  function addMessageTools(){document.querySelectorAll('#chatMessages .msg:not([data-ng-tools])').forEach(el=>{el.dataset.ngTools='1';const text=el.innerText?.replace(/\d{1,2}:\d{2}.*$/,'').trim();const bar=document.createElement('div');bar.className='vision-actions';[['AI','ai'],['Reply','reply'],['Short','short'],['Polite','polite'],['Voice','voice'],['Remind','remind']].forEach(([label,a])=>{const b=document.createElement('button');b.textContent=label;b.dataset.msgAction=a;b.onclick=async()=>{if(a==='remind'){reminderDialog(text);return}if(a==='ai'){openAdvancedAI();aiInput.value='Explain this message: '+text;aiSend.click();return}if(a==='reply'){messageInput.value=replyFor();messageInput.dispatchEvent(new Event('input'));return}if(a==='short'||a==='polite'){messageInput.value=rewriteText(text,a);messageInput.dispatchEvent(new Event('input'));return}if(a==='voice'){if('speechSynthesis'in window){speechSynthesis.cancel();speechSynthesis.speak(new SpeechSynthesisUtterance(text))}return}};bar.appendChild(b)});el.appendChild(bar);let down;el.addEventListener('pointerdown',()=>{down=setTimeout(()=>reminderDialog(text),650)});['pointerup','pointercancel','pointerleave'].forEach(x=>el.addEventListener(x,()=>clearTimeout(down)))});
-  }
-  const mo2=new MutationObserver(addMessageTools);mo2.observe(q('chatMessages')||document.body,{childList:true,subtree:true});
-
-  // ---------- Dynamic themes ----------
-  function applyThemePrompt(prompt){const x=prompt.toLowerCase();let primary='#7c5cff',secondary='#00cdbd',bg='#070911';if(x.includes('blue')){primary='#168cff';secondary='#00d9ff'}if(x.includes('green')){primary='#00b981';secondary='#75ffcf'}if(x.includes('red')){primary='#ff416c';secondary='#ff9a9e'}if(x.includes('gold')){primary='#d6a84f';secondary='#fff0a8'}if(x.includes('pink')){primary='#ff4fa3';secondary='#ff9ad5'}if(x.includes('cyberpunk')){primary='#00e5ff';secondary='#ff2bd6';bg='#050014'}document.documentElement.style.setProperty('--primary',primary);document.documentElement.style.setProperty('--primary-dark',primary);document.documentElement.style.setProperty('--primary-light',secondary);document.documentElement.style.setProperty('--bg-primary',bg);localStorage.setItem('chatproThemePrompt',prompt);toast('Theme applied: '+prompt)}
-  function themeDialog(){const p=prompt('Describe your theme, e.g. “futuristic blue cyberpunk”');if(p)applyThemePrompt(p)}
-  window.chatProTheme=themeDialog;
-
-  // ---------- Presence ----------
-  async function setPresence(state,visible){NG.presence=state;NG.presenceVisible=visible!==false;await saveNG();toast('Presence: '+state)}
-  function presenceDialog(){const states=['available','busy','listening to music','working','studying','focus mode','do not disturb'];const v=prompt('Presence: '+states.join(' / '),NG.presence);if(v)setPresence(v,true)}
-  window.chatProPresence=presenceDialog;
-  function injectPresence(){const h=q('chatContactHeader');if(!h||!currentChatWith)return;let p=h.querySelector('.ng-presence');if(!p){p=document.createElement('span');p.className='presence-pill ng-presence';h.querySelector('.contact-actions')?.prepend(p)}const u=allUsersCache[String(currentChatWith).toLowerCase()];p.textContent=u?.presenceVisible!==false&&u?.presenceState?'● '+u.presenceState:'● Available'}
-
-  // ---------- Meeting mode ----------
-  function meetingMode(){if(NG.meeting){NG.meeting.recognition?.stop();const text=NG.meeting.text||'';const tasks=text.split(/\n+/).filter(x=>/\b(todo|task|need to|should|must|action)\b/i.test(x)).slice(0,12);const decisions=text.split(/\n+/).filter(x=>/\b(decided|decision|agree|agreed|approved)\b/i.test(x)).slice(0,12);const summary=summarizeMessages([{text:text,sender_name:'Meeting',timestamp:new Date().toISOString()}]);const meeting=NG.meeting;NG.meeting=null;supabaseClient.from('meeting_transcripts').insert({user_id:currentUser.id,chat_id:currentChatWith||null,transcript:text,summary,decisions,tasks}).then(()=>{}).catch(()=>{});aiSay('Meeting summary\n\n'+summary+'\n\nDecisions:\n'+(decisions.length?decisions.map(x=>'• '+x).join('\n'):'• None detected')+'\n\nTasks:\n'+(tasks.length?tasks.map(x=>'• '+x).join('\n'):'• None detected'));openAdvancedAI();return}const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){toast('Live meeting transcription is not supported by this browser.');return}const r=new SR();r.continuous=true;r.interimResults=true;r.lang='en-US';NG.meeting={recognition:r,text:''};r.onresult=e=>{for(let i=e.resultIndex;i<e.results.length;i++)if(e.results[i].isFinal)NG.meeting.text+='\n'+e.results[i][0].transcript};r.onerror=e=>toast('Meeting transcription: '+e.error);r.onend=()=>{if(NG.meeting)toast('Meeting transcription ended')};r.start();toast('🎙️ AI Meeting Mode started. Use the Meeting button again to stop and summarize.');}
-  window.chatProMeeting=meetingMode;
-
-  // ---------- Settings/toolbar ----------
-  function addNextgenToolbar(){const area=document.querySelector('.advanced-tools');if(!area||area.dataset.ngAdded)return;area.dataset.ngAdded='1';[['Memory','brain',openMemoryEditor],['Remind','bell',()=>reminderDialog(messageInput.value||'This message')],['Theme','palette',themeDialog],['Presence','circle',presenceDialog],['Meeting','users-rectangle',meetingMode]].forEach(([label,icon,fn])=>{const b=document.createElement('button');b.className='tool-btn';b.innerHTML='<i class="fas fa-'+icon+'"></i> '+label;b.onclick=fn;area.appendChild(b)});}
-  setTimeout(addNextgenToolbar,500);
-  const topMo=new MutationObserver(addNextgenToolbar);topMo.observe(document.body,{childList:true,subtree:true});
-
-  // ---------- Document summarizer ----------
-  async function summarizeDocument(file){const name=file.name.toLowerCase();let text='';if(/\.(txt|csv|json|md|html?|xml)$/i.test(name))text=await file.text();else if(/\.(png|jpe?g|webp)$/i.test(name))text=await visionOCR(file);else if(/\.pdf$/i.test(name)&&window.pdfjsLib){const buf=await file.arrayBuffer();const pdf=await window.pdfjsLib.getDocument({data:buf}).promise;const parts=[];for(let n=1;n<=Math.min(pdf.numPages,20);n++){const page=await pdf.getPage(n);const tc=await page.getTextContent();parts.push(tc.items.map(x=>x.str).join(' '));}text=parts.join('\n')}else{text='This free browser build supports local text files, PDFs with selectable text, and image OCR.'}const clean=text.replace(/\s+/g,' ').trim();return clean?clean.slice(0,4000):'No readable content found.'}
-  window.chatProSummarizeDocument=async function(){const i=document.createElement('input');i.type='file';i.accept='.txt,.csv,.json,.md,.html,.pdf,image/*';i.onchange=async()=>{if(!i.files[0])return;const t=await summarizeDocument(i.files[0]);openAdvancedAI();aiSay('Document summary for '+i.files[0].name+'\n\n'+t)};i.click()};
-
-  // ---------- Natural language helper button ----------
-  // ---------- Live translation mode (free browser speech + local translation) ----------
-  function liveTranslationMode(){
-    const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-    if(!SR){toast('Live speech translation is not supported by this browser.');return}
-    const r=new SR(); r.lang='si-LK'; r.interimResults=false; r.continuous=false;
-    toast('🎙️ Speak Sinhala. ChatPro will create a translated English draft.');
-    r.onresult=e=>{const original=e.results[0][0].transcript;const translated=translateSinhalaHeuristic(original);messageInput.value=translated;messageInput.dispatchEvent(new Event('input'));toast('Translation draft ready. Original: '+original);if('speechSynthesis' in window){const u=new SpeechSynthesisUtterance(translated);u.lang='en-US';speechSynthesis.speak(u)}};
-    r.onerror=()=>toast('Could not recognize the voice.'); r.start();
-  }
-  function translateSinhalaHeuristic(text){
-    const dict={'ආයුබෝවන්':'Hello','හෙලෝ':'Hello','හායි':'Hi','ස්තුතියි':'Thank you','කරුණාකර':'Please','ඔව්':'Yes','නැහැ':'No','අද':'today','හෙට':'tomorrow','පාසල':'school','පැවරුම':'assignment','ව්‍යාපෘතිය':'project','රැස්වීම':'meeting','වෙබ්':'web','හොඳයි':'good','උදෑසන':'morning','රාත්‍රිය':'night','මම':'I','ඔයා':'you','ඔබ':'you','එන්න':'come','යන්න':'go','ඕන':'want','පුළුවන්':'can'};
-    let out=text; Object.keys(dict).sort((a,b)=>b.length-a.length).forEach(k=>out=out.split(k).join(dict[k])); return out;
-  }
-  window.chatProLiveTranslate=liveTranslationMode;
-
-  // ---------- Hold microphone = Voice -> Everything ----------
-  let voiceHoldTimer=null, voiceHoldTriggered=false;
-  voiceBtn?.addEventListener('click',e=>{if(voiceHoldTriggered){e.preventDefault();e.stopImmediatePropagation();voiceHoldTriggered=false;}},true);
-  voiceBtn?.addEventListener('pointerdown',()=>{voiceHoldTriggered=false;voiceHoldTimer=setTimeout(()=>{voiceHoldTriggered=true;try{if(isRecording)stopRecording()}catch(_){}startVoiceIntent()},700)});
-  ['pointerup','pointercancel','pointerleave'].forEach(ev=>voiceBtn?.addEventListener(ev,()=>clearTimeout(voiceHoldTimer)));
-
-  // ---------- Recurring scheduler while app is open ----------
-  function weekdayNumber(name){return ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'].indexOf(String(name).toLowerCase())}
-  async function checkRecurring(){
-    if(!currentUser||!NG.recurring?.length)return; const d=new Date(), day=d.getDay();
-    for(const r of NG.recurring){if(!r.enabled||weekdayNumber(r.day)!==day)continue;let h=+r.hour||0;if(String(r.ampm).toLowerCase()==='pm'&&h<12)h+=12;if(String(r.ampm).toLowerCase()==='am'&&h===12)h=0;if(h!==d.getHours()||Math.abs(d.getMinutes()-(+r.minute||0))>0)continue;const stamp=d.toISOString().slice(0,13)+':'+String(d.getMinutes()).padStart(2,'0');if(r.lastRunAt===stamp)continue;const targetEmail=r.target.includes('@')?r.target:contacts.find(c=>String(c.name||'').toLowerCase()===String(r.target).toLowerCase())?.email;if(!targetEmail){r.lastRunAt=stamp;continue}try{await supabaseClient.from('messages').insert({chat_id:getChatId(currentUser.email,targetEmail),sender:currentUser.email,sender_name:currentUserData?.name||currentUser.email,recipient:targetEmail,recipient_name:contacts.find(c=>c.email===targetEmail)?.name||targetEmail,timestamp:new Date().toISOString(),text:r.text,language:detectLanguage(r.text),media_type:null,media_url:null,media_path:null,media_mime_type:null,duration:null,is_broadcast:false,status:'sent',scheduled_at:null,message_type:'text',metadata:{recurring:true,schedule_id:r.id}});r.lastRunAt=stamp;await saveNG();toast('🔁 Recurring message sent.')}catch(e){console.warn('Recurring send failed',e)}}
-  }
-  setInterval(checkRecurring,30000);
-
-  // ---------- Poll persistence ----------
-  window.votePoll=async function(id,index){try{if(supabaseClient?.rpc){const {error}=await supabaseClient.rpc('chatpro_vote_poll',{p_message_id:id,p_option_index:index});if(error)throw error;toast('Vote saved');return}alert('Vote: '+index)}catch(e){alert('Vote could not be saved: '+e.message)}};
-
-  // ---------- Better natural-language command entry ----------
-  messageInput?.addEventListener('keydown',async e=>{if(e.key==='Enter'&&!e.shiftKey){const v=messageInput.value.trim();if(v&&/^(remind me to|send this to)/i.test(v)){const handled=await processIntent(v);if(handled){e.preventDefault();messageInput.value='';return}}}});
-
-  // ---------- Extra toolbar actions ----------
-  function addNextgenToolbarButtons(){const area=document.querySelector('.advanced-tools');if(!area)return; if(!area.querySelector('[data-ng-doc]')){const b=document.createElement('button');b.className='tool-btn';b.dataset.ngDoc='1';b.innerHTML='<i class="fas fa-file-lines"></i> Document';b.onclick=window.chatProSummarizeDocument;area.appendChild(b)}if(!area.querySelector('[data-ng-live]')){const b=document.createElement('button');b.className='tool-btn';b.dataset.ngLive='1';b.innerHTML='<i class="fas fa-language"></i> Live Translate';b.onclick=liveTranslationMode;area.appendChild(b)}}
-  setInterval(addNextgenToolbarButtons,1200);
-  addNextgenToolbarButtons();
-
-  window.chatProFeatures={ai:openAdvancedAI,memory:openMemoryEditor,reminder:reminderDialog,theme:themeDialog,presence:presenceDialog,meeting:meetingMode,document:window.chatProSummarizeDocument,liveTranslate:liveTranslationMode,voiceEverything:startVoiceIntent};
-
-
-  // ---------- Startup ----------
-  const originalLoadChat=window.loadChat;
-  setTimeout(()=>{ensureNextgenState();checkReminders();},1000);
-  document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkReminders()});
-  if(window.Notification&&Notification.permission==='default')setTimeout(askNotification,4000);
-  // Restore saved visual theme.
-  try{const t=localStorage.getItem('chatproThemePrompt');if(t)applyThemePrompt(t)}catch(_){}
-})();
-
-
-// ============================================================
-// WHATSAPP-STYLE NAVIGATION, CONTACT HEADER & MESSAGE MENU
-// ============================================================
-(function(){
-  const $id=id=>document.getElementById(id);
-  const topMore=$id('mobileTopMoreBtn'), topMenu=$id('mobileTopMenu'), contactMore=$id('contactMoreBtn'), contactMenu=$id('contactMoreMenu'), ctx=$id('messageContextMenu');
-  const contactsSide=document.querySelector('.contacts-sidebar'), chatArea=document.querySelector('.chat-area');
-  const back=$id('backToContactsBtn');
-  function closeMenus(){topMenu?.classList.add('hidden');contactMenu?.classList.add('hidden');ctx?.classList.add('hidden')}
-  function toggleMenu(el){const was=el?.classList.contains('hidden');closeMenus();if(was)el?.classList.remove('hidden')}
-  topMore?.addEventListener('click',e=>{e.stopPropagation();toggleMenu(topMenu)});
-  contactMore?.addEventListener('click',e=>{e.stopPropagation();toggleMenu(contactMenu)});
-  document.addEventListener('click',e=>{if(!e.target.closest('.wa-more-menu,.chat-context-menu,.mobile-more-btn,.contact-more-btn'))closeMenus()});
-  back?.addEventListener('click',()=>{contactsSide?.classList.remove('mobile-chat-open');chatArea?.classList.remove('mobile-chat-open');currentChatWith=null;chatContactHeader?.classList.add('hidden');messageInput.disabled=true;sendBtn.disabled=true;closeMenus()});
-  document.addEventListener('keydown',e=>{if(e.key==='Escape')closeMenus()});
-
-  // On phones, selecting a chat opens the chat pane just like WhatsApp mobile.
-  const originalSelect=window.selectContact;
-  window.selectContact=function(email){
-    if(typeof originalSelect==='function')originalSelect(email);
-    if(window.innerWidth<=700){contactsSide?.classList.add('mobile-chat-open');chatArea?.classList.add('mobile-chat-open')}
-    setTimeout(()=>{if(window.updateWhatsAppContactHeader)window.updateWhatsAppContactHeader(email)},250);
-  };
-
-  function formatLastSeen(v){if(!v)return 'last seen recently';const d=new Date(v);if(isNaN(d))return 'last seen recently';const diff=Date.now()-d.getTime();if(diff<60000)return 'online';if(diff<86400000)return 'last seen today at '+d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});return 'last seen '+d.toLocaleDateString([], {day:'2-digit',month:'short'})+' at '+d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}
-  window.updateWhatsAppContactHeader=async function(email){
-    if(!email)return; try{
-      const u=await getUserByEmail(email,true); if(!u)return;
-      const last=u.lastSeen; const online=last&&Date.now()-new Date(last).getTime()<70000;
-      const state=u.presenceVisible===false?'':(u.presenceState||'available');
-      const statusText=online ? (state&&state!=='available'?state:'online') : formatLastSeen(last);
-      contactStatus.innerHTML='<i class="fas fa-circle" style="font-size:7px"></i> '+escapeHtml(statusText);
-      contactAboutDisplay.textContent=u.about||'Hey there! I\'m using ChatPro';
-    }catch(e){console.warn('Contact status refresh failed',e)}
-  };
-
-  // Presence heartbeat / last seen.
-  let presenceBusy=false;
-  async function presenceHeartbeat(){if(!currentUser?.id||presenceBusy)return;presenceBusy=true;try{await saveProfilePatch(currentUser.id,{lastSeen:new Date().toISOString(),presenceState:currentUserData?.presenceState||'available',presenceVisible:currentUserData?.presenceVisible!==false});}catch(e){}finally{presenceBusy=false}}
-  setTimeout(presenceHeartbeat,1800); setInterval(presenceHeartbeat,30000); window.addEventListener('focus',presenceHeartbeat); window.addEventListener('beforeunload',()=>{try{navigator.sendBeacon?.('', '')}catch(_){}});
-  setInterval(()=>{if(currentChatWith)window.updateWhatsAppContactHeader(currentChatWith)},20000);
-
-  // Hide old inline message action bars and use one WhatsApp-like context menu.
-  function messageText(el){const clone=el.cloneNode(true);clone.querySelectorAll('.vision-actions,.time-stamp,.sender,.schedule-chip').forEach(x=>x.remove());return (clone.innerText||'').trim()}
-  function showContext(el,x,y){
-    if(!ctx)return; closeMenus(); const id=el.dataset.messageId||''; const text=messageText(el); ctx.innerHTML='';
-    const actions=[
-      ['↩','Reply',()=>{messageInput.value=text;messageInput.dispatchEvent(new Event('input'));messageInput.focus()}],
-      ['📋','Copy',async()=>{try{await navigator.clipboard.writeText(text);toast('Copied')}catch(_){prompt('Copy message:',text)}}],
-      ['⭐','Star message',()=>{const k='chatpro_starred';const a=JSON.parse(localStorage.getItem(k)||'[]');if(!a.includes(id))a.push(id);localStorage.setItem(k,JSON.stringify(a));toast('Message starred')}],
-      ['📌','Pin message',()=>{localStorage.setItem('chatpro_pin_'+id,text);toast('Message pinned')}],
-      ['🌐','Translate',()=>{openAdvancedAI();aiInput.value='Translate this message: '+text;aiSend.click()}],
-      ['✨','AI actions',()=>{openAdvancedAI();aiInput.value='Explain this message: '+text;aiSend.click()}],
-      ['🔔','Remind me',()=>{if(window.chatProFeatures?.reminder)window.chatProFeatures.reminder(text)}],
-      ['↗','Forward',async()=>{const target=prompt('Enter the contact email to forward this message to:');if(!target)return;try{await supabaseClient.from('messages').insert({chat_id:getChatId(currentUser.email,target),sender:currentUser.email,sender_name:currentUserData?.name||currentUser.email,recipient:target,recipient_name:target,timestamp:new Date().toISOString(),text,language:detectLanguage(text),media_type:null,media_url:null,media_path:null,media_mime_type:null,duration:null,is_broadcast:false,status:'sent',scheduled_at:null,message_type:'text',metadata:{forwarded_from:id}});toast('Message forwarded')}catch(e){toast('Forward failed: '+e.message)}}],
-      ['🔊','Read aloud',()=>{if('speechSynthesis'in window){speechSynthesis.cancel();speechSynthesis.speak(new SpeechSynthesisUtterance(text))}}],
-      ['🗑','Delete',async()=>{if(!id||el.classList.contains('received'))return;if(!confirm('Delete this message?'))return;const {error}=await supabaseClient.from('messages').delete().eq('id',id);if(error)toast('Delete failed: '+error.message);else toast('Message deleted')}]
-    ];
-    const head=document.createElement('div');head.className='ctx-message-preview';head.textContent=text||'Media message';ctx.appendChild(head);const sep=document.createElement('div');sep.className='ctx-sep';ctx.appendChild(sep);
-    actions.forEach(([icon,label,fn])=>{const b=document.createElement('button');b.innerHTML='<span style="width:18px">'+icon+'</span> '+label;b.onclick=()=>{ctx.classList.add('hidden');fn()};if(label==='Delete'&&!el.classList.contains('sent'))b.style.display='none';ctx.appendChild(b)});
-    ctx.style.left=Math.min(Math.max(8,x),window.innerWidth-225)+'px';ctx.style.top=Math.min(Math.max(55,y),window.innerHeight-430)+'px';ctx.classList.remove('hidden');
-  }
-  let pressTimer=null,pressMoved=false;
-  document.addEventListener('contextmenu',e=>{const m=e.target.closest('#chatMessages .msg');if(!m)return;e.preventDefault();showContext(m,e.clientX,e.clientY)});
-  document.addEventListener('pointerdown',e=>{const m=e.target.closest('#chatMessages .msg');if(!m||e.button!==0)return;pressMoved=false;pressTimer=setTimeout(()=>{if(!pressMoved)showContext(m,Math.min(e.clientX||window.innerWidth/2,window.innerWidth-225),Math.min(e.clientY||200,window.innerHeight-430))},520)});
-  document.addEventListener('pointermove',()=>{pressMoved=true;if(pressTimer)clearTimeout(pressTimer)});
-  ['pointerup','pointercancel','pointerleave'].forEach(ev=>document.addEventListener(ev,()=>{if(pressTimer)clearTimeout(pressTimer)}));
-
-  // Give every rendered message a stable id so context actions target the correct row.
-  const mo=new MutationObserver(()=>{document.querySelectorAll('#chatMessages .msg').forEach((m,i)=>{if(!m.dataset.messageId){const t=m.querySelector('.time-stamp')?.textContent||'';m.dataset.messageId='ui-'+btoa(unescape(encodeURIComponent((m.innerText||'')+'|'+t+'|'+i))).replace(/[^a-z0-9]/gi,'').slice(0,32)}})});mo.observe(document.getElementById('chatMessages')||document.body,{childList:true,subtree:true});
-
-  // Contact header menu actions.
-  contactMenu?.addEventListener('click',e=>{const b=e.target.closest('[data-contact-action]');if(!b)return;const a=b.dataset.contactAction;contactMenu.classList.add('hidden');
-    if(a==='contact-info'){displayContactProfile(currentChatWith);return}
-    if(a==='search'){const term=prompt('Search this conversation for:');if(term){openAdvancedAI();aiInput.value='find messages about '+term;aiSend.click()}return}
-    if(a==='ai'){openAdvancedAI();return}
-    if(a==='schedule'){scheduleBtn?.click();return}
-    if(a==='lock'){lockCurrentChatBtn?.click();return}
-    if(a==='wallpaper'){window.chatProTheme?.();return}
-    if(a==='clear'){if(confirm('Clear this chat from your view? This does not delete server data.')){chatMessages.innerHTML='<div class="empty-chat"><i class="fas fa-broom"></i><p>Chat cleared from this view.</p></div>'}return}
-    if(a==='export'){if(window.chatProFeatures?.ai){openAdvancedAI();aiInput.value='Summarize/export the current conversation';aiSend.click()}return}
-    if(a==='media'){alert('Media, links and documents are available through the chat history and media buttons.');return}
-    if(a==='mute'){toast('Notifications muted for this chat in this browser session.');return}
-    if(a==='more'){topMenu?.classList.remove('hidden');return}
-  });
-  topMenu?.addEventListener('click',e=>{const b=e.target.closest('[data-top-action]');if(!b)return;const a=b.dataset.topAction;topMenu.classList.add('hidden');if(a==='settings'||a==='profile')settingsBtn?.click();if(a==='memory')window.chatProFeatures?.memory();if(a==='theme')window.chatProFeatures?.theme();if(a==='presence')window.chatProFeatures?.presence();if(a==='meeting')window.chatProFeatures?.meeting();if(a==='logout')logoutBtn?.click()});
-
-  // Voice/video call controls. These provide real browser-to-browser WebRTC calling when both users are online in ChatPro.
-  let callPC=null, callStream=null, callChannel=null, callActive=false;
-  function callRoom(){return 'chatpro-call-'+getChatId(currentUser.email,currentChatWith)}
-  async function ensureCallChannel(){if(callChannel)return callChannel;callChannel=supabaseClient.channel(callRoom(),{config:{broadcast:{self:false}}});callChannel.on('broadcast',{event:'call'},async({payload})=>{try{await handleCallSignal(payload)}catch(e){toast('Call signal error: '+e.message)}}).subscribe();return callChannel}
-  function callModal(video){let m=$id('callModal');if(!m){m=document.createElement('div');m.id='callModal';m.className='modal-overlay';m.innerHTML='<div class="modal-box call-box"><div class="call-title" id="callTitle">Calling…</div><video id="remoteCallVideo" autoplay playsinline></video><video id="localCallVideo" autoplay muted playsinline></video><div class="call-state" id="callState">Connecting…</div><div class="modal-actions"><button class="btn-cancel" id="endCallBtn"><i class="fas fa-phone-slash"></i> End call</button></div></div>';document.body.appendChild(m);$id('endCallBtn').onclick=endCall}m.classList.remove('hidden');$id('callTitle').textContent=(video?'Video':'Voice')+' call · '+(contacts.find(c=>c.email===currentChatWith)?.name||currentChatWith);$id('localCallVideo').style.display=video?'block':'none';return m}
-  async function startCall(video){if(!currentChatWith||!currentUser)return;try{await ensureCallChannel();callPC=new RTCPeerConnection({iceServers:[{urls:'stun:stun.l.google.com:19302'}]});callStream=await navigator.mediaDevices.getUserMedia({audio:true,video:!!video});callStream.getTracks().forEach(t=>callPC.addTrack(t,callStream));callPC.ontrack=e=>{$id('remoteCallVideo').srcObject=e.streams[0]};callPC.onicecandidate=e=>{if(e.candidate)callChannel.send({type:'broadcast',event:'call',payload:{type:'ice',from:currentUser.email,candidate:e.candidate}})};callActive=true;callModal(video);const offer=await callPC.createOffer();await callPC.setLocalDescription(offer);await callChannel.send({type:'broadcast',event:'call',payload:{type:'offer',from:currentUser.email,to:currentChatWith,video,sdp:offer}});$id('callState').textContent='Calling…';}catch(e){toast('Could not start call: '+e.message);endCall()}}
-  async function handleCallSignal(p){if(!p||p.from===currentUser.email||(p.to&&p.to!==currentUser.email))return;if(p.type==='offer'){if(callActive)return;const video=!!p.video;if(!confirm((video?'Video':'Voice')+' call from '+(contacts.find(c=>c.email===p.from)?.name||p.from)+'. Accept?'))return;await ensureCallChannel();callPC=new RTCPeerConnection({iceServers:[{urls:'stun:stun.l.google.com:19302'}]});callStream=await navigator.mediaDevices.getUserMedia({audio:true,video});callStream.getTracks().forEach(t=>callPC.addTrack(t,callStream));callPC.ontrack=e=>{$id('remoteCallVideo').srcObject=e.streams[0]};callPC.onicecandidate=e=>{if(e.candidate)callChannel.send({type:'broadcast',event:'call',payload:{type:'ice',from:currentUser.email,to:p.from,candidate:e.candidate}})};callActive=true;callModal(video);await callPC.setRemoteDescription(new RTCSessionDescription(p.sdp));const ans=await callPC.createAnswer();await callPC.setLocalDescription(ans);await callChannel.send({type:'broadcast',event:'call',payload:{type:'answer',from:currentUser.email,to:p.from,sdp:ans}});$id('callState').textContent='Connected';}
-    else if(p.type==='answer'&&callPC){await callPC.setRemoteDescription(new RTCSessionDescription(p.sdp));$id('callState').textContent='Connected'}
-    else if(p.type==='ice'&&callPC&&p.candidate){try{await callPC.addIceCandidate(p.candidate)}catch(_){}}
-    else if(p.type==='hangup'){endCall(false)}
-  }
-  async function endCall(send=true){try{if(send&&callChannel)await callChannel.send({type:'broadcast',event:'call',payload:{type:'hangup',from:currentUser.email,to:currentChatWith}})}catch(_){}try{callPC?.close()}catch(_){}try{callStream?.getTracks().forEach(t=>t.stop())}catch(_){}callPC=null;callStream=null;callActive=false;$id('callModal')?.classList.add('hidden')}
-  $id('voiceCallBtn')?.addEventListener('click',()=>startCall(false));$id('videoCallBtn')?.addEventListener('click',()=>startCall(true));
-
-  // More compact mobile composer: WhatsApp-style attach menu for location/poll/sticker/AI/schedule.
-  const attach=$id('photoBtn');
-  if(attach){let b=document.createElement('button');b.className='media-btn mobile-attach-btn';b.type='button';b.title='More attachments';b.innerHTML='<i class="fas fa-paperclip"></i>';attach.parentNode.insertBefore(b,attach);b.addEventListener('click',()=>{let m=$id('attachMenu');if(!m){m=document.createElement('div');m.id='attachMenu';m.className='wa-more-menu';m.style.bottom='62px';m.style.left='8px';m.innerHTML='<button data-a="location"><i class="fas fa-location-dot"></i> Location</button><button data-a="poll"><i class="fas fa-square-poll-vertical"></i> Poll</button><button data-a="sticker"><i class="fas fa-face-smile"></i> Sticker</button><button data-a="document"><i class="fas fa-file-lines"></i> Document</button><button data-a="translate"><i class="fas fa-language"></i> Live translation</button><button data-a="schedule"><i class="fas fa-clock"></i> Schedule</button><button data-a="ai"><i class="fas fa-sparkles"></i> AI assistant</button>';document.body.appendChild(m);m.addEventListener('click',ev=>{const a=ev.target.closest('[data-a]');if(!a)return;m.classList.add('hidden');const x=a.dataset.a;if(x==='location')locationBtn?.click();if(x==='poll')pollBtn?.click();if(x==='sticker')stickerBtn?.click();if(x==='document')window.chatProFeatures?.document();if(x==='translate')window.chatProFeatures?.liveTranslate();if(x==='schedule')scheduleBtn?.click();if(x==='ai')window.chatProFeatures?.ai()})}toggleMenu(m)})}
-  // Keep the standard photo/video/voice controls; only advanced actions move behind menus on mobile.
-})();
 
 console.log('🚀 ChatPro Premium loaded!');
 console.log('👑 Admin: admin1@chatapp.com / admin2@chatapp.com (pass: admin123)');
