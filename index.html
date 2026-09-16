@@ -2009,47 +2009,116 @@ function toggleAuthMode() {
 
 authSwitchLink.addEventListener('click', toggleAuthMode);
 
+async function ensureProfileForUser(user) {
+    const email = String(user?.email || '').trim().toLowerCase();
+    if (!user?.id || !email) throw new Error('Supabase did not return a valid user account.');
+
+    const admin = ADMIN_ACCOUNTS.find(a => a.email === email);
+    let profile = await getUserData(user.id);
+
+    // The database trigger normally creates this profile automatically.
+    // This fallback also makes the app work if the trigger was not installed yet.
+    if (!profile) {
+        const { error } = await supabaseClient.from('profiles').upsert({
+            id: user.id,
+            email,
+            name: admin ? admin.name : email.split('@')[0],
+            emoji: admin ? '👑' : '😊',
+            about: admin ? 'ChatPro Administrator' : 'Hey there! I\'m using ChatPro',
+            contacts: [],
+            is_admin: !!admin,
+            nic_captured: !!admin,
+            profile_setup: !!admin
+        }, { onConflict: 'id' });
+        if (error) throw error;
+        profile = await getUserData(user.id);
+    } else if (admin && !profile.isAdmin) {
+        // For the two built-in admin emails, promote the matching account.
+        // This update is allowed only for the signed-in user's own profile.
+        await saveProfilePatch(user.id, {
+            isAdmin: true,
+            name: admin.name,
+            emoji: '👑',
+            about: 'ChatPro Administrator',
+            nicCaptured: true,
+            profileSetup: true
+        });
+        profile = await getUserData(user.id);
+    }
+    return profile;
+}
+
 authBtn.addEventListener('click', async () => {
     const email = authEmail.value.trim().toLowerCase();
     const password = authPassword.value;
     authError.textContent = '';
     if (!email || !password) { authError.textContent = 'Please fill in all fields.'; return; }
-    if (!isLoginMode && password.length < 6) { authError.textContent = 'Password must be at least 6 characters.'; return; }
+    if (password.length < 6) { authError.textContent = 'Password must be at least 6 characters.'; return; }
+
     authBtn.disabled = true;
     authBtn.innerHTML = '<span class="btn-content"><i class="fas fa-spinner fa-spin"></i> Processing...</span>';
+
     try {
         await requireSupabase();
-        let authData;
+        const admin = ADMIN_ACCOUNTS.find(a => a.email === email);
+
         if (isLoginMode) {
-            let result = await supabaseClient.auth.signInWithPassword({ email, password });
-            if (result.error) {
-                const admin = ADMIN_ACCOUNTS.find(a => a.email === email);
-                if (admin && password === admin.password && /Invalid login credentials|User not found/i.test(result.error.message || '')) {
-                    const signUp = await supabaseClient.auth.signUp({ email, password });
-                    if (signUp.error) throw signUp.error;
-                    if (!signUp.data.session) throw new Error('Admin account created. If email confirmation is enabled in Supabase, confirm the email first, then log in again.');
-                    const { error: profileError } = await supabaseClient.from('profiles').upsert({ id: signUp.data.user.id, email, name: admin.name, emoji: '👑', about: 'ChatPro Administrator', nic_number: '', contacts: [], is_admin: true, nic_captured: true, profile_setup: true }, { onConflict: 'id' });
-                    if (profileError) throw profileError;
-                    authData = signUp.data;
-                } else throw result.error;
-            } else authData = result.data;
-        } else {
-            const result = await supabaseClient.auth.signUp({ email, password });
+            const result = await supabaseClient.auth.signInWithPassword({ email, password });
             if (result.error) throw result.error;
-            if (!result.data.user) throw new Error('Could not create account.');
-            if (!result.data.session) throw new Error('Account created. Please confirm your email, then log in. You can disable email confirmation in Supabase Auth settings if you want instant sign-up.');
-            const isAdminAccount = ADMIN_ACCOUNTS.some(a => a.email === email);
-            const { error: profileError } = await supabaseClient.from('profiles').upsert({ id: result.data.user.id, email, name: email.split('@')[0], emoji: '😊', about: 'Hey there! I\'m using ChatPro', nic_number: '', contacts: [], is_admin: isAdminAccount, nic_captured: false, profile_setup: false }, { onConflict: 'id' });
-            if (profileError) throw profileError;
-            authData = result.data;
+            if (!result.data?.user) throw new Error('Login succeeded but no user account was returned.');
+
+            currentUser = { ...result.data.user, uid: result.data.user.id };
+            currentUserData = await ensureProfileForUser(result.data.user);
+            isAdmin = !!currentUserData?.isAdmin || !!admin;
+            authError.textContent = '';
+            showPage('chatPage');
+            await loadChat();
+        } else {
+            const result = await supabaseClient.auth.signUp({
+                email,
+                password,
+                options: {
+                    data: {
+                        display_name: admin ? admin.name : email.split('@')[0]
+                    }
+                }
+            });
+
+            if (result.error) throw result.error;
+            if (!result.data?.user) throw new Error('Could not create account.');
+
+            // Supabase may require email confirmation. Do not treat that as a failure.
+            if (!result.data.session) {
+                authError.className = 'success-msg';
+                authError.textContent = admin
+                    ? 'Admin account created. Confirm the email, then log in with the admin credentials below.'
+                    : 'Account created. Confirm your email, then switch to Login and sign in.';
+                return;
+            }
+
+            currentUser = { ...result.data.user, uid: result.data.user.id };
+            currentUserData = await ensureProfileForUser(result.data.user);
+            isAdmin = !!currentUserData?.isAdmin || !!admin;
+            authError.className = 'error-msg';
+            showPage('chatPage');
+            await loadChat();
         }
-        currentUser = { ...authData.user, uid: authData.user.id };
     } catch (err) {
         console.error('Authentication error:', err);
-        authError.textContent = err.message || 'Authentication failed.';
+        authError.className = 'error-msg';
+        const msg = String(err?.message || 'Authentication failed.');
+        if (/invalid login credentials/i.test(msg)) {
+            authError.textContent = 'Invalid email or password. If this is an admin account, create it once using Create Account first, then log in.';
+        } else if (/already registered|already exists|user already registered/i.test(msg)) {
+            authError.textContent = 'This email is already registered. Switch to Login.';
+        } else {
+            authError.textContent = msg;
+        }
     } finally {
         authBtn.disabled = false;
-        authBtn.innerHTML = isLoginMode ? '<span class="btn-content"><i class="fas fa-sign-in-alt"></i> Login</span>' : '<span class="btn-content"><i class="fas fa-user-plus"></i> Create Account</span>';
+        authBtn.innerHTML = isLoginMode
+            ? '<span class="btn-content"><i class="fas fa-sign-in-alt"></i> Login</span>'
+            : '<span class="btn-content"><i class="fas fa-user-plus"></i> Create Account</span>';
     }
 });
 
