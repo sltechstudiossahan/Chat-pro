@@ -383,6 +383,16 @@
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
+        /* ===== MESSAGE ACTIONS / REPLY UI ===== */
+        .reply-preview-bar{display:flex;align-items:center;gap:10px;margin:0 24px 8px;padding:9px 12px;background:rgba(0,168,132,.08);border:1px solid rgba(0,168,132,.18);border-left:3px solid var(--primary);border-radius:12px;}
+        .reply-preview-bar .reply-preview-text{flex:1;min-width:0;font-size:12px;color:var(--text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+        .reply-preview-bar .reply-preview-name{font-size:11px;color:var(--primary-light);font-weight:700;display:block;margin-bottom:2px;}
+        .reply-preview-bar button{width:30px;height:30px;border-radius:50%;border:0;background:rgba(255,255,255,.06);color:var(--text-secondary);cursor:pointer;}
+        .message-action-indicators{display:flex;gap:6px;justify-content:flex-end;margin-top:3px;font-size:10px;color:rgba(255,255,255,.65);}
+        .message-action-indicators span{display:inline-flex;align-items:center;gap:3px;}
+        .msg.deleted-message{opacity:.72;font-style:italic;}
+        .msg .quoted-reply{margin:-2px 0 8px;padding:7px 9px;border-left:3px solid var(--primary);background:rgba(0,0,0,.12);border-radius:8px;font-size:11px;color:rgba(255,255,255,.72);}
+        .msg .quoted-reply strong{display:block;color:var(--primary-light);font-size:10px;margin-bottom:2px;}
         /* CHAT PAGE */
         #chatPage {
             display: flex;
@@ -1975,6 +1985,7 @@ input,textarea,.search-box{background:rgba(255,255,255,.055)!important;border-co
         <div class="chat-area">
             <div id="chatContactHeader" class="chat-contact-header hidden">
                 <button class="call-btn back-mobile-btn" id="backToContactsBtn" type="button" title="Back"><i class="fas fa-arrow-left"></i></button>
+                <button class="call-btn" id="chatHeaderAIBtn" type="button" title="Ask ChatPro AI" aria-label="Ask ChatPro AI"><i class="fas fa-sparkles"></i></button>
                 <div class="avatar" id="contactAvatar">👤</div>
                 <div class="contact-info">
                     <div class="name">
@@ -2002,6 +2013,11 @@ input,textarea,.search-box{background:rgba(255,255,255,.055)!important;border-co
                 </div>
             </div>
             
+            <div id="replyPreviewBar" class="reply-preview-bar hidden">
+                <div style="font-size:18px;color:var(--primary)"><i class="fas fa-reply"></i></div>
+                <div class="reply-preview-text"><span id="replyPreviewName" class="reply-preview-name">Replying</span><span id="replyPreviewText">Message</span></div>
+                <button id="cancelReplyBtn" type="button" title="Cancel reply"><i class="fas fa-xmark"></i></button>
+            </div>
             <div class="chat-input-area">
                 <div class="advanced-tools">
                     <button class="tool-btn" id="aiBtn" title="ChatPro AI"><i class="fas fa-sparkles"></i> AI</button>
@@ -2418,6 +2434,9 @@ document.addEventListener('click',e=>{const b=e.target.closest('[data-ai-suggest
 function leaveAIChat(){aiChatMode=false; chatPage?.classList.remove('ai-chat-mode'); voiceCallBtn?.classList.remove('hidden'); videoCallBtn?.classList.remove('hidden'); if(currentChatWith){loadMessages(currentChatWith);displayContactProfile(currentChatWith);} else showWelcomeChat();}
 
 const mobileTopMoreBtn = $('mobileTopMoreBtn'); const mobileTopMenu = $('mobileTopMenu'); const contactMoreBtn = $('contactMoreBtn'); const contactMoreMenu = $('contactMoreMenu'); const messageContextMenu = $('messageContextMenu'); const voiceCallBtn = $('voiceCallBtn'); const videoCallBtn = $('videoCallBtn');
+const replyPreviewBar=$('replyPreviewBar'), replyPreviewName=$('replyPreviewName'), replyPreviewText=$('replyPreviewText'), cancelReplyBtn=$('cancelReplyBtn');
+let pendingReplyMessage=null;
+
 
 // Settings DOM refs
 const settingsDisplayName = $('settingsDisplayName');
@@ -3518,13 +3537,19 @@ async function loadMessages(contactEmail) {
             chatMessages.innerHTML = '<div class="empty-chat"><i class="fas fa-exclamation-circle" style="font-size:32px;color:#ff5e5e;"></i><p>Error loading messages</p></div>';
             return;
         }
-        if (!rows?.length) {
+        const hiddenForMe=JSON.parse(localStorage.getItem('chatproDeletedForMe')||'[]');
+        const visibleRows=(rows||[]).filter(msg=>!hiddenForMe.includes(String(msg.id)));
+        if (!visibleRows.length) {
             chatMessages.innerHTML = '<div class="empty-chat"><i class="fas fa-comment" style="font-size:40px;color:rgba(0,168,132,0.15);"></i><p>No messages yet. Say hello!</p></div>';
             return;
         }
+        const starred=JSON.parse(localStorage.getItem('chatproStarredMessages')||'[]');
+        const pinned=JSON.parse(localStorage.getItem('chatproPinnedMessages')||'[]');
         let messagesHTML = '';
-        rows.forEach(msg => {
+        visibleRows.forEach(msg => {
             const isSent = msg.sender === currentUser.email;
+            const meta=msg.metadata && typeof msg.metadata==='object' ? msg.metadata : {};
+            const deletedForEveryone=meta.deletedForEveryone===true;
             const isBroadcast = !!msg.is_broadcast;
             let msgClass = isSent ? 'sent' : 'received';
             if (isBroadcast) msgClass = 'broadcast';
@@ -3541,12 +3566,17 @@ async function loadMessages(contactEmail) {
                 mediaHTML = `<div class="voice-note"><button class="play-btn" onclick="playVoice('${msg.media_url}', this)"><i class="fas fa-play"></i></button><div class="waveform">${bars.map(h => `<div class="bar" style="height:${h}%"></div>`).join('')}</div><span class="duration">${Math.floor(duration / 60)}:${String(Math.floor(duration % 60)).padStart(2, '0')}</span></div>`;
             }
             const time = msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : ''; const scheduledTag = msg.status === 'scheduled' ? `<span class="schedule-chip"><i class="fas fa-clock"></i> Scheduled for ${msg.scheduled_at?new Date(msg.scheduled_at).toLocaleString():''}</span>` : '';
-            messagesHTML += `<div class="msg ${msgClass} ${msg.status==='scheduled'?'scheduled':''} ${isSinhala ? 'sinhala' : ''}" data-message-id="${escapeHtml(msg.id)}">${!isSent && !isBroadcast ? `<span class="sender">${msg.sender_name || 'Unknown'}</span>` : ''}${isBroadcast ? '<span class="sender">📢 ADMIN</span>' : ''}${scheduledTag}${mediaHTML}${msg.text ? `<div class="media-caption">${msg.text}</div>` : ''}<span class="time-stamp">${time}</span></div>`;
+            const replyMeta=meta.replyTo||meta.reply_to;
+            let quoted='';
+            if(replyMeta){quoted=`<div class="quoted-reply"><strong>↩ ${escapeHtml(replyMeta.senderName||'Reply')}</strong>${escapeHtml(String(replyMeta.text||'Message').slice(0,180))}</div>`;}
+            const body=deletedForEveryone ? '<div class="media-caption"><i class="fas fa-ban"></i> This message was deleted</div>' : `${mediaHTML}${msg.text ? `<div class="media-caption">${escapeHtml(msg.text)}</div>` : ''}`;
+            const indicators=`<div class="message-action-indicators">${starred.includes(String(msg.id))?'<span title="Starred">⭐</span>':''}${pinned.includes(String(msg.id))?'<span title="Pinned">📌</span>':''}${deletedForEveryone?'<span>Deleted</span>':''}</div>`;
+            messagesHTML += `<div class="msg ${msgClass} ${msg.status==='scheduled'?'scheduled':''} ${deletedForEveryone?'deleted-message':''} ${isSinhala ? 'sinhala' : ''}" data-message-id="${escapeHtml(msg.id)}">${!isSent && !isBroadcast ? `<span class="sender">${escapeHtml(msg.sender_name || 'Unknown')}</span>` : ''}${isBroadcast ? '<span class="sender">📢 ADMIN</span>' : ''}${scheduledTag}${quoted}${body}<span class="time-stamp">${time}</span>${indicators}</div>`;
         });
         chatMessages.innerHTML = messagesHTML;
         chatMessages.scrollTop = chatMessages.scrollHeight;
-        const newestReceived = [...rows].reverse().find(x=>x.sender!==currentUser.email); if(newestReceived) maybeAutoReply(newestReceived);
-        const lastMsg = rows[rows.length - 1];
+        const newestReceived = [...visibleRows].reverse().find(x=>x.sender!==currentUser.email); if(newestReceived) maybeAutoReply(newestReceived);
+        const lastMsg = visibleRows[visibleRows.length - 1];
         const preview = lastMsg.text || (lastMsg.media_type === 'image' ? '📷 Photo' : lastMsg.media_type === 'video' ? '🎥 Video' : lastMsg.media_type === 'voice' ? '🎤 Voice' : lastMsg.media_type === 'location' ? '📍 Location' : lastMsg.media_type === 'poll' ? '📊 Poll' : lastMsg.media_type === 'sticker' ? `🙂 Sticker` : '');
         const contact = contacts.find(c => c.email === contactEmail);
         if (contact) {
@@ -3610,7 +3640,7 @@ async function sendMessage(mediaFile = null, mediaType = null) {
         if (mediaFile) { alert('ChatPro AI currently accepts text messages in this chat.'); return; }
         aiChatAppend(text,true); messageInput.value=''; updateLanguageIndicator('');
         const typing=document.createElement('div'); typing.className='ai-msg bot ai-typing'; typing.innerHTML='<span></span><span></span><span></span>'; chatMessages.appendChild(typing); chatMessages.scrollTop=chatMessages.scrollHeight;
-        setTimeout(()=>{ typing.remove(); aiChatAppend(localAIResponse(text),false); },350);
+        setTimeout(async()=>{ try { typing.remove(); aiChatAppend(await getPersonalAIResponse(text),false); } catch(e) { typing.remove(); aiChatAppend('I could not read the current conversation right now. '+(e?.message||''),false); } },350);
         return;
     }
     if (!currentChatWith || !currentUser) return;
@@ -3618,7 +3648,7 @@ async function sendMessage(mediaFile = null, mediaType = null) {
     const contact = contacts.find(c => c.email === currentChatWith);
     const senderName = currentUserData?.name || currentUser.email.split('@')[0];
     const language = detectLanguage(text);
-    const messageData = { chat_id: chatId, sender: currentUser.email, sender_name: senderName, timestamp: new Date().toISOString(), recipient: currentChatWith, recipient_name: contact?.name || currentChatWith, language, text: text || null, media_type: null, media_url: null, media_mime_type: null, duration: null, is_broadcast: false, status:'sent', scheduled_at:null, message_type:mediaType || 'text', metadata:null };
+    const messageData = { chat_id: chatId, sender: currentUser.email, sender_name: senderName, timestamp: new Date().toISOString(), recipient: currentChatWith, recipient_name: contact?.name || currentChatWith, language, text: text || null, media_type: null, media_url: null, media_mime_type: null, duration: null, is_broadcast: false, status:'sent', scheduled_at:null, message_type:mediaType || 'text', metadata:pendingReplyMessage ? {replyTo:{id:pendingReplyMessage.id,text:pendingReplyMessage.text||'Media message',senderName:pendingReplyMessage.sender_name||pendingReplyMessage.sender||'Unknown'}} : null };
     if (mediaFile && mediaType) {
         try {
             const uploaded = await uploadMedia(mediaFile, mediaType);
@@ -3634,6 +3664,7 @@ async function sendMessage(mediaFile = null, mediaType = null) {
         const { error } = await supabaseClient.from('messages').insert(messageData);
         if (error) throw error;
         messageInput.value = '';
+        clearReplyPreview();
         messageInput.focus();
         langIndicator.textContent = 'EN'; langIndicator.className = 'language-indicator'; messageInput.className = '';
     } catch (err) { console.error('Send message error:', err); alert('Failed to send message: ' + err.message); }
@@ -3805,6 +3836,88 @@ async function maybeAutoReply(msg){if(!autoReplyEnabled||!autoReplyTextValue||!c
 // CHATPRO AI ASSISTANT
 // ============================================================
 function aiSay(text,user=false){const d=document.createElement('div');d.className='ai-bubble'+(user?' user':'');d.textContent=text;aiMessages.appendChild(d);aiMessages.scrollTop=aiMessages.scrollHeight;}
+
+// ===== PERSONAL AI INSIDE EVERY CHAT =====
+// The assistant reads the currently selected conversation from Supabase and uses
+// that conversation as context. It can summarize, find decisions/messages,
+// translate, rewrite, explain, draft replies, create poll ideas, and answer
+// questions about the people/messages in the loaded conversation.
+async function getPersonalAIResponse(question){
+    const q=String(question||'').trim();
+    if(!q) return 'Ask me something about this conversation, ChatPro, or Sahan Lakmina.';
+    const lower=q.toLowerCase();
+    let rows=[];
+    if(currentUser && currentChatWith){
+        try{
+            const {data,error}=await supabaseClient.from('messages').select('*')
+              .eq('chat_id',getChatId(currentUser.email,currentChatWith))
+              .or('status.eq.sent,status.is.null').order('timestamp',{ascending:true});
+            if(!error) rows=data||[];
+        }catch(e){ console.warn('Personal AI context load failed',e); }
+    }
+    const textRows=rows.filter(r=>String(r.text||'').trim());
+    const allText=textRows.map(r=>`${r.sender===currentUser?.email?'You':(r.sender_name||r.sender||'Contact')}: ${r.text}`).join('\n');
+    const last=[...textRows].slice(-20);
+    const currentName=contacts?.find(c=>c.email===currentChatWith)?.name || currentChatWith || 'this chat';
+    const has=(...terms)=>terms.some(t=>lower.includes(t));
+
+    if(has('summarize','summary','summarise','what happened','what did we talk')){
+        if(!textRows.length) return `There are no text messages available in the conversation with ${currentName} to summarize.`;
+        const facts=typeof extractKeyFacts==='function'?extractKeyFacts(allText):[];
+        return `🧠 Conversation summary with ${currentName}:\n${last.slice(-10).map(r=>`• ${r.sender===currentUser?.email?'You':(r.sender_name||'Contact')}: ${String(r.text).slice(0,220)}`).join('\n')}${facts.length?'\n\nKey points: '+facts.join('; '):''}`;
+    }
+    if(has('find','search','where did','what did','when did','who said')){
+        const stop=['what','did','someone','they','say','said','where','when','who','find','search','message','conversation','chat'];
+        const terms=lower.replace(/[^\p{L}\p{N}\s]/gu,' ').split(/\s+/).filter(w=>w.length>2&&!stop.includes(w));
+        const hits=textRows.filter(r=>terms.length && terms.some(t=>String(r.text).toLowerCase().includes(t)));
+        if(!hits.length) return 'I searched the available messages in this conversation but could not find a matching message.';
+        return `🔎 I found ${hits.length} matching message(s):\n`+hits.slice(-8).map(r=>`• ${new Date(r.timestamp).toLocaleString()} — ${r.sender===currentUser?.email?'You':(r.sender_name||'Contact')}: ${r.text}`).join('\n');
+    }
+    if(has('decision','decided','agreed','agreement','plan','school project','meeting','deadline')){
+        const facts=typeof extractKeyFacts==='function'?extractKeyFacts(allText):[];
+        const likely=last.filter(r=>/decid|agree|meet|meeting|friday|saturday|sunday|monday|tuesday|wednesday|thursday|deadline|finish|project|plan|due/i.test(r.text));
+        if(!likely.length&&!facts.length) return 'I could not find a clear decision, meeting time, or project plan in the available messages.';
+        return `📌 From this conversation, the relevant discussion is:\n${(likely.slice(-8).map(r=>`• ${r.text}`)).join('\n')}${facts.length?'\n\nKey facts: '+facts.join('; '):''}`;
+    }
+    if(has('translate','translation')){
+        const target=/sinhala|සිංහල/i.test(q)?'Sinhala':'English';
+        const source=textRows.length?textRows[textRows.length-1].text:q.replace(/.*?translate/i,'').trim();
+        return `🌐 Translation to ${target}:\n${typeof simpleTranslate==='function'?simpleTranslate(source,target):source}`;
+    }
+    if(has('rewrite','rephrase','make this','improve this','professional')){
+        const source=q.replace(/^(please\s+)?(rewrite|rephrase|improve)( this message)?[:\s]*/i,'').trim() || textRows.at(-1)?.text;
+        return `✍️ Suggested rewrite:\n${typeof rewriteText==='function'?rewriteText(source):source}`;
+    }
+    if(has('explain','meaning','what does this mean','what is this')){
+        const source=textRows.at(-1)?.text || q;
+        return `💡 Explanation:\n${typeof explainText==='function'?explainText(source):'This appears to be a message from the current conversation.'}`;
+    }
+    if(has('reply','respond','response','what should i say','answer them')){
+        const received=[...textRows].reverse().find(r=>r.sender!==currentUser?.email);
+        if(!received) return 'I could not find a received text message to reply to.';
+        const reply=typeof makeReply==='function'?makeReply(received.text):`Thanks for your message. I’ll get back to you soon.`;
+        return `💬 Suggested reply to ${received.sender_name||currentName}:\n${reply}`;
+    }
+    if(has('poll','vote','questionnaire')){
+        const topic=(last.map(r=>r.text).join(' ').slice(-180)||'this conversation').replace(/\s+/g,' ');
+        return `📊 Poll idea based on this conversation:\nQuestion: What should we decide about ${topic}?\n\nOptions: Yes / No / Need to discuss`;
+    }
+    if(has('image','screenshot','photo','picture')){
+        const image=rows.find(r=>r.media_type==='image');
+        return image?'🖼️ I found an image in this conversation. Use the Analyze Image action for OCR/description of the latest image.':'I could not find an image message in this conversation.';
+    }
+    if(has('document','file','pdf','summarize document')) return '📄 Use the Summarize Document action to select a document. Text-based documents can be summarized in the browser; advanced PDF/vision analysis requires the optional AI service configuration.';
+    if(has('who','person','contact','name')) return `👤 This conversation is with ${currentName}. There are ${textRows.length} text messages available for my context.`;
+    if(has('about this chat','current chat','this conversation','messages')){
+        return textRows.length?`I can work with this conversation. I currently have ${textRows.length} text messages available and can summarize them, search for decisions or old messages, translate, explain, rewrite, draft replies, and create poll ideas.`:'This conversation does not contain any text messages yet.';
+    }
+    // For ordinary questions, combine site knowledge with conversation context.
+    const siteAnswer=localAIResponse(q);
+    if(siteAnswer && !/I can help answer questions about ChatPro, its features, settings, identity verification, privacy, messaging, media, scheduling, polls/i.test(siteAnswer)) return siteAnswer;
+    if(textRows.length) return `I can answer that using the current chat when the messages contain the needed information. I found ${textRows.length} text messages here. Try asking, “What did we decide?”, “Find where they mentioned Friday”, “Summarize this chat”, or “Create a reply.”`;
+    return siteAnswer;
+}
+
 function localAIResponse(q){
     const raw=String(q||'').trim(), x=raw.toLowerCase();
     const has=(...terms)=>terms.some(t=>x.includes(t));
@@ -4338,6 +4451,17 @@ adminNicModal.addEventListener('click',e=>{if(e.target===adminNicModal)adminNicM
       menu.style.left=Math.max(8,Math.min(x,innerWidth-r.width-8))+'px';
       menu.style.top=Math.max(8,Math.min(y,innerHeight-r.height-8))+'px';
     }
+    function setReplyMessage(msg){
+      pendingReplyMessage=msg||null;
+      if(!pendingReplyMessage){clearReplyPreview();return;}
+      replyPreviewName.textContent='Replying to '+(pendingReplyMessage.sender_name||pendingReplyMessage.sender||'contact');
+      replyPreviewText.textContent=(pendingReplyMessage.text||('📎 '+(pendingReplyMessage.media_type||'Media message'))).slice(0,180);
+      replyPreviewBar.classList.remove('hidden'); messageInput.focus();
+    }
+    function clearReplyPreview(){pendingReplyMessage=null;replyPreviewBar?.classList.add('hidden');if(replyPreviewName)replyPreviewName.textContent='Replying';if(replyPreviewText)replyPreviewText.textContent='Message';}
+    cancelReplyBtn?.addEventListener('click',clearReplyPreview);
+    function messageList(key){try{const a=JSON.parse(localStorage.getItem(key)||'[]');return Array.isArray(a)?a.map(String):[]}catch(_){return[]}}
+    function saveMessageList(key,a){localStorage.setItem(key,JSON.stringify([...new Set(a.map(String))]));}
     function showMessageContextMenu(el){
       const id=el?.dataset?.messageId;if(!id||!messageContextMenu)return;
       document.querySelectorAll('.msg.context-selected').forEach(x=>x.classList.remove('context-selected'));el.classList.add('context-selected');
@@ -4345,32 +4469,79 @@ adminNicModal.addEventListener('click',e=>{if(e.target===adminNicModal)adminNicM
       messageContextMenu.innerHTML=`
         <button data-msg-action="reply"><i class="fas fa-reply"></i><span>Reply</span></button>
         <button data-msg-action="copy"><i class="fas fa-copy"></i><span>Copy</span></button>
-        <button data-msg-action="star"><i class="fas fa-star"></i><span>Star message</span></button>
-        <button data-msg-action="pin"><i class="fas fa-thumbtack"></i><span>Pin message</span></button>
+        <button data-msg-action="star"><i class="fas fa-star"></i><span>Star Message</span></button>
+        <button data-msg-action="pin"><i class="fas fa-thumbtack"></i><span>Pin Message</span></button>
         <button data-msg-action="translate"><i class="fas fa-language"></i><span>Translate</span></button>
-        <button data-msg-action="remind"><i class="fas fa-bell"></i><span>Remind me</span></button>
+        <button data-msg-action="remind"><i class="fas fa-bell"></i><span>Remind Me</span></button>
         <button data-msg-action="forward"><i class="fas fa-share"></i><span>Forward</span></button>
-        <button data-msg-action="read"><i class="fas fa-volume-high"></i><span>Read aloud</span></button>
-        ${mine?'<button data-msg-action="delete" class="danger-menu"><i class="fas fa-trash"></i><span>Delete for me</span></button>':''}`;
-      const rect=el.getBoundingClientRect();positionMenu(messageContextMenu,Math.min(rect.right,innerWidth-220),Math.min(rect.top,innerHeight-300));
+        <button data-msg-action="read"><i class="fas fa-volume-high"></i><span>Read Out</span></button>
+        <button data-msg-action="delete-me" class="danger-menu"><i class="fas fa-trash"></i><span>Delete for Me</span></button>
+        ${mine?'<button data-msg-action="delete-everyone" class="danger-menu"><i class="fas fa-trash-can"></i><span>Delete for Everyone</span></button>':''}`;
+      const rect=el.getBoundingClientRect();positionMenu(messageContextMenu,Math.min(rect.right,innerWidth-230),Math.min(rect.top,innerHeight-330));
       messageContextMenu.dataset.messageId=id;
+    }
+    async function copyText(text){
+      text=String(text||'').trim();if(!text){alert('There is no text to copy from this message.');return;}
+      try{if(navigator.clipboard?.writeText){await navigator.clipboard.writeText(text);}else{const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();}alert('✓ Message copied.');}
+      catch(e){alert('Copy failed. Please select and copy the message manually.');}
+    }
+    async function translateMessage(msg){
+      const text=String(msg?.text||'').trim();if(!text){alert('Only text messages can be translated.');return;}
+      const target=(prompt('Translate to which language?\n\nType English or Sinhala:', detectLanguage(text)==='si'?'English':'Sinhala')||'').trim().toLowerCase();
+      if(!target)return;
+      if(window.chatproNextGen?.runAIAction && aiBtn && aiInput && aiSend){
+        aiBtn.click();setTimeout(()=>{aiInput.value=`Translate exactly this message into ${target.startsWith('sinh')?'Sinhala':'English'}. Return only the translation:\n\n${text}`;aiSend.click();},180);return;
+      }
+      const translated=simpleTranslate(text,target);alert('🌐 Translation:\n\n'+translated);
+    }
+    async function forwardMessage(msg){
+      const options=(contacts||[]).filter(c=>c.email!==currentUser.email);
+      if(!options.length){alert('No contacts are available to forward this message to.');return;}
+      const list=options.slice(0,30).map((c,i)=>`${i+1}. ${c.name||c.email} — ${c.email}`).join('\n');
+      const choice=prompt('Forward message to:\n\n'+list+'\n\nEnter the contact number or email:');if(!choice)return;
+      const trimmed=choice.trim();let target=options[Number(trimmed)-1];
+      if(!target) target=options.find(c=>String(c.email).toLowerCase()===trimmed.toLowerCase());
+      if(!target){alert('Contact not found.');return;}
+      const payload={chat_id:getChatId(currentUser.email,target.email),sender:currentUser.email,sender_name:currentUserData?.name||currentUser.email,recipient:target.email,recipient_name:target.name||target.email,text:msg.text||null,media_type:msg.media_type||null,media_url:msg.media_url||null,media_path:msg.media_path||null,media_mime_type:msg.media_mime_type||null,duration:msg.duration||null,language:msg.language||detectLanguage(msg.text||''),status:'sent',scheduled_at:null,message_type:'forwarded',is_broadcast:false,metadata:{forwardedFrom:{id:msg.id,senderName:msg.sender_name||msg.sender||'Unknown',text:msg.text||null}}};
+      const {error}=await supabaseClient.from('messages').insert(payload);if(error)throw error;alert('✓ Message forwarded to '+(target.name||target.email)+'.');
     }
     async function handleMessageContextAction(action,id){
       try{
         const msg=await getMessageById(id);if(!msg)return;
-        if(action==='reply'){messageInput.value=msg.text||'';messageInput.focus();return}
-        if(action==='copy'){await navigator.clipboard?.writeText(msg.text||msg.media_url||'');return}
-        if(action==='star'){const k='chatproStarredMessages';const a=JSON.parse(localStorage.getItem(k)||'[]');if(!a.includes(id))a.push(id);else a.splice(a.indexOf(id),1);localStorage.setItem(k,JSON.stringify(a));alert(a.includes(id)?'⭐ Message starred.':'⭐ Star removed.');return}
-        if(action==='pin'){const k='chatproPinnedMessages';const a=JSON.parse(localStorage.getItem(k)||'[]');if(!a.includes(id))a.push(id);else a.splice(a.indexOf(id),1);localStorage.setItem(k,JSON.stringify(a));alert(a.includes(id)?'📌 Message pinned.':'📌 Pin removed.');return}
-        if(action==='translate'){if(window.chatproNextGen?.runAIAction){if(aiBtn)aiBtn.click();setTimeout(()=>{if(aiInput){aiInput.value='Translate this message to English or Sinhala: '+(msg.text||'');aiSend?.click()}},150)}else alert('Translation tool is unavailable.');return}
+        const starred=messageList('chatproStarredMessages'), pinned=messageList('chatproPinnedMessages'), deleted=messageList('chatproDeletedForMe');
+        if(action==='reply'){setReplyMessage(msg);return}
+        if(action==='copy'){await copyText(msg.text||'');return}
+        if(action==='star'){const i=starred.indexOf(String(id));if(i>=0)starred.splice(i,1);else starred.push(String(id));saveMessageList('chatproStarredMessages',starred);if(currentChatWith)loadMessages(currentChatWith);return}
+        if(action==='pin'){const i=pinned.indexOf(String(id));if(i>=0)pinned.splice(i,1);else pinned.push(String(id));saveMessageList('chatproPinnedMessages',pinned);if(currentChatWith)loadMessages(currentChatWith);return}
+        if(action==='translate'){await translateMessage(msg);return}
         if(action==='remind'){showReminderMenu(id);return}
-        if(action==='forward'){const to=prompt('Enter the contact email to forward this message to:');if(!to)return;const target=await getUserByEmail(to.trim().toLowerCase(),true);if(!target){alert('Contact not found.');return}const payload={chat_id:getChatId(currentUser.email,to.trim().toLowerCase()),sender:currentUser.email,sender_name:currentUserData.name||currentUser.email,recipient:to.trim().toLowerCase(),recipient_name:target.name||to,text:msg.text||'',media_type:msg.media_type||null,media_url:msg.media_url||null,media_path:msg.media_path||null,media_mime_type:msg.media_mime_type||null,duration:msg.duration||null,language:msg.language||detectLanguage(msg.text||''),status:'sent',message_type:'forwarded',metadata:{forwarded_from:id}};const {error}=await supabaseClient.from('messages').insert(payload);if(error)throw error;alert('↗️ Message forwarded.');return}
-        if(action==='read'){const text=msg.text||'Media message';if('speechSynthesis'in window){speechSynthesis.cancel();speechSynthesis.speak(new SpeechSynthesisUtterance(text))}return}
-        if(action==='delete'){if(msg.sender!==currentUser.email){alert('You can only delete your own messages.');return}if(!confirm('Delete this message for you?'))return;const {error}=await supabaseClient.from('messages').delete().eq('id',id).eq('sender',currentUser.email);if(error)throw error;if(currentChatWith)loadMessages(currentChatWith);return}
-      }catch(e){alert('Message action failed: '+(e.message||e))}
+        if(action==='forward'){await forwardMessage(msg);return}
+        if(action==='read'){const text=String(msg.text||'Media message');if('speechSynthesis'in window){speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang=(msg.language==='si'||detectLanguage(text)==='si')?'si-LK':'en-US';speechSynthesis.speak(u);}else alert('Read Out is not supported by this browser.');return}
+        if(action==='delete-me'){if(deleted.includes(String(id)))return;deleted.push(String(id));saveMessageList('chatproDeletedForMe',deleted);if(currentChatWith)loadMessages(currentChatWith);return}
+        if(action==='delete-everyone'){
+          if(msg.sender!==currentUser.email){alert('You can only delete your own messages for everyone.');return;}
+          if(!confirm('Delete this message for everyone? This replaces its content with “This message was deleted”.'))return;
+          const meta=msg.metadata&&typeof msg.metadata==='object'?msg.metadata:{};
+          const updated={...meta,deletedForEveryone:true,deletedAt:new Date().toISOString(),deletedBy:currentUser.email};
+          const {error}=await supabaseClient.from('messages').update({text:null,media_url:null,media_path:null,media_type:null,media_mime_type:null,duration:null,message_type:'deleted',metadata:updated}).eq('id',id).eq('sender',currentUser.email);if(error)throw error;
+          if(currentChatWith)loadMessages(currentChatWith);return;
+        }
+      }catch(e){console.error('Message action failed',e);alert('Message action failed: '+(e.message||e));}
     }
-    function showReminderMenu(messageId){const choice=prompt('🔔 Remind me\n\n1. In 10 minutes\n2. Tonight\n3. Tomorrow\n4. Custom\n\nType 1-4');if(!choice)return;let when=new Date();if(choice==='1')when=new Date(Date.now()+10*60000);else if(choice==='2'){when.setHours(20,0,0,0);if(when<=new Date())when.setDate(when.getDate()+1)}else if(choice==='3'){when.setDate(when.getDate()+1);when.setHours(9,0,0,0)}else{when=new Date(prompt('Enter date/time, e.g. 2026-10-15 18:00')||'')}if(isNaN(when)||when<=new Date()){alert('Choose a future date/time.');return}const list=Array.isArray(currentUserData?.chatReminders)?currentUserData.chatReminders:[];list.push({id:Date.now().toString(),chat:currentChatWith,messageId,when:when.toISOString(),created_at:new Date().toISOString()});profilePatch({chatReminders:list.slice(-200)}).then(()=>alert('🔔 Reminder saved for '+when.toLocaleString())).catch(e=>alert(e.message));}
-    function checkReminders(){const list=Array.isArray(currentUserData?.chatReminders)?currentUserData.chatReminders:[];const due=list.filter(r=>!r.notified&&new Date(r.when).getTime()<=Date.now());if(!due.length)return;due.forEach(r=>{r.notified=true;alert('🔔 ChatPro Reminder\nYou asked to be reminded about this chat message.');});profilePatch({chatReminders:list}).catch(()=>{});}
+    async function showReminderMenu(messageId){
+      const choice=(prompt('🔔 Remind Me\n\n1. In 10 minutes\n2. Tonight\n3. Tomorrow morning\n4. Custom date/time\n\nEnter 1-4:')||'').trim();if(!choice)return;
+      const now=new Date();let when=new Date(now);
+      if(choice==='1')when=new Date(now.getTime()+10*60000);
+      else if(choice==='2'){when.setHours(20,0,0,0);if(when<=now)when.setDate(when.getDate()+1);}
+      else if(choice==='3'){when.setDate(when.getDate()+1);when.setHours(9,0,0,0);}
+      else if(choice==='4'){const raw=prompt('Enter date and time, e.g. 2026-10-15 18:00');if(!raw)return;when=new Date(raw.replace(' ','T'));}
+      else {alert('Please choose 1, 2, 3 or 4.');return;}
+      if(isNaN(when.getTime())||when<=now){alert('Choose a valid future date/time.');return;}
+      const list=Array.isArray(currentUserData?.chatReminders)?[...currentUserData.chatReminders]:[];
+      list.push({id:crypto.randomUUID?.()||Date.now().toString(),chat:currentChatWith,messageId:String(messageId),when:when.toISOString(),created_at:now.toISOString(),notified:false});
+      try{await profilePatch({chatReminders:list.slice(-200)});alert('🔔 Reminder saved for '+when.toLocaleString());}catch(e){alert('Could not save reminder: '+e.message);}
+    }
+    async function checkReminders(){const list=Array.isArray(currentUserData?.chatReminders)?currentUserData.chatReminders:[];const due=list.filter(r=>!r.notified&&new Date(r.when).getTime()<=Date.now());if(!due.length)return;due.forEach(r=>{r.notified=true;});currentUserData.chatReminders=list;try{await profilePatch({chatReminders:list});}catch(_){}due.forEach(r=>{const when=new Date(r.when).toLocaleString();if(document.visibilityState==='visible')alert('🔔 ChatPro Reminder\nYou asked to be reminded about this message.\n\n'+when);});}
     function attachLongPress(){document.querySelectorAll('.msg[data-message-id]').forEach(startLongPress)}
     setInterval(checkReminders,15000);setInterval(attachLongPress,1200);
 
@@ -4482,6 +4653,14 @@ console.log('🚀 ChatPro Premium loaded!');
 console.log('👑 Admin: admin1@chatapp.com / admin2@chatapp.com (pass: admin123)');
 console.log('📱 Features: Photos, Videos, Voice Notes, Auto Language Detection');
 console.log('💾 Media and profile photos are stored in Supabase Storage; chat data is stored in Supabase PostgreSQL.');
+</script>
+
+<script id="chatpro-personal-ai-header-hook">
+document.addEventListener('click',async function(e){
+  const b=e.target.closest('#chatHeaderAIBtn');
+  if(!b || aiChatMode) return;
+  if(typeof enterAIChat==='function') enterAIChat();
+});
 </script>
 </body>
 </html>
