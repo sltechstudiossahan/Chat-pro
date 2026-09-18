@@ -1459,7 +1459,25 @@
             background: rgba(255,255,255,0.08);
         }
         
-        /* RESPONSIVE */
+        
+/* ===== NIC PRIVACY POLICY AGREEMENT ===== */
+.privacy-consent-modal{z-index:3000!important}
+.privacy-consent-box{max-width:760px!important;max-height:90vh;display:flex;flex-direction:column;padding:0!important;overflow:hidden}
+.privacy-consent-header{padding:22px 26px 16px;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:14px}
+.privacy-consent-icon{width:48px;height:48px;border-radius:15px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#7c5cff,#00bdb0);font-size:21px;flex:0 0 48px}
+.privacy-consent-header h3{margin:0!important;font-size:20px!important}
+.privacy-consent-header p{margin:4px 0 0!important;color:var(--text-muted);font-size:12px}
+.privacy-consent-body{padding:20px 26px;overflow:auto;line-height:1.6;color:var(--text-secondary);font-size:13px}
+.privacy-consent-body h4{color:#fff;font-size:14px;margin:16px 0 6px}.privacy-consent-body h4:first-child{margin-top:0}
+.privacy-consent-body ul{padding-left:20px}.privacy-consent-body li{margin:4px 0}
+.privacy-consent-note{padding:11px 13px;border-radius:13px;background:rgba(124,92,255,.08);border:1px solid rgba(124,92,255,.18);margin-top:14px;color:#cfcaff;font-size:12px}
+.privacy-consent-check{display:flex;align-items:flex-start;gap:10px;margin-top:16px;padding:12px 13px;border-radius:13px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.08);cursor:pointer;color:#eef0fa}
+.privacy-consent-check input{width:18px;height:18px;min-width:18px;margin-top:2px;accent-color:#7c5cff}
+.privacy-consent-footer{padding:14px 26px;border-top:1px solid rgba(255,255,255,.08);display:flex;justify-content:flex-end;gap:10px;background:rgba(7,9,17,.75)}
+.privacy-consent-footer button{min-width:150px}
+@media(max-width:700px){.privacy-consent-box{max-height:96vh}.privacy-consent-header{padding:16px}.privacy-consent-body{padding:16px;font-size:12px}.privacy-consent-footer{padding:12px 16px}.privacy-consent-footer button{min-width:0;flex:1}}
+
+/* RESPONSIVE */
         @media (max-width: 768px) {
             .contacts-sidebar {
                 width: 100%;
@@ -1796,6 +1814,56 @@ input,textarea,.search-box{background:rgba(255,255,255,.055)!important;border-co
                 <span>admin2@chatapp.com</span>
                 <span style="color:var(--text-muted);font-size:11px;">pass: admin123</span>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== NIC PRIVACY POLICY AGREEMENT ===== -->
+<div id="nicPrivacyModal" class="modal-overlay privacy-consent-modal hidden" aria-modal="true" role="dialog" aria-labelledby="nicPrivacyTitle">
+    <div class="modal-box privacy-consent-box">
+        <div class="privacy-consent-header">
+            <div class="privacy-consent-icon"><i class="fas fa-shield-halved"></i></div>
+            <div>
+                <h3 id="nicPrivacyTitle">NIC Verification Privacy Policy</h3>
+                <p>ChatPro identity verification • Version 1.0 • Effective September 18, 2026</p>
+            </div>
+        </div>
+        <div class="privacy-consent-body">
+            <h4>1. What this verification does</h4>
+            <p>ChatPro requires non-administrator accounts to complete identity verification before account access is enabled. The verification may process an identity document and a live-person/liveness check to help confirm that the account is being used by a real person.</p>
+
+            <h4>2. Information that may be processed</h4>
+            <ul>
+                <li>Images of your National Identity Card (NIC) or other identity document submitted through the verification flow.</li>
+                <li>Information read from the document, such as your name and identity-document number.</li>
+                <li>Verification, authenticity, liveness and status information generated during the verification process.</li>
+                <li>Technical information necessary to operate the verification and protect the service.</li>
+            </ul>
+
+            <h4>3. Why we process it</h4>
+            <p>The information is used for account identity verification, fraud/abuse prevention, account security, and to determine whether the account can be activated. It is not intended to be used for advertising or unrelated profiling.</p>
+
+            <h4>4. Storage and service providers</h4>
+            <p>ChatPro's current implementation stores account and verification records in Supabase. Captured document images are stored in the configured private NIC storage area. The secure identity-verification flow may use Sumsub's verification SDK/service as configured by the application. Their processing is subject to the applicable terms and privacy information of those providers.</p>
+
+            <h4>5. Access and security</h4>
+            <p>Access to verification information should be restricted to authorized ChatPro administrators and service components that require it. ChatPro uses authenticated access controls and private storage mechanisms, but no internet service can guarantee absolute security.</p>
+
+            <h4>6. Retention and deletion</h4>
+            <p>Verification information should be retained only for as long as reasonably necessary for security, verification, legal or operational purposes. Where deletion is requested and legally/technically permitted, the account and associated verification information should be deleted through the service's account-management process.</p>
+
+            <h4>7. Your agreement</h4>
+            <p>Providing this consent means you understand that identity-document and liveness information will be processed for the purposes described above and that verification is required for non-administrator account activation.</p>
+            <div class="privacy-consent-note"><i class="fas fa-circle-info"></i> Do not submit another person's identity document. Only provide a document that belongs to you and that you are authorized to use for verification.</div>
+            <label class="privacy-consent-check">
+                <input type="checkbox" id="nicPrivacyConsentCheckbox">
+                <span>I have read and understood this NIC Verification Privacy Policy and agree to the processing of my identity-document and verification information for the purposes described above.</span>
+            </label>
+            <div id="nicPrivacyError" class="error-msg" style="text-align:left;margin-top:8px"></div>
+        </div>
+        <div class="privacy-consent-footer">
+            <button class="btn-cancel" id="nicPrivacyDecline" type="button">Decline &amp; Sign Out</button>
+            <button class="btn-confirm" id="nicPrivacyAccept" type="button" disabled><i class="fas fa-check"></i> Agree &amp; Continue</button>
         </div>
     </div>
 </div>
@@ -2255,6 +2323,11 @@ const video = $('videoPreview');
 const captureBtn = $('captureBtn');
 const retryCamBtn = $('retryCamBtn');
 const nicStatus = $('nicStatus');
+const nicPrivacyModal = $('nicPrivacyModal');
+const nicPrivacyCheckbox = $('nicPrivacyConsentCheckbox');
+const nicPrivacyAccept = $('nicPrivacyAccept');
+const nicPrivacyDecline = $('nicPrivacyDecline');
+const nicPrivacyError = $('nicPrivacyError');
 const currentUserName = $('currentUserName');
 const headerAvatar = $('headerAvatar');
 const roleBadge = $('roleBadge');
@@ -2693,9 +2766,106 @@ async function launchSecureIdentityVerification() {
     }
 }
 
+const IDENTITY_PRIVACY_POLICY_VERSION = '1.0-2026-09-18';
+
+function isBuiltInAdminAccount(userOrEmail){
+    const email=String(typeof userOrEmail==='string' ? userOrEmail : (userOrEmail?.email||'')).trim().toLowerCase();
+    return ADMIN_ACCOUNTS.some(a=>a.email===email);
+}
+
+function hasNICPrivacyConsent(profile){
+    const details=profile?.nicDetails;
+    return !!(details && details.privacyPolicyVersion===IDENTITY_PRIVACY_POLICY_VERSION && details.privacyConsentAccepted===true);
+}
+
+function hideNICPrivacyModal(){
+    nicPrivacyModal?.classList.add('hidden');
+    if(nicPrivacyCheckbox) nicPrivacyCheckbox.checked=false;
+    if(nicPrivacyAccept) nicPrivacyAccept.disabled=true;
+    if(nicPrivacyError) nicPrivacyError.textContent='';
+}
+
+function showNICPrivacyModal(){
+    if(!nicPrivacyModal) return;
+    nicPrivacyError.textContent='';
+    nicPrivacyCheckbox.checked=false;
+    nicPrivacyAccept.disabled=true;
+    nicPrivacyModal.classList.remove('hidden');
+}
+
+async function acceptNICPrivacyPolicy(){
+    if(!currentUser?.id || isAdmin || isBuiltInAdminAccount(currentUser)) return true;
+    if(!nicPrivacyCheckbox?.checked){
+        nicPrivacyError.textContent='Please read and accept the privacy policy before continuing.';
+        return false;
+    }
+    try{
+        nicPrivacyAccept.disabled=true;
+        nicPrivacyAccept.innerHTML='<i class="fas fa-spinner fa-spin"></i> Saving consent...';
+        const previousDetails=(currentUserData?.nicDetails && typeof currentUserData.nicDetails==='object') ? currentUserData.nicDetails : {};
+        const consentDetails={
+            ...previousDetails,
+            privacyPolicyVersion:IDENTITY_PRIVACY_POLICY_VERSION,
+            privacyConsentAccepted:true,
+            privacyConsentAcceptedAt:new Date().toISOString(),
+            privacyConsentMethod:'ChatPro NIC verification consent dialog'
+        };
+        await saveProfilePatch(currentUser.id,{nicDetails:consentDetails});
+        currentUserData=await getUserData(currentUser.id);
+        hideNICPrivacyModal();
+        return true;
+    }catch(e){
+        console.error('NIC privacy consent save failed:',e);
+        nicPrivacyError.textContent='Your agreement could not be saved. Please try again.';
+        return false;
+    }finally{
+        if(nicPrivacyAccept){
+            nicPrivacyAccept.disabled=!nicPrivacyCheckbox?.checked;
+            nicPrivacyAccept.innerHTML='<i class="fas fa-check"></i> Agree &amp; Continue';
+        }
+    }
+}
+
+nicPrivacyCheckbox?.addEventListener('change',()=>{
+    if(nicPrivacyAccept) nicPrivacyAccept.disabled=!nicPrivacyCheckbox.checked;
+    if(nicPrivacyError) nicPrivacyError.textContent='';
+});
+nicPrivacyAccept?.addEventListener('click',async()=>{ await acceptNICPrivacyPolicy(); });
+nicPrivacyDecline?.addEventListener('click',async()=>{
+    hideNICPrivacyModal();
+    if(mediaStream){mediaStream.getTracks().forEach(t=>{try{t.stop()}catch(_){}});mediaStream=null;}
+    if(supabaseClient) await supabaseClient.auth.signOut();
+});
+
+async function routeNonAdminToVerification(){
+    currentUserData=await getUserData(currentUser.id);
+    if(!currentUserData) throw new Error('Your ChatPro profile could not be loaded.');
+    if(!hasNICPrivacyConsent(currentUserData)){
+        showPage('nicPage');
+        showNICPrivacyModal();
+        return;
+    }
+    showPage('nicPage');
+    startCamera();
+}
+
 async function routeAfterIdentityVerification() {
     currentUserData = await getUserData(currentUser.id);
+
+    // Built-in administrator accounts never require NIC/document verification.
+    // This check is intentionally based on both the profile role and the allow-listed admin email.
+    isAdmin = !!currentUserData?.isAdmin || isBuiltInAdminAccount(currentUser);
+    if (isAdmin) {
+        hideNICPrivacyModal();
+        if(mediaStream){await stopNICCamera();}
+        showPage('chatPage');
+        await loadChat();
+        startUnknownChatPolling();
+        return;
+    }
+
     if (isIdentityVerified(currentUserData)) {
+        hideNICPrivacyModal();
         showPage('chatPage');
         await loadChat();
         startUnknownChatPolling();
@@ -2705,9 +2875,16 @@ async function routeAfterIdentityVerification() {
         return;
     }
 
+    // Non-admin accounts must first agree to the NIC privacy policy, then complete verification.
+    if (!hasNICPrivacyConsent(currentUserData)) {
+        await routeNonAdminToVerification();
+        return;
+    }
+
     showPage('nicPage');
     setSecureIdentityMessage('Identity verification is mandatory. Your account is locked until the NIC authenticity and liveness checks are approved.');
     await refreshIdentityVerificationStatus(false);
+    if (!isIdentityVerified(currentUserData)) startCamera();
 }
 
 document.getElementById('startIdentityVerificationBtn')?.addEventListener('click', launchSecureIdentityVerification);
@@ -2738,7 +2915,7 @@ retryCamBtn?.addEventListener('click',startCamera);
 function preprocessNICCanvas(src,enhanced=false){const c=document.createElement('canvas'),scale=1.45;c.width=Math.round(src.width*scale);c.height=Math.round(src.height*scale);const x=c.getContext('2d',{willReadFrequently:true});x.drawImage(src,0,0,c.width,c.height);if(enhanced){const im=x.getImageData(0,0,c.width,c.height),d=im.data;for(let i=0;i<d.length;i+=4){const g=.299*d[i]+.587*d[i+1]+.114*d[i+2],v=Math.max(0,Math.min(255,(g-128)*1.45+128));d[i]=d[i+1]=d[i+2]=v}x.putImageData(im,0,0)}return c}
 async function runNICOCR(canvas){let best={text:'',confidence:0};for(const enhanced of [false,true]){const r=await Tesseract.recognize(preprocessNICCanvas(canvas,enhanced),'eng',{logger:m=>{if(m.status==='recognizing text')setNICStatus('<span class="spinner"></span> Reading NIC... '+Math.round((m.progress||0)*100)+'%')}});const text=String(r?.data?.text||'');const confidence=Number(r?.data?.confidence||0);if(confidence>best.confidence||text.length>best.text.length)best={text,confidence}}return best}
 function verifySriLankanNICDocument(text,data,confidence){const t=String(text||'').toUpperCase().replace(/\s+/g,' ');const nums=t.match(/\b\d{9}[VX]\b|\b\d{12}\b/g)||[];const hasNum=nums.some(n=>/^\d{9}[VX]$/.test(n)||/^\d{12}$/.test(n));const markers=['NATIONAL IDENTITY','IDENTITY CARD','IDENTITY','SRI LANKA','REPUBLIC OF SRI LANKA','DATE OF BIRTH','SEX','GENDER','NAME'];const hits=markers.filter(x=>t.includes(x)).length;if(!hasNum)return{ok:false,reason:'A Sri Lankan NIC number was not detected. Keep the complete NIC inside the frame and capture again.'};if(!(hits>=2||(hits>=1&&confidence>=55)))return{ok:false,reason:'The captured image contains an NIC-like number, but it was not confidently identified as a Sri Lankan National Identity Card. Capture the actual NIC clearly.'};if(confidence<35)return{ok:false,reason:'The image is too unclear. Avoid glare, hold the NIC steady and capture again.'};return{ok:true}}
-async function saveCapturedNIC(data,blob,ocrText,confidence){const path=`${currentUser.id}/nic-${Date.now()}.jpg`;const up=await supabaseClient.storage.from(NIC_BUCKET).upload(path,blob,{contentType:'image/jpeg',upsert:false,cacheControl:'31536000'});if(up.error)throw up.error;try{await saveProfilePatch(currentUser.id,{nicNumber:data.nicNumber,name:data.fullName||currentUserData?.name||currentUser.email.split('@')[0],nicDetails:{...data,ocrText:String(ocrText||'').slice(0,8000),ocrConfidence:Number(confidence||0),capturedAt:new Date().toISOString(),verificationMethod:'camera-ocr-document-detection'},nicCaptured:true,nicPhotoPath:path,nicPhotoUrl:null})}catch(e){try{await supabaseClient.storage.from(NIC_BUCKET).remove([path])}catch(_){}throw e}currentUserData=await getUserData(currentUser.id);return path}
+async function saveCapturedNIC(data,blob,ocrText,confidence){const path=`${currentUser.id}/nic-${Date.now()}.jpg`;const up=await supabaseClient.storage.from(NIC_BUCKET).upload(path,blob,{contentType:'image/jpeg',upsert:false,cacheControl:'31536000'});if(up.error)throw up.error;try{await saveProfilePatch(currentUser.id,{nicNumber:data.nicNumber,name:data.fullName||currentUserData?.name||currentUser.email.split('@')[0],nicDetails:{...(currentUserData?.nicDetails && typeof currentUserData.nicDetails==='object' ? currentUserData.nicDetails : {}),...data,ocrText:String(ocrText||'').slice(0,8000),ocrConfidence:Number(confidence||0),capturedAt:new Date().toISOString(),verificationMethod:'camera-ocr-document-detection',privacyPolicyVersion:currentUserData?.nicDetails?.privacyPolicyVersion||IDENTITY_PRIVACY_POLICY_VERSION,privacyConsentAccepted:currentUserData?.nicDetails?.privacyConsentAccepted===true,privacyConsentAcceptedAt:currentUserData?.nicDetails?.privacyConsentAcceptedAt||null},nicCaptured:true,nicPhotoPath:path,nicPhotoUrl:null})}catch(e){try{await supabaseClient.storage.from(NIC_BUCKET).remove([path])}catch(_){}throw e}currentUserData=await getUserData(currentUser.id);return path}
 captureBtn?.addEventListener('click',async()=>{if(isProcessingNIC)return;if(!currentUser?.id){setNICStatus('Please log in again.','error');return}if(!mediaStream||!video?.srcObject||!video.videoWidth){setNICStatus('Camera is not ready. Tap Retry Camera and wait for the live preview.','error');return}isProcessingNIC=true;captureBtn.disabled=true;try{setNICStatus('Capturing NIC image...');const c=document.createElement('canvas');c.width=video.videoWidth;c.height=video.videoHeight;c.getContext('2d',{willReadFrequently:true}).drawImage(video,0,0,c.width,c.height);const dataUrl=c.toDataURL('image/jpeg',.94);const blob=await new Promise(r=>c.toBlob(r,'image/jpeg',.94));if(!blob)throw new Error('Could not create the captured NIC image.');let preview=document.getElementById('nicCapturedPreview');if(!preview){preview=document.createElement('img');preview.id='nicCapturedPreview';preview.className='nic-preview-after-capture';video.closest('.video-wrapper')?.parentElement?.insertBefore(preview,video.closest('.video-wrapper').nextSibling)}preview.src=dataUrl;setNICStatus('Checking whether the captured document is a Sri Lankan NIC...');const ocr=await runNICOCR(c),data=parseNICDetails(ocr.text),check=verifySriLankanNICDocument(ocr.text,data,ocr.confidence);if(!check.ok)throw new Error(check.reason);setNICStatus('NIC detected. Saving the captured image and NIC details to the database...');await saveCapturedNIC(data,blob,ocr.text,ocr.confidence);setNICStatus(`NIC captured, identified and saved successfully. NIC: ${data.nicNumber}. Continue to the next verification step.`,'success');await stopNICCamera();if(typeof launchSecureIdentityVerification==='function'&&document.getElementById('secureIdentityPanel')){setTimeout(()=>{const panel=document.getElementById('secureIdentityPanel');panel?.scrollIntoView({behavior:'smooth',block:'start'});setSecureIdentityMessage('Your NIC has been captured and saved. Now complete the authenticity and liveness verification.');},400)}else{setTimeout(()=>{showPage('chatPage');loadChat()},800)}}catch(e){console.error('NIC capture error',e);setNICStatus(e?.message||'NIC could not be verified or saved. Please capture again.','error');captureBtn.disabled=false}finally{isProcessingNIC=false}});
 function parseNICDetails(text){const lines=String(text||'').split(/\r?\n/).map(x=>x.trim()).filter(Boolean);let nicNumber='',fullName='',birthYear='',gender='';const compact=String(text||'').replace(/\s+/g,' ').toUpperCase(),matches=compact.match(/\b\d{9}[VX]\b|\b\d{12}\b/g)||[];if(matches.length)nicNumber=matches.sort((a,b)=>(/^\d{9}[VX]$/.test(b)?2:1)-(/^\d{9}[VX]$/.test(a)?2:1))[0];for(let i=0;i<lines.length;i++){if(/NAME|FULL NAME|SURNAME/i.test(lines[i])){let q=lines[i].replace(/NAME|FULL NAME|SURNAME/ig,'').replace(/[:\-]/g,'').trim();if(q.split(/\s+/).length>=2&&!/\d/.test(q)){fullName=q;break}let n=lines[i+1]||'';if(n.split(/\s+/).length>=2&&!/\d/.test(n)&&n.length<100){fullName=n;break}}}if(!fullName)for(const line of lines){const w=line.split(/\s+/);if(w.length>=2&&w.length<=6&&!/\d/.test(line)&&line.length>7&&line.length<80&&!/SRI|LANKA|IDENTITY|NATIONAL|REPUBLIC|DATE|SEX|GENDER|NIC/i.test(line)){fullName=line;break}}if(nicNumber.length===10){const d=nicNumber.substring(0,9),day=parseInt(d.substring(2,5));gender=day>500?'Female':'Male';const y=parseInt(d.substring(0,2));birthYear=(y>=24?'19':'20')+String(y).padStart(2,'0')}else if(nicNumber.length===12){const y=parseInt(nicNumber.substring(0,4)),day=parseInt(nicNumber.substring(4,7));if(y>=1900&&y<=new Date().getFullYear()){birthYear=String(y);gender=day>500?'Female':'Male'}}return{nicNumber,fullName:fullName||'User',birthYear,gender}}
 
