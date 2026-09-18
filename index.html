@@ -2231,7 +2231,7 @@ input,textarea,.search-box{background:rgba(255,255,255,.055)!important;border-co
 <div id="pollModal" class="modal-overlay hidden"><div class="modal-box"><h3><i class="fas fa-square-poll-vertical"></i> Create Poll</h3><p class="modal-sub">Create a poll and optionally schedule it.</p><input id="pollQuestion" placeholder="Poll question" /><input id="pollOption1" placeholder="Option 1" /><input id="pollOption2" placeholder="Option 2" /><input id="pollOption3" placeholder="Option 3 (optional)" /><input id="pollOption4" placeholder="Option 4 (optional)" /><label style="display:flex;gap:8px;align-items:center;color:var(--text-secondary);font-size:13px;margin:8px 0"><input type="checkbox" id="pollScheduleToggle"> Schedule this poll</label><input id="pollScheduleTime" class="settings-input hidden" type="datetime-local" /><div class="modal-actions"><button class="btn-confirm" id="confirmPoll">Create Poll</button><button class="btn-cancel" id="cancelPoll">Cancel</button></div><div id="pollError" class="error-msg"></div></div></div>
 <div id="stickerModal" class="modal-overlay hidden"><div class="modal-box"><h3><i class="fas fa-face-smile"></i> Stickers</h3><p class="modal-sub">Choose a sticker to send now or schedule.</p><div id="stickerGrid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px"></div><input id="stickerScheduleTime" class="settings-input hidden" type="datetime-local" style="margin-top:12px"><div style="display:flex;gap:8px;margin-top:10px"><button class="btn-settings" id="toggleStickerSchedule">Schedule</button><button class="btn-cancel" id="cancelSticker">Close</button></div></div></div>
 <div id="lockModal" class="modal-overlay hidden"><div class="modal-box"><h3><i class="fas fa-lock"></i> Chat Privacy</h3><p class="modal-sub" id="lockModalSub">Protect chats or the entire contact list.</p><input id="lockPassword" type="password" placeholder="New password / unlock password" autocomplete="new-password" /><input id="lockPasswordConfirm" type="password" placeholder="Confirm password" autocomplete="new-password" /><div class="modal-actions"><button class="btn-confirm" id="confirmLock">Save</button><button class="btn-cancel" id="cancelLock">Cancel</button></div><div id="lockError" class="error-msg"></div></div></div>
-<div id="aiPanel" class="ai-panel hidden"><div class="ai-head"><strong><i class="fas fa-sparkles"></i> ChatPro AI</strong><button class="btn-cancel" id="closeAi" style="padding:7px 10px"><i class="fas fa-times"></i></button></div><div class="ai-messages" id="aiMessages"></div><div class="ai-input"><input id="aiInput" placeholder="Ask ChatPro AI..." /><button id="aiSend"><i class="fas fa-paper-plane"></i></button></div></div>
+<div id="aiPanel" class="ai-panel hidden"><div class="ai-head"><strong><i class="fas fa-sparkles"></i> ChatPro AI</strong><button class="btn-cancel" id="closeAi" style="padding:7px 10px"><i class="fas fa-times"></i></button></div><div class="ai-messages" id="aiMessages"></div><div class="ai-input"><input id="aiInput" placeholder="Ask ChatPro AI anything..." /><button id="aiSend"><i class="fas fa-paper-plane"></i></button></div></div>
 <!-- ===== ADMIN CONTROL CENTER ===== -->
 <div id="adminModal" class="modal-overlay hidden">
     <div class="modal-box admin-modal-box">
@@ -2254,6 +2254,32 @@ input,textarea,.search-box{background:rgba(255,255,255,.055)!important;border-co
     </div>
 </div>
 
+<style id="chatpro-ai-chat-css">
+/* ===== META-STYLE CHATPRO AI CONVERSATION ===== */
+.ai-chat-item{margin:8px 10px 10px!important;padding:13px!important;border:1px solid rgba(124,92,255,.28)!important;background:linear-gradient(135deg,rgba(124,92,255,.12),rgba(0,168,132,.07))!important;position:relative;overflow:hidden}
+.ai-chat-item:before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.045),transparent);transform:translateX(-100%);animation:aiShimmer 4s infinite}
+@keyframes aiShimmer{55%,100%{transform:translateX(100%)}}
+.ai-chat-avatar{width:46px!important;height:46px!important;border-radius:50%!important;background:linear-gradient(135deg,#7c5cff,#00c49a)!important;border:2px solid rgba(255,255,255,.16)!important;box-shadow:0 8px 25px rgba(124,92,255,.25)}
+.ai-chat-avatar i{color:#fff;font-size:20px}
+.ai-chat-name{display:flex;align-items:center;gap:7px;font-weight:700!important}
+.ai-online{width:8px;height:8px;border-radius:50%;background:#20d67a;box-shadow:0 0 0 3px rgba(32,214,122,.12);display:inline-block}
+.ai-verified{font-size:10px;color:#8f7cff}
+.ai-chat-preview{font-size:12px!important;color:#a9a5c7!important;margin-top:2px}
+.ai-chat-mode .chat-contact-header{background:linear-gradient(135deg,rgba(124,92,255,.13),rgba(0,168,132,.06));}
+.ai-chat-mode .chat-contact-header .avatar{background:linear-gradient(135deg,#7c5cff,#00c49a)!important;border-color:rgba(124,92,255,.35)!important}
+.ai-chat-mode .chat-messages{background:radial-gradient(circle at 75% 10%,rgba(124,92,255,.12),transparent 30%),radial-gradient(circle at 15% 85%,rgba(0,205,190,.06),transparent 28%),var(--bg-primary)}
+.ai-msg{max-width:78%;padding:11px 15px;border-radius:17px;margin:3px 0;line-height:1.55;font-size:14px;animation:fadeIn .25s ease;white-space:pre-wrap}
+.ai-msg.user{align-self:flex-end;background:linear-gradient(135deg,#6f52ef,#5139c7);color:#fff;border-bottom-right-radius:5px}
+.ai-msg.bot{align-self:flex-start;background:var(--bg-card);border:1px solid rgba(124,92,255,.16);border-bottom-left-radius:5px}
+.ai-msg .ai-msg-time{display:block;text-align:right;font-size:9px;opacity:.55;margin-top:5px}
+.ai-typing{display:flex;gap:4px;align-items:center;width:max-content;padding:12px 15px!important}
+.ai-typing span{width:6px;height:6px;border-radius:50%;background:#9a8cff;animation:aiDot 1s infinite}
+.ai-typing span:nth-child(2){animation-delay:.15s}.ai-typing span:nth-child(3){animation-delay:.3s}
+@keyframes aiDot{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-4px);opacity:1}}
+.ai-suggested{display:flex;gap:7px;flex-wrap:wrap;padding:8px 0 3px}.ai-suggested button{border:1px solid rgba(124,92,255,.2);background:rgba(124,92,255,.08);color:#d8d3ff;border-radius:18px;padding:7px 10px;font-size:11px;cursor:pointer}.ai-suggested button:hover{background:rgba(124,92,255,.16)}
+.ai-chat-action{border:1px solid rgba(124,92,255,.2)!important;background:rgba(124,92,255,.08)!important;color:#d8d3ff!important}
+@media(max-width:700px){.ai-msg{max-width:88%}.ai-chat-item{margin-left:6px!important;margin-right:6px!important}}
+</style>
 <style id="chatpro-nextgen-css">
 .nextgen-toolbar{display:flex;gap:7px;flex-wrap:wrap;width:100%;padding:0 4px 3px}.nextgen-toolbar button{background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.08);color:#c8c7ff;border-radius:14px;padding:8px 10px;cursor:pointer}.ai-action-row{display:flex;gap:6px;flex-wrap:wrap;padding:8px;border-top:1px solid rgba(255,255,255,.06)}.ai-action-row button{border:0;border-radius:12px;padding:7px 9px;background:rgba(124,92,255,.12);color:#d5d1ff;cursor:pointer}.ng-card{background:linear-gradient(145deg,rgba(255,255,255,.06),rgba(255,255,255,.025));border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:14px;margin:8px 0}.ng-memory{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.ng-memory small{color:var(--text-muted)}.presence-pill{display:inline-flex;align-items:center;gap:6px;padding:5px 9px;border-radius:999px;background:rgba(124,92,255,.12);font-size:11px;color:#cfcaff}.vision-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}.vision-actions button{border:0;border-radius:10px;padding:6px 8px;background:rgba(0,168,132,.12);color:#bff8ec;cursor:pointer}.reminder-chip{display:inline-block;margin-top:5px;padding:5px 8px;border-radius:9px;background:rgba(255,193,7,.12);color:#ffe39a;font-size:11px}
 </style>
@@ -2379,6 +2405,18 @@ const pollModal = $('pollModal'); const pollQuestion = $('pollQuestion'); const 
 const stickerModal = $('stickerModal'); const stickerGrid = $('stickerGrid'); const stickerScheduleTime = $('stickerScheduleTime'); const toggleStickerSchedule = $('toggleStickerSchedule'); const cancelSticker = $('cancelSticker');
 const lockModal = $('lockModal'); const lockModalSub = $('lockModalSub'); const lockPassword = $('lockPassword'); const lockPasswordConfirm = $('lockPasswordConfirm'); const confirmLock = $('confirmLock'); const cancelLock = $('cancelLock'); const lockError = $('lockError'); const lockListBtn = $('lockListBtn'); const lockCurrentChatBtn = $('lockCurrentChatBtn'); const autoReplyToggle = $('autoReplyToggle'); const autoReplyText = $('autoReplyText');
 const aiPanel = $('aiPanel'); const aiMessages = $('aiMessages'); const aiInput = $('aiInput'); const aiSend = $('aiSend'); const closeAi = $('closeAi');
+let aiChatMode = false;
+const AI_CHAT_ID = '__chatpro_ai__';
+const AI_CHAT_STORAGE_KEY = 'chatpro_ai_conversation_v1';
+function getAIConversation(){ try { const x=JSON.parse(localStorage.getItem(AI_CHAT_STORAGE_KEY)||'[]'); return Array.isArray(x)?x:[]; } catch(_){ return []; } }
+function saveAIConversation(rows){ try { localStorage.setItem(AI_CHAT_STORAGE_KEY,JSON.stringify(rows.slice(-200))); } catch(_){} }
+function aiTime(){return new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});}
+function aiChatAppend(text,user=false){ const row={text:String(text||''),user:!!user,time:aiTime()}; const rows=getAIConversation(); rows.push(row); saveAIConversation(rows); renderAIChatMessages(); }
+function renderAIChatMessages(){ if(!chatMessages)return; const rows=getAIConversation(); if(!rows.length){ chatMessages.innerHTML='<div class="empty-chat" style="padding-top:12vh"><div style="width:72px;height:72px;border-radius:50%;margin:0 auto 14px;background:linear-gradient(135deg,#7c5cff,#00c49a);display:flex;align-items:center;justify-content:center;box-shadow:0 15px 35px rgba(124,92,255,.22)"><i class="fas fa-sparkles" style="font-size:30px;color:#fff"></i></div><h3 style="margin:0 0 8px">ChatPro AI</h3><p style="max-width:430px;margin:auto">Your personal AI assistant. Ask anything about ChatPro, its features, settings, or Sahan Lakmina. You can also rewrite messages, translate text and get help using the site.</p><div class="ai-suggested" style="justify-content:center;margin-top:12px"><button data-ai-suggest="Explain ChatPro to me">Explain ChatPro</button><button data-ai-suggest="Help me write a message">Write a message</button><button data-ai-suggest="Summarize my current chat">Summarize chat</button></div></div>'; return;} chatMessages.innerHTML=rows.map(r=>`<div class="ai-msg ${r.user?'user':'bot'}">${escapeHtml(r.text).replace(/\n/g,'<br>')}<span class="ai-msg-time">${escapeHtml(r.time||'')}</span></div>`).join(''); chatMessages.scrollTop=chatMessages.scrollHeight; }
+function enterAIChat(){ aiChatMode=true; aiPanel?.classList.add('hidden'); currentChatWith=null; if(unsubscribeMessages){try{unsubscribeMessages()}catch(_){ } unsubscribeMessages=null;} chatPage?.classList.add('ai-chat-mode'); chatContactHeader.classList.remove('hidden'); chatContactHeader.classList.remove('unknown'); contactAvatar.innerHTML='<i class="fas fa-sparkles"></i>'; contactNameDisplay.textContent='ChatPro AI'; contactEmojiDisplay.textContent='✦'; contactAboutDisplay.textContent='Personal AI assistant'; contactNicDisplay.textContent=''; contactStatus.innerHTML='<span class="presence-dot online"></span><span>Always available</span>'; voiceCallBtn?.classList.add('hidden'); videoCallBtn?.classList.add('hidden'); contactMoreBtn?.classList.remove('hidden'); addUnknownContactBtn?.classList.add('hidden'); messageInput.disabled=false; sendBtn.disabled=false; messageInput.placeholder='Message ChatPro AI'; messageInput.value=''; renderAIChatMessages(); renderContacts(); document.querySelector('.chat-layout')?.classList.add('mobile-chat-open'); messageInput.focus(); }
+document.addEventListener('click',e=>{const b=e.target.closest('[data-ai-suggest]');if(!b||!aiChatMode)return;messageInput.value=b.dataset.aiSuggest||'';messageInput.focus();});
+function leaveAIChat(){aiChatMode=false; chatPage?.classList.remove('ai-chat-mode'); voiceCallBtn?.classList.remove('hidden'); videoCallBtn?.classList.remove('hidden'); if(currentChatWith){loadMessages(currentChatWith);displayContactProfile(currentChatWith);} else showWelcomeChat();}
+
 const mobileTopMoreBtn = $('mobileTopMoreBtn'); const mobileTopMenu = $('mobileTopMenu'); const contactMoreBtn = $('contactMoreBtn'); const contactMoreMenu = $('contactMoreMenu'); const messageContextMenu = $('messageContextMenu'); const voiceCallBtn = $('voiceCallBtn'); const videoCallBtn = $('videoCallBtn');
 
 // Settings DOM refs
@@ -3242,6 +3280,8 @@ async function loadChat() {
 }
 
 function showWelcomeChat() {
+    aiChatMode = false;
+    chatPage?.classList.remove('ai-chat-mode');
     currentChatWith = null;
     if (unsubscribeMessages) {
         try { unsubscribeMessages(); } catch (_) {}
@@ -3333,7 +3373,8 @@ async function renderContacts() {
         );
     }
 
-    if (filteredContacts.length === 0) {
+    const aiMatchesBeforeEmpty = !searchTerm || 'chatpro ai'.includes(searchTerm) || 'ai assistant'.includes(searchTerm);
+    if (filteredContacts.length === 0 && !aiMatchesBeforeEmpty) {
         contactsList.innerHTML = `
             <div style="padding:40px 20px;text-align:center;color:var(--text-muted);font-size:14px;">
                 <i class="fas fa-users" style="font-size:32px;display:block;margin-bottom:8px;color:rgba(0,168,132,0.15);"></i>
@@ -3343,8 +3384,18 @@ async function renderContacts() {
         return;
     }
 
+    // ChatPro AI is pinned like a special WhatsApp conversation.
+    const aiMatches = !searchTerm || 'chatpro ai'.includes(searchTerm) || 'ai assistant'.includes(searchTerm);
+    const aiCard = aiMatches ? `<div class="contact-item ai-chat-item ${aiChatMode ? 'active' : ''}" data-ai-chat="true">
+        <div class="avatar ai-chat-avatar"><i class="fas fa-sparkles"></i></div>
+        <div class="info">
+            <div class="name ai-chat-name">ChatPro AI <span class="ai-verified"><i class="fas fa-circle-check"></i></span><span class="ai-online"></span></div>
+            <div class="email">Personal AI assistant</div>
+            <div class="last-msg ai-chat-preview">${getAIConversation().length ? escapeHtml(getAIConversation().at(-1)?.text?.slice(0,55)||'Ask me anything') : 'Ask me anything ✨'}</div>
+        </div>
+    </div>` : '';
     // Unknown chats are shown like WhatsApp's unsaved-number conversations.
-    contactsList.innerHTML = filteredContacts.map(contact => `
+    contactsList.innerHTML = aiCard + filteredContacts.map(contact => `
         <div class="contact-item ${currentChatWith === contact.email ? 'active' : ''} ${contact.isUnknown ? 'unknown-contact-item' : ''}"
              data-email="${contact.email}"
              onclick="selectContact('${contact.email}')">
@@ -3362,6 +3413,8 @@ async function renderContacts() {
         </div>
     `).join('');
 }
+
+contactsList.addEventListener('click',e=>{ if(e.target.closest('[data-ai-chat]')){ e.preventDefault(); enterAIChat(); } });
 
 function formatLastSeen(v){
     if(!v) return 'last seen recently';
@@ -3431,6 +3484,7 @@ async function displayContactProfile(email) {
 }
 
 window.selectContact = function(email) {
+    if(aiChatMode) leaveAIChat();
     currentChatWith = email;
     renderContacts();
     loadMessages(email);
@@ -3552,6 +3606,13 @@ messageInput.addEventListener('keypress', (e) => {
 async function sendMessage(mediaFile = null, mediaType = null) {
     const text = messageInput.value.trim();
     if (!text && !mediaFile) return;
+    if (aiChatMode) {
+        if (mediaFile) { alert('ChatPro AI currently accepts text messages in this chat.'); return; }
+        aiChatAppend(text,true); messageInput.value=''; updateLanguageIndicator('');
+        const typing=document.createElement('div'); typing.className='ai-msg bot ai-typing'; typing.innerHTML='<span></span><span></span><span></span>'; chatMessages.appendChild(typing); chatMessages.scrollTop=chatMessages.scrollHeight;
+        setTimeout(()=>{ typing.remove(); aiChatAppend(localAIResponse(text),false); },350);
+        return;
+    }
     if (!currentChatWith || !currentUser) return;
     const chatId = getChatId(currentUser.email, currentChatWith);
     const contact = contacts.find(c => c.email === currentChatWith);
@@ -3744,8 +3805,42 @@ async function maybeAutoReply(msg){if(!autoReplyEnabled||!autoReplyTextValue||!c
 // CHATPRO AI ASSISTANT
 // ============================================================
 function aiSay(text,user=false){const d=document.createElement('div');d.className='ai-bubble'+(user?' user':'');d.textContent=text;aiMessages.appendChild(d);aiMessages.scrollTop=aiMessages.scrollHeight;}
-function localAIResponse(q){const x=q.toLowerCase();if(/^(hi|hello|hey|ආයුබෝවන්|හෙලෝ)/.test(x))return'Hello! I\'m ChatPro AI. How can I help you today?';if(x.includes('schedule'))return'You can schedule text, photos, videos, voice notes, locations, polls and stickers from the Schedule tools in ChatPro.';if(x.includes('lock'))return'Open Settings → Privacy & Automation to protect the contact list or lock the current chat.';if(x.includes('auto')&&x.includes('reply'))return'Auto-reply can be enabled in Settings. You can also edit the automatic response text.';if(x.includes('contact'))return'Your contacts are shown as rounded cards. Locked chats stay hidden until privacy authentication is entered.';if(x.includes('supabase'))return'ChatPro uses Supabase for authentication, database records, realtime updates and file storage.';if(x.includes('help'))return'I can explain ChatPro features such as messaging, scheduling, polls, location, stickers, privacy and auto-reply.';return'I can help with ChatPro features and common questions. Try asking about scheduling, locked chats, auto-reply, contacts, polls, location or media.';}
-aiBtn.addEventListener('click',()=>{aiPanel.classList.remove('hidden');if(!aiMessages.children.length)aiSay('Hi! I\'m ChatPro AI. Ask me anything about using ChatPro.');aiInput.focus()});closeAi.addEventListener('click',()=>aiPanel.classList.add('hidden'));function sendAI(){const q=aiInput.value.trim();if(!q)return;aiSay(q,true);aiInput.value='';setTimeout(()=>aiSay(localAIResponse(q)),250)}aiSend.addEventListener('click',sendAI);aiInput.addEventListener('keydown',e=>{if(e.key==='Enter')sendAI()});
+function localAIResponse(q){
+    const raw=String(q||'').trim(), x=raw.toLowerCase();
+    const has=(...terms)=>terms.some(t=>x.includes(t));
+    const aboutMe={
+        name:'Sahan Lakmina',
+        role:'the creator/developer associated with this ChatPro messenger project',
+        project:'ChatPro is a WhatsApp-style premium messaging web application.'
+    };
+    if(!raw) return 'Ask me anything about ChatPro, its features, how to use it, or about Sahan Lakmina.';
+    if(/^(hi|hello|hey|ආයුබෝවන්|හෙලෝ|හායි|හලෝ)[!,. ]*$/i.test(raw)) return 'Hello! 👋 I’m ChatPro AI. I can answer questions about this messenger, its features, settings, security and the person behind the project, Sahan Lakmina. What would you like to know?';
+    if(has('who made you','who created you','who built you','creator of chatpro','developer of chatpro','who made chatpro','who created chatpro')) return `ChatPro AI is the built-in AI assistant of this messenger. The person associated with this ChatPro project is ${aboutMe.name}.`;
+    if(has('who is sahan','about sahan','about you','who are you talking about','tell me about sahan')) return `Sahan Lakmina is the name of the person behind this ChatPro project. In this site’s AI profile, Sahan is described as the creator/developer associated with the messenger. I won’t invent personal details that are not provided to me.`;
+    if(has('sahan lakmina')) return `Sahan Lakmina is the person associated with the ChatPro messenger project. If you ask me about Sahan, I can share the information configured in this site’s AI profile, but I won’t make up private or unverified facts.`;
+    if(has('what is chatpro','what is this site','about this site','about chatpro','this messenger','what is this messenger')) return 'ChatPro is a premium WhatsApp-style messaging web app. It is designed for account login/registration, identity verification for normal users, real-time conversations, contacts, media messaging, privacy tools, scheduling, polls, stickers, location sharing and a built-in ChatPro AI assistant.';
+    if(has('feature','features','what can i do','what can this app do','capabilities')) return 'ChatPro includes messaging, contacts, profile management, photos/videos/voice messages, scheduled messages, polls, stickers, location sharing, privacy and chat-lock tools, auto-reply, administration features, identity verification, and ChatPro AI.';
+    if(has('login','log in','sign in','register','registration','account')) return 'ChatPro provides account registration and login. Built-in administrator accounts can enter the messenger without NIC verification, while normal accounts are required to complete the configured identity-verification process.';
+    if(has('nic','identity','verification','verify')) return 'For normal accounts, ChatPro uses a mandatory identity-verification flow. The site can capture an identity document, run document/OCR checks, and store verification information according to the configured privacy consent. Built-in administrator accounts bypass this step.';
+    if(has('privacy policy','privacy','consent','data')) return 'Before identity verification, normal users are shown the NIC/identity-verification privacy notice and must agree before continuing. The notice explains the information processed, purposes, storage/service providers, security, retention and user choices.';
+    if(has('admin','administrator')) return 'ChatPro has built-in administrator accounts and an admin area. Administrators have additional management tools, and built-in admin accounts do not have to complete the normal NIC verification step.';
+    if(has('message','messaging','chat','send text','send a message')) return 'To send a normal message, open a contact, type in the message box and press Send or Enter. ChatPro is designed around a WhatsApp-style conversation interface.';
+    if(has('photo','photos','image','picture','video','media','voice','recording','audio')) return 'ChatPro supports media messaging, including photos, videos and voice recordings, subject to the storage/backend configuration of the site.';
+    if(has('schedule','scheduled')) return 'You can use ChatPro’s scheduling tools for messages and supported content. Choose the content, select a future date/time, and confirm the schedule.';
+    if(has('poll','polls','vote')) return 'ChatPro supports polls. Create a question, add at least two options, and send or schedule the poll in a conversation.';
+    if(has('lock','locked chat','privacy and automation')) return 'Open Settings → Privacy & Automation to configure privacy options such as contact-list protection, chat locking and auto-reply.';
+    if(has('auto reply','autoreply','automatic reply')) return 'Auto-reply is available in Settings. You can enable it and configure the automatic response text.';
+    if(has('supabase','database','backend','storage')) return 'This ChatPro build uses Supabase for backend services such as authentication, database records, realtime data and storage.';
+    if(has('google drive','drive')) return 'If Google Drive storage is configured for this build, Drive can be used for user media/profile storage. The exact behavior depends on the Google Cloud OAuth/API configuration used by the site.';
+    if(has('ai','artificial intelligence','meta ai','chatpro ai')) return 'I’m ChatPro AI, the built-in AI assistant. I can answer questions about this site and its configured features, help with writing and rewriting, explain settings, translate text, and provide information about Sahan Lakmina that has been configured for this assistant.';
+    if(has('help','how do i','how can i','where is')) return 'I can guide you through ChatPro. Tell me what you want to do—for example, “How do I lock a chat?”, “How do I send a photo?”, “How does NIC verification work?”, or “Who is Sahan Lakmina?”';
+    if(/write|rewrite|reply|caption|draft|compose/.test(x)) return 'Absolutely ✨ Tell me what you want to write, who it is for, and the tone you want (friendly, professional, short, formal, etc.). I can draft or rewrite it.';
+    if(has('summarize','summary','summarise')) return 'I can help summarize text or a conversation. Paste the content you want summarized, or ask me about the current conversation if that feature is connected to the chat data.';
+    if(has('translate','translation','සිංහල','sinhala','english')) return 'I can help translate between English and Sinhala. Send the text and tell me the language you want as the result.';
+    if(has('thank','thanks','thank you')) return 'You’re welcome! 😊 I’m here whenever you need help with ChatPro.';
+    return `I can help answer questions about ChatPro, its features, settings, identity verification, privacy, messaging, media, scheduling, polls, and the project creator ${aboutMe.name}. I can also help with writing, rewriting, translation and summaries. If your question is about something outside the information configured for this site, I’ll tell you rather than invent an answer.`;
+}
+aiBtn.addEventListener('click',()=>enterAIChat());closeAi.addEventListener('click',()=>aiPanel.classList.add('hidden'));function sendAI(){const q=aiInput.value.trim();if(!q)return;aiSay(q,true);aiInput.value='';setTimeout(()=>aiSay(localAIResponse(q)),250)}aiSend.addEventListener('click',sendAI);aiInput.addEventListener('keydown',e=>{if(e.key==='Enter')sendAI()});
 
 // Release due scheduled messages while the app is open. The SQL scheduler in the setup file handles background release.
 async function releaseDueScheduledMessages(){if(!currentUser)return;try{const {data,error}=await supabaseClient.from('messages').update({status:'sent'}).eq('sender',currentUser.email).eq('status','scheduled').lte('scheduled_at',new Date().toISOString()).select('id');if(error)console.warn('Schedule release:',error.message);if(data?.length&&currentChatWith)loadMessages(currentChatWith);}catch(e){console.warn(e)}}
@@ -4327,7 +4422,7 @@ async function handleCallSignal(p){
   }catch(e){console.warn('Call signal error:',e)}
 }
 voiceCallBtn?.addEventListener('click',()=>startCall(false));videoCallBtn?.addEventListener('click',()=>startCall(true));
-document.getElementById('backToContactsBtn')?.addEventListener('click',()=>{currentChatWith=null;document.querySelector('.chat-layout')?.classList.remove('mobile-chat-open');chatContactHeader?.classList.add('hidden');messageInput.disabled=true;sendBtn.disabled=true;});
+document.getElementById('backToContactsBtn')?.addEventListener('click',()=>{if(aiChatMode){aiChatMode=false;chatPage?.classList.remove('ai-chat-mode');voiceCallBtn?.classList.remove('hidden');videoCallBtn?.classList.remove('hidden');showWelcomeChat();renderContacts();return;}currentChatWith=null;document.querySelector('.chat-layout')?.classList.remove('mobile-chat-open');chatContactHeader?.classList.add('hidden');messageInput.disabled=true;sendBtn.disabled=true;});
 
 let selectedContactPresenceTimer=null;
 clearInterval(selectedContactPresenceTimer);
@@ -4342,7 +4437,7 @@ logoutBtn.addEventListener('click', async () => {
     if (mediaStream) { mediaStream.getTracks().forEach(track => track.stop()); mediaStream = null; }
     if (isRecording) stopRecording();
     if (supabaseClient) await supabaseClient.auth.signOut();
-    currentUser = null; currentUserData = null; contacts = []; unknownChats = {}; currentChatWith = null; isAdmin = false;
+    currentUser = null; currentUserData = null; contacts = []; unknownChats = {}; currentChatWith = null; isAdmin = false; aiChatMode = false; chatPage?.classList.remove('ai-chat-mode');
     chatContactHeader.classList.add('hidden'); messageInput.disabled = true; sendBtn.disabled = true; showPage('authPage');
     if (!isLoginMode) toggleAuthMode();
 });
@@ -4359,7 +4454,7 @@ if (supabaseClient) {
                 stopUnknownChatPolling();
                 clearTimeout(contactProfileRenderTimer);
                 contactProfileRenderTimer = null;
-                currentUser = null; currentUserData = null; contacts = []; unknownChats = {}; currentChatWith = null; isAdmin = false;
+                currentUser = null; currentUserData = null; contacts = []; unknownChats = {}; currentChatWith = null; isAdmin = false; aiChatMode = false; chatPage?.classList.remove('ai-chat-mode');
                 showPage('authPage');
                 if (!isLoginMode) toggleAuthMode();
                 if (mediaStream) { mediaStream.getTracks().forEach(track => track.stop()); mediaStream = null; }
