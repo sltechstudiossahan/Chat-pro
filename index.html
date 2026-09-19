@@ -388,19 +388,6 @@
         .reply-preview-bar .reply-preview-text{flex:1;min-width:0;font-size:12px;color:var(--text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
         .reply-preview-bar .reply-preview-name{font-size:11px;color:var(--primary-light);font-weight:700;display:block;margin-bottom:2px;}
         .reply-preview-bar button{width:30px;height:30px;border-radius:50%;border:0;background:rgba(255,255,255,.06);color:var(--text-secondary);cursor:pointer;}
-        .reply-preview-bar{position:relative;box-shadow:0 4px 18px rgba(0,0,0,.12);}
-        .reply-preview-bar .reply-preview-text{cursor:text;}
-        .reply-preview-bar .reply-preview-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-        .forward-contact-list{max-height:52vh;overflow:auto;margin:8px -6px 4px;padding:2px 6px;}
-        .forward-contact-item{width:100%;display:flex;align-items:center;gap:12px;padding:11px 12px;margin:3px 0;border:1px solid transparent;border-radius:14px;background:rgba(255,255,255,.035);color:var(--text-primary,#fff);cursor:pointer;text-align:left;transition:.18s ease;}
-        .forward-contact-item:hover{background:rgba(0,168,132,.12);border-color:rgba(0,168,132,.25);transform:translateX(2px);}
-        .forward-contact-avatar{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:none;background:linear-gradient(135deg,var(--primary),var(--primary-light));color:#fff;font-weight:700;overflow:hidden;}
-        .forward-contact-avatar img{width:100%;height:100%;object-fit:cover;}
-        .forward-contact-info{min-width:0;flex:1;}
-        .forward-contact-name{font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-        .forward-contact-email{font-size:11px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px;}
-        .forward-search{margin-bottom:8px!important;}
-        .forward-empty{padding:25px 10px;text-align:center;color:var(--text-muted);font-size:13px;}
         .message-action-indicators{display:flex;gap:6px;justify-content:flex-end;margin-top:3px;font-size:10px;color:rgba(255,255,255,.65);}
         .message-action-indicators span{display:inline-flex;align-items:center;gap:3px;}
         .msg.deleted-message{opacity:.72;font-style:italic;}
@@ -2075,15 +2062,6 @@ input,textarea,.search-box{background:rgba(255,255,255,.055)!important;border-co
     <button data-wa-top="meeting"><i class="fas fa-headset"></i><span>AI meeting mode</span></button>
     <button data-wa-top="logout"><i class="fas fa-right-from-bracket"></i><span>Log out</span></button>
 </div>
-<div id="forwardContactModal" class="modal-overlay hidden" aria-modal="true" role="dialog" aria-labelledby="forwardContactTitle">
-    <div class="modal-box" style="max-width:520px;padding:24px 20px;">
-        <h3 id="forwardContactTitle"><i class="fas fa-share"></i> Forward message</h3>
-        <p class="modal-sub">Select a contact to send this message to.</p>
-        <input id="forwardContactSearch" class="forward-search" type="search" placeholder="Search contacts..." autocomplete="off" />
-        <div id="forwardContactList" class="forward-contact-list"></div>
-        <div class="modal-actions"><button type="button" class="btn-cancel" id="cancelForwardBtn">Cancel</button></div>
-    </div>
-</div>
 <div id="messageContextMenu" class="wa-menu message-context-menu hidden" role="menu" aria-label="Message actions"></div>
 
 <!-- ===== SETTINGS PAGE ===== -->
@@ -2457,8 +2435,6 @@ function leaveAIChat(){aiChatMode=false; chatPage?.classList.remove('ai-chat-mod
 
 const mobileTopMoreBtn = $('mobileTopMoreBtn'); const mobileTopMenu = $('mobileTopMenu'); const contactMoreBtn = $('contactMoreBtn'); const contactMoreMenu = $('contactMoreMenu'); const messageContextMenu = $('messageContextMenu'); const voiceCallBtn = $('voiceCallBtn'); const videoCallBtn = $('videoCallBtn');
 const replyPreviewBar=$('replyPreviewBar'), replyPreviewName=$('replyPreviewName'), replyPreviewText=$('replyPreviewText'), cancelReplyBtn=$('cancelReplyBtn');
-const forwardContactModal=$('forwardContactModal'), forwardContactSearch=$('forwardContactSearch'), forwardContactList=$('forwardContactList'), cancelForwardBtn=$('cancelForwardBtn');
-
 let pendingReplyMessage=null;
 
 
@@ -3528,15 +3504,17 @@ async function displayContactProfile(email) {
 
 window.selectContact = function(email) {
     if(aiChatMode) leaveAIChat();
-    currentChatWith = email;
+    const normalizedEmail = String(email || '').trim().toLowerCase();
+    if(!normalizedEmail || !currentUser) return;
+    currentChatWith = normalizedEmail;
     renderContacts();
-    loadMessages(email);
-    displayContactProfile(email);
+    loadMessages(normalizedEmail);
+    displayContactProfile(normalizedEmail);
     messageInput.disabled = false;
     sendBtn.disabled = false;
     document.querySelector('.chat-layout')?.classList.add('mobile-chat-open');
     messageInput.focus();
-    setTimeout(()=>window.updateWhatsAppContactHeader(email),300);
+    setTimeout(()=>window.updateWhatsAppContactHeader(normalizedEmail),300);
 };
 
 addUnknownContactBtn.addEventListener('click', async () => {
@@ -3549,187 +3527,152 @@ addUnknownContactBtn.addEventListener('click', async () => {
     addContactModal.classList.remove('hidden');
 });
 
+let chatLoadToken = 0;
+
 async function loadMessages(contactEmail) {
-    // Stop the previous realtime listener before switching chats.
+    const loadToken = ++chatLoadToken;
+    const normalizedContact = String(contactEmail || '').trim().toLowerCase();
+    if (!currentUser || !normalizedContact) return;
+
     if (unsubscribeMessages) {
         try { await unsubscribeMessages(); } catch (_) {}
         unsubscribeMessages = null;
     }
 
-    if (!currentUser || !contactEmail || !chatMessages) return;
-
-    const myEmail = String(currentUser.email || '').trim();
-    const otherEmail = String(contactEmail || '').trim();
-    const chatId = getChatId(myEmail, otherEmail);
-
+    const myEmail = String(currentUser.email || '').trim().toLowerCase();
+    const chatId = getChatId(myEmail, normalizedContact);
     chatMessages.innerHTML = '<div class="empty-chat"><i class="fas fa-spinner fa-spin" style="font-size:32px;color:rgba(0,168,132,0.2);"></i><p>Loading messages...</p></div>';
 
     try {
         await requireSupabase();
 
-        /*
-         * IMPORTANT:
-         * Do not depend only on chat_id here. Older ChatPro messages can have
-         * a different/empty chat_id, especially after accounts or email casing
-         * changed. Loading by BOTH sender/recipient directions makes existing
-         * conversations appear again.
-         *
-         * We also deliberately do not use the old:
-         *   .or('status.eq.sent,status.is.null')
-         * filter because it can hide messages when older rows use another
-         * status value. Status is filtered safely in JavaScript instead.
-         */
-        const [sentResult, receivedResult] = await Promise.all([
-            supabaseClient
+        const render = async () => {
+            // Do not let an older request overwrite the newly selected chat.
+            if (loadToken !== chatLoadToken || currentChatWith !== normalizedContact || !currentUser) return;
+
+            let rows = [];
+            let error = null;
+
+            // Primary lookup: the normalized ChatPro chat_id.
+            const primary = await supabaseClient
                 .from('messages')
                 .select('*')
-                .eq('sender', myEmail)
-                .eq('recipient', otherEmail)
-                .order('timestamp', { ascending: true }),
-            supabaseClient
-                .from('messages')
-                .select('*')
-                .eq('sender', otherEmail)
-                .eq('recipient', myEmail)
-                .order('timestamp', { ascending: true })
-        ]);
+                .eq('chat_id', chatId)
+                .order('timestamp', { ascending: true });
 
-        if (sentResult.error) throw sentResult.error;
-        if (receivedResult.error) throw receivedResult.error;
+            rows = primary.data || [];
+            error = primary.error;
 
-        // Merge both directions and remove duplicate rows.
-        const byId = new Map();
-        [...(sentResult.data || []), ...(receivedResult.data || [])].forEach(row => {
-            if (row && row.id != null) byId.set(String(row.id), row);
-        });
-
-        let rows = Array.from(byId.values()).sort((a, b) => {
-            const ta = a.timestamp ? new Date(a.timestamp).getTime() : 0;
-            const tb = b.timestamp ? new Date(b.timestamp).getTime() : 0;
-            return ta - tb;
-        });
-
-        // Only messages explicitly deleted/hidden are removed from this view.
-        const hiddenForMe = messageList('chatproDeletedForMe');
-        rows = rows.filter(msg => !hiddenForMe.includes(String(msg.id)));
-
-        if (!rows.length) {
-            chatMessages.innerHTML = '<div class="empty-chat"><i class="fas fa-comment" style="font-size:40px;color:rgba(0,168,132,0.15);"></i><p>No messages yet. Say hello!</p></div>';
-            return;
-        }
-
-        const starred = messageList('chatproStarredMessages');
-        const pinned = messageList('chatproPinnedMessages');
-        let messagesHTML = '';
-
-        rows.forEach(msg => {
-            const isSent = String(msg.sender || '').toLowerCase() === myEmail.toLowerCase();
-            const meta = msg.metadata && typeof msg.metadata === 'object' ? msg.metadata : {};
-            const deletedForEveryone = meta.deletedForEveryone === true || msg.message_type === 'deleted';
-            const isBroadcast = !!msg.is_broadcast;
-            let msgClass = isSent ? 'sent' : 'received';
-            if (isBroadcast) msgClass = 'broadcast';
-
-            const isSinhala = msg.language === 'si' || detectLanguage(msg.text || '') === 'si';
-            let mediaHTML = '';
-
-            if (deletedForEveryone) {
-                mediaHTML = '';
-            } else if (msg.media_type === 'image' && msg.media_url) {
-                mediaHTML = `<div class="media-wrapper"><img src="${escapeHtml(msg.media_url)}" alt="Image" loading="lazy" /></div>`;
-            } else if (msg.media_type === 'video' && msg.media_url) {
-                mediaHTML = `<div class="media-wrapper"><video controls preload="metadata"><source src="${escapeHtml(msg.media_url)}" type="${escapeHtml(msg.media_mime_type || 'video/mp4')}" /></video></div>`;
-            } else if (msg.media_type === 'location' && msg.metadata) {
-                const loc = msg.metadata;
-                mediaHTML = `<div class="location-card"><i class="fas fa-location-dot" style="font-size:24px;color:#00cdbd"></i><div><strong>Location</strong><div style="font-size:11px;color:var(--text-muted)">${escapeHtml(String(loc.lat ?? '') + ', ' + String(loc.lng ?? ''))}</div><a href="https://www.google.com/maps?q=${encodeURIComponent(String(loc.lat ?? '') + ',' + String(loc.lng ?? ''))}" target="_blank" rel="noopener" style="color:#a99cff;font-size:11px">Open map</a></div></div>`;
-            } else if (msg.media_type === 'poll' && msg.metadata) {
-                const p = msg.metadata;
-                mediaHTML = `<div class="poll-box"><strong>📊 ${escapeHtml(p.question || 'Poll')}</strong>${(Array.isArray(p.options) ? p.options : []).map((o, i) => `<button class="poll-option" onclick="votePoll('${escapeHtml(msg.id)}',${i})">${escapeHtml(o)}</button>`).join('')}</div>`;
-            } else if (msg.media_type === 'sticker') {
-                mediaHTML = `<div class="sticker-msg">${escapeHtml(msg.text || '🙂')}</div>`;
-            } else if (msg.media_type === 'voice' && msg.media_url) {
-                const duration = Number(msg.duration) || 5;
-                const bars = Array.from({ length: 20 }, () => Math.random() * 60 + 20);
-                mediaHTML = `<div class="voice-note"><button class="play-btn" onclick="playVoice('${escapeHtml(msg.media_url)}', this)"><i class="fas fa-play"></i></button><div class="waveform">${bars.map(h => `<div class="bar" style="height:${h}%"></div>`).join('')}</div><span class="duration">${Math.floor(duration / 60)}:${String(Math.floor(duration % 60)).padStart(2, '0')}</span></div>`;
+            // Compatibility fallback for messages created before email normalization.
+            // This also recovers messages if an older version generated a different chat_id.
+            if (!error && rows.length === 0) {
+                const fallback = await supabaseClient
+                    .from('messages')
+                    .select('*')
+                    .or(
+                        `and(sender.eq.${myEmail},recipient.eq.${normalizedContact}),` +
+                        `and(sender.eq.${normalizedContact},recipient.eq.${myEmail})`
+                    )
+                    .order('timestamp', { ascending: true });
+                if (fallback.error) {
+                    error = fallback.error;
+                } else {
+                    rows = fallback.data || [];
+                }
             }
 
-            const time = msg.timestamp
-                ? new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                : '';
+            if (loadToken !== chatLoadToken || currentChatWith !== normalizedContact) return;
 
-            const scheduledTag = msg.status === 'scheduled'
-                ? `<span class="schedule-chip"><i class="fas fa-clock"></i> Scheduled for ${msg.scheduled_at ? new Date(msg.scheduled_at).toLocaleString() : ''}</span>`
-                : '';
+            if (error) {
+                console.error('Messages load error:', error);
+                chatMessages.innerHTML = `<div class="empty-chat"><i class="fas fa-exclamation-circle" style="font-size:32px;color:#ff5e5e;"></i><p>Error loading messages</p><small style="display:block;margin-top:8px;color:var(--text-muted);">${escapeHtml(error.message || 'Supabase could not load this conversation.')}</small></div>`;
+                return;
+            }
 
-            const replyMeta = meta.replyTo || meta.reply_to;
-            const quoted = replyMeta
-                ? `<div class="quoted-reply"><strong>↩ ${escapeHtml(replyMeta.senderName || 'Reply')}</strong>${escapeHtml(String(replyMeta.text || 'Message').slice(0, 180))}</div>`
-                : '';
+            // Never hide delivered/read messages. Only hide messages explicitly deleted for this user.
+            const hiddenForMe = JSON.parse(localStorage.getItem('chatproDeletedForMe') || '[]');
+            const visibleRows = (rows || []).filter(msg => !hiddenForMe.includes(String(msg.id)));
 
-            const body = deletedForEveryone
-                ? '<div class="media-caption"><i class="fas fa-ban"></i> This message was deleted</div>'
-                : `${mediaHTML}${msg.text ? `<div class="media-caption">${escapeHtml(msg.text)}</div>` : ''}`;
+            if (!visibleRows.length) {
+                chatMessages.innerHTML = '<div class="empty-chat"><i class="fas fa-comment" style="font-size:40px;color:rgba(0,168,132,0.15);"></i><p>No messages yet. Say hello!</p></div>';
+                return;
+            }
 
-            const indicators = `<div class="message-action-indicators">${starred.includes(String(msg.id)) ? '<span title="Starred">⭐</span>' : ''}${pinned.includes(String(msg.id)) ? '<span title="Pinned">📌</span>' : ''}${deletedForEveryone ? '<span>Deleted</span>' : ''}</div>`;
+            const starred = JSON.parse(localStorage.getItem('chatproStarredMessages') || '[]');
+            const pinned = JSON.parse(localStorage.getItem('chatproPinnedMessages') || '[]');
+            let messagesHTML = '';
 
-            messagesHTML += `<div class="msg ${msgClass} ${msg.status === 'scheduled' ? 'scheduled' : ''} ${deletedForEveryone ? 'deleted-message' : ''} ${isSinhala ? 'sinhala' : ''}" data-message-id="${escapeHtml(msg.id)}">${!isSent && !isBroadcast ? `<span class="sender">${escapeHtml(msg.sender_name || 'Unknown')}</span>` : ''}${isBroadcast ? '<span class="sender">📢 ADMIN</span>' : ''}${scheduledTag}${quoted}${body}<span class="time-stamp">${time}</span>${indicators}</div>`;
-        });
-
-        chatMessages.innerHTML = messagesHTML;
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-
-        const newestReceived = [...rows].reverse().find(x => String(x.sender || '').toLowerCase() !== myEmail.toLowerCase());
-        if (newestReceived) maybeAutoReply(newestReceived);
-
-        const lastMsg = rows[rows.length - 1];
-        const preview = lastMsg.text ||
-            (lastMsg.media_type === 'image' ? '📷 Photo' :
-             lastMsg.media_type === 'video' ? '🎥 Video' :
-             lastMsg.media_type === 'voice' ? '🎤 Voice' :
-             lastMsg.media_type === 'location' ? '📍 Location' :
-             lastMsg.media_type === 'poll' ? '📊 Poll' :
-             lastMsg.media_type === 'sticker' ? '🙂 Sticker' :
-             lastMsg.message_type === 'deleted' ? 'Message deleted' : '');
-
-        const contact = contacts.find(c => c.email === contactEmail);
-        if (contact) {
-            contact.lastMessage = preview;
-            // Do not await this UI/profile update; a failed preview save must
-            // never stop the chat itself from rendering.
-            updateContactLastMessage(contactEmail, preview).catch(() => {});
-        } else if (unknownChats[contactEmail]) {
-            unknownChats[contactEmail].lastMessage = preview;
-            unknownChats[contactEmail].lastTimestamp = lastMsg.timestamp || null;
-            renderContacts();
-        }
-    } catch (error) {
-        console.error('Messages load error:', error);
-        chatMessages.innerHTML = `<div class="empty-chat"><i class="fas fa-exclamation-circle" style="font-size:32px;color:#ff5e5e;"></i><p>Error loading messages</p><small style="display:block;margin-top:8px;opacity:.7;max-width:360px;">${escapeHtml(error?.message || 'Could not load this conversation.')}</small><button type="button" onclick="loadMessages(${JSON.stringify(otherEmail)})" style="margin-top:12px;padding:8px 14px;border:0;border-radius:10px;cursor:pointer;">Retry</button></div>`;
-        return;
-    }
-
-    // Realtime is still scoped to the normal ChatPro chat_id for new messages.
-    try {
-        const channel = supabaseClient.channel(`messages-${chatId}-${Date.now()}`)
-            .on(
-                'postgres_changes',
-                { event: '*', schema: 'public', table: 'messages', filter: `chat_id=eq.${chatId}` },
-                () => {
-                    if (currentChatWith === otherEmail) loadMessages(otherEmail);
+            visibleRows.forEach(msg => {
+                const isSent = String(msg.sender || '').trim().toLowerCase() === myEmail;
+                const meta = msg.metadata && typeof msg.metadata === 'object' ? msg.metadata : {};
+                const deletedForEveryone = meta.deletedForEveryone === true;
+                const isBroadcast = !!msg.is_broadcast;
+                let msgClass = isSent ? 'sent' : 'received';
+                if (isBroadcast) msgClass = 'broadcast';
+                const isSinhala = msg.language === 'si' || detectLanguage(msg.text || '') === 'si';
+                let mediaHTML = '';
+                if (msg.media_type === 'image' && msg.media_url) mediaHTML = `<div class="media-wrapper"><img src="${escapeHtml(msg.media_url)}" alt="Image" loading="lazy" /></div>`;
+                else if (msg.media_type === 'video' && msg.media_url) mediaHTML = `<div class="media-wrapper"><video controls preload="metadata"><source src="${escapeHtml(msg.media_url)}" type="${escapeHtml(msg.media_mime_type || 'video/mp4')}" /></video></div>`;
+                else if (msg.media_type === 'location' && msg.metadata) {
+                    const loc = msg.metadata;
+                    mediaHTML = `<div class="location-card"><i class="fas fa-location-dot" style="font-size:24px;color:#00cdbd"></i><div><strong>Location</strong><div style="font-size:11px;color:var(--text-muted)">${escapeHtml(String(loc.lat ?? '') + ', ' + String(loc.lng ?? ''))}</div><a href="https://www.google.com/maps?q=${encodeURIComponent(String(loc.lat ?? '') + ',' + String(loc.lng ?? ''))}" target="_blank" rel="noopener" style="color:#a99cff;font-size:11px">Open map</a></div></div>`;
+                } else if (msg.media_type === 'poll' && msg.metadata) {
+                    const poll = msg.metadata;
+                    mediaHTML = `<div class="poll-box"><strong>📊 ${escapeHtml(poll.question || 'Poll')}</strong>${(poll.options || []).map((o,i)=>`<button class="poll-option" onclick="votePoll('${escapeHtml(msg.id)}',${i})">${escapeHtml(o)}</button>`).join('')}</div>`;
+                } else if (msg.media_type === 'sticker') {
+                    mediaHTML = `<div class="sticker-msg">${escapeHtml(msg.text || '🙂')}</div>`;
+                } else if (msg.media_type === 'voice' && msg.media_url) {
+                    const duration = msg.duration || 5;
+                    const bars = Array.from({length: 20}, () => Math.random() * 60 + 20);
+                    mediaHTML = `<div class="voice-note"><button class="play-btn" onclick="playVoice('${escapeHtml(msg.media_url)}', this)"><i class="fas fa-play"></i></button><div class="waveform">${bars.map(h => `<div class="bar" style="height:${h}%"></div>`).join('')}</div><span class="duration">${Math.floor(duration / 60)}:${String(Math.floor(duration % 60)).padStart(2, '0')}</span></div>`;
                 }
-            )
+
+                const time = msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : '';
+                const scheduledTag = msg.status === 'scheduled' ? `<span class="schedule-chip"><i class="fas fa-clock"></i> Scheduled for ${msg.scheduled_at ? new Date(msg.scheduled_at).toLocaleString() : ''}</span>` : '';
+                const replyMeta = meta.replyTo || meta.reply_to;
+                const quoted = replyMeta ? `<div class="quoted-reply"><strong>↩ ${escapeHtml(replyMeta.senderName || 'Reply')}</strong>${escapeHtml(String(replyMeta.text || 'Message').slice(0,180))}</div>` : '';
+                const body = deletedForEveryone ? '<div class="media-caption"><i class="fas fa-ban"></i> This message was deleted</div>' : `${mediaHTML}${msg.text ? `<div class="media-caption">${escapeHtml(msg.text)}</div>` : ''}`;
+                const indicators = `<div class="message-action-indicators">${starred.includes(String(msg.id))?'<span title="Starred">⭐</span>':''}${pinned.includes(String(msg.id))?'<span title="Pinned">📌</span>':''}${deletedForEveryone?'<span>Deleted</span>':''}</div>`;
+                messagesHTML += `<div class="msg ${msgClass} ${msg.status==='scheduled'?'scheduled':''} ${deletedForEveryone?'deleted-message':''} ${isSinhala ? 'sinhala' : ''}" data-message-id="${escapeHtml(msg.id)}">${!isSent && !isBroadcast ? `<span class="sender">${escapeHtml(msg.sender_name || 'Unknown')}</span>` : ''}${isBroadcast ? '<span class="sender">📢 ADMIN</span>' : ''}${scheduledTag}${quoted}${body}<span class="time-stamp">${time}</span>${indicators}</div>`;
+            });
+
+            chatMessages.innerHTML = messagesHTML;
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            const newestReceived = [...visibleRows].reverse().find(x => String(x.sender || '').trim().toLowerCase() !== myEmail);
+            if (newestReceived) maybeAutoReply(newestReceived);
+
+            const lastMsg = visibleRows[visibleRows.length - 1];
+            const preview = lastMsg.text || (lastMsg.media_type === 'image' ? '📷 Photo' : lastMsg.media_type === 'video' ? '🎥 Video' : lastMsg.media_type === 'voice' ? '🎤 Voice' : lastMsg.media_type === 'location' ? '📍 Location' : lastMsg.media_type === 'poll' ? '📊 Poll' : lastMsg.media_type === 'sticker' ? '🙂 Sticker' : '');
+            const contact = contacts.find(c => String(c.email || '').trim().toLowerCase() === normalizedContact);
+            if (contact) {
+                contact.lastMessage = preview;
+                contact.lastTimestamp = lastMsg.timestamp || null;
+                // Do not write to Supabase on every render; just keep the local preview current.
+            } else if (unknownChats[normalizedContact]) {
+                unknownChats[normalizedContact].lastMessage = preview;
+                unknownChats[normalizedContact].lastTimestamp = lastMsg.timestamp || null;
+                renderContacts();
+            }
+        };
+
+        await render();
+        if (loadToken !== chatLoadToken || currentChatWith !== normalizedContact) return;
+
+        const channel = supabaseClient.channel(`messages-${chatId}`)
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'messages', filter: `chat_id=eq.${chatId}` }, () => render())
             .subscribe();
 
         unsubscribeMessages = async () => {
             try { await supabaseClient.removeChannel(channel); } catch (_) {}
         };
-    } catch (realtimeError) {
-        // Initial loading must continue to work even when Realtime is not enabled.
-        console.warn('Message realtime subscription unavailable:', realtimeError);
-        unsubscribeMessages = null;
+    } catch (err) {
+        console.error('Could not load messages:', err);
+        if (loadToken === chatLoadToken && currentChatWith === normalizedContact) {
+            chatMessages.innerHTML = `<div class="empty-chat"><i class="fas fa-exclamation-circle" style="font-size:32px;color:#ff5e5e;"></i><p>Error loading messages</p><small style="display:block;margin-top:8px;color:var(--text-muted);">${escapeHtml(err?.message || 'Could not connect to the chat database.')}</small></div>`;
+        }
     }
 }
-
 function getChatId(email1, email2) {
     const a = String(email1 || '').trim().toLowerCase();
     const b = String(email2 || '').trim().toLowerCase();
@@ -4569,675 +4512,118 @@ adminNicModal.addEventListener('click',e=>{if(e.target===adminNicModal)adminNicM
         img.parentElement.appendChild(b);
       });
     }
-    /* ============================================================
-       ROBUST MESSAGE ACTIONS
-       - Event-safe context menu
-       - Per-user local state for Star / Pin / Delete for Me
-       - Supabase-backed Delete for Everyone
-       - Reliable Reply / Forward / Translate / Reminder / Read Out
-       ============================================================ */
     function startLongPress(el){
-      if(!el || el.dataset.actionBound === '1') return;
-      el.dataset.actionBound = '1';
-
-      let timer = null, moved = false;
-      const clear = () => {
-        if(timer){ clearTimeout(timer); timer = null; }
-      };
-
-      el.addEventListener('pointerdown', () => {
-        moved = false;
-        clear();
-        timer = setTimeout(() => {
-          if(!moved) showMessageContextMenu(el);
-        }, 520);
-      }, {passive:true});
-
-      el.addEventListener('pointermove', () => {
-        moved = true;
-        clear();
-      }, {passive:true});
-
-      ['pointerup','pointerleave','pointercancel'].forEach(ev =>
-        el.addEventListener(ev, clear, {passive:true})
-      );
-
-      el.addEventListener('contextmenu', e => {
-        e.preventDefault();
-        e.stopPropagation();
-        showMessageContextMenu(el);
-      });
+      let timer=null,moved=false;
+      const clear=()=>{if(timer){clearTimeout(timer);timer=null}};
+      el.addEventListener('pointerdown',()=>{moved=false;clear();timer=setTimeout(()=>{if(!moved)showMessageContextMenu(el)},520)},{passive:true});
+      el.addEventListener('pointermove',()=>{moved=true;clear()},{passive:true});
+      ['pointerup','pointerleave','pointercancel'].forEach(ev=>el.addEventListener(ev,clear,{passive:true}));
+      el.addEventListener('contextmenu',e=>{e.preventDefault();showMessageContextMenu(el);});
     }
-
     async function getMessageById(id){
-      if(!id) return null;
-      await requireSupabase();
-      const {data,error} = await supabaseClient
-        .from('messages')
-        .select('*')
-        .eq('id', id)
-        .maybeSingle();
-      if(error) throw error;
-      return data || null;
+      if(!id||!supabaseClient)return null;
+      const {data,error}=await supabaseClient.from('messages').select('*').eq('id',id).maybeSingle();
+      if(error) throw error; return data||null;
     }
-
     function positionMenu(menu,x,y){
-      if(!menu) return;
       menu.classList.remove('hidden');
-
-      const r = menu.getBoundingClientRect();
-      const maxX = Math.max(8, innerWidth - r.width - 8);
-      const maxY = Math.max(8, innerHeight - r.height - 8);
-
-      menu.style.left = Math.max(8, Math.min(Number(x)||8, maxX)) + 'px';
-      menu.style.top  = Math.max(8, Math.min(Number(y)||8, maxY)) + 'px';
+      const r=menu.getBoundingClientRect();
+      menu.style.left=Math.max(8,Math.min(x,innerWidth-r.width-8))+'px';
+      menu.style.top=Math.max(8,Math.min(y,innerHeight-r.height-8))+'px';
     }
-
     function setReplyMessage(msg){
-      if(!msg){ clearReplyPreview(); return; }
-      pendingReplyMessage = {
-        ...msg,
-        id: msg.id,
-        text: msg.text || '',
-        media_type: msg.media_type || null,
-        sender_name: msg.sender_name || msg.sender || 'Contact'
-      };
-
-      const isMine = String(msg.sender || '').toLowerCase() === String(currentUser?.email || '').toLowerCase();
-      const who = isMine ? 'You' : (msg.sender_name || msg.sender || 'Contact');
-      let preview = String(msg.text || '').trim();
-      if(!preview){
-        preview = msg.media_type === 'image' ? '📷 Photo' :
-                  msg.media_type === 'video' ? '🎥 Video' :
-                  msg.media_type === 'voice' ? '🎤 Voice message' :
-                  msg.media_type === 'location' ? '📍 Location' :
-                  msg.media_type === 'poll' ? '📊 Poll' :
-                  msg.media_type === 'sticker' ? '🙂 Sticker' : 'Message';
-      }
-      replyPreviewName.textContent = 'Replying to ' + who;
-      replyPreviewText.textContent = preview.slice(0,180);
-      replyPreviewBar.classList.remove('hidden');
-      messageInput.disabled = false;
-      sendBtn.disabled = false;
-      messageInput.focus();
-      // Put the cursor in the typing box exactly like WhatsApp after selecting Reply.
-      try{ messageInput.setSelectionRange(messageInput.value.length,messageInput.value.length); }catch(_){}
+      pendingReplyMessage=msg||null;
+      if(!pendingReplyMessage){clearReplyPreview();return;}
+      replyPreviewName.textContent='Replying to '+(pendingReplyMessage.sender_name||pendingReplyMessage.sender||'contact');
+      replyPreviewText.textContent=(pendingReplyMessage.text||('📎 '+(pendingReplyMessage.media_type||'Media message'))).slice(0,180);
+      replyPreviewBar.classList.remove('hidden'); messageInput.focus();
     }
-
-    function clearReplyPreview(){
-      pendingReplyMessage = null;
-      replyPreviewBar?.classList.add('hidden');
-      if(replyPreviewName) replyPreviewName.textContent = 'Replying';
-      if(replyPreviewText) replyPreviewText.textContent = 'Message';
-    }
-
-    cancelReplyBtn?.addEventListener('click', clearReplyPreview);
-
-    function scopedMessageKey(base){
-      const uid = currentUser?.id || currentUser?.email || 'anonymous';
-      return base + ':' + String(uid).replace(/[^a-zA-Z0-9_.@-]/g,'_');
-    }
-
-    function messageList(key){
-      try{
-        const scoped = scopedMessageKey(key);
-        let raw = localStorage.getItem(scoped);
-
-        if(raw === null && key){
-          const old = localStorage.getItem(key);
-          if(old !== null){
-            localStorage.setItem(scoped, old);
-            raw = old;
-          }
-        }
-
-        const a = JSON.parse(raw || '[]');
-        return Array.isArray(a) ? a.map(String) : [];
-      }catch(_){
-        return [];
-      }
-    }
-
-    function saveMessageList(key,a){
-      try{
-        localStorage.setItem(
-          scopedMessageKey(key),
-          JSON.stringify([...new Set((a || []).map(String))])
-        );
-      }catch(e){
-        console.error('Could not save message state:',e);
-      }
-    }
-
+    function clearReplyPreview(){pendingReplyMessage=null;replyPreviewBar?.classList.add('hidden');if(replyPreviewName)replyPreviewName.textContent='Replying';if(replyPreviewText)replyPreviewText.textContent='Message';}
+    cancelReplyBtn?.addEventListener('click',clearReplyPreview);
+    function messageList(key){try{const a=JSON.parse(localStorage.getItem(key)||'[]');return Array.isArray(a)?a.map(String):[]}catch(_){return[]}}
+    function saveMessageList(key,a){localStorage.setItem(key,JSON.stringify([...new Set(a.map(String))]));}
     function showMessageContextMenu(el){
-      const id = el?.dataset?.messageId;
-      if(!id || !messageContextMenu) return;
-
-      document.querySelectorAll('.msg.context-selected')
-        .forEach(x => x.classList.remove('context-selected'));
-
-      el.classList.add('context-selected');
-
-      const mine = el.classList.contains('sent');
-      const starred = messageList('chatproStarredMessages').includes(String(id));
-      const pinned = messageList('chatproPinnedMessages').includes(String(id));
-
-      messageContextMenu.innerHTML = `
-        <button type="button" data-msg-action="reply">
-          <i class="fas fa-reply"></i><span>Reply</span>
-        </button>
-        <button type="button" data-msg-action="copy">
-          <i class="fas fa-copy"></i><span>Copy</span>
-        </button>
-        <button type="button" data-msg-action="star">
-          <i class="fas fa-star"></i><span>${starred ? 'Unstar Message' : 'Star Message'}</span>
-        </button>
-        <button type="button" data-msg-action="pin">
-          <i class="fas fa-thumbtack"></i><span>${pinned ? 'Unpin Message' : 'Pin Message'}</span>
-        </button>
-        <button type="button" data-msg-action="translate">
-          <i class="fas fa-language"></i><span>Translate</span>
-        </button>
-        <button type="button" data-msg-action="remind">
-          <i class="fas fa-bell"></i><span>Remind Me</span>
-        </button>
-        <button type="button" data-msg-action="forward">
-          <i class="fas fa-share"></i><span>Forward</span>
-        </button>
-        <button type="button" data-msg-action="read">
-          <i class="fas fa-volume-high"></i><span>Read Out</span>
-        </button>
-        <button type="button" data-msg-action="delete-me" class="danger-menu">
-          <i class="fas fa-trash"></i><span>Delete for Me</span>
-        </button>
-        ${mine ? `
-          <button type="button" data-msg-action="delete-everyone" class="danger-menu">
-            <i class="fas fa-trash-can"></i><span>Delete for Everyone</span>
-          </button>` : ''}
-      `;
-
-      messageContextMenu.dataset.messageId = String(id);
-
-      const rect = el.getBoundingClientRect();
-      positionMenu(
-        messageContextMenu,
-        Math.min(rect.right, innerWidth - 230),
-        Math.max(8, rect.top - 4)
-      );
+      const id=el?.dataset?.messageId;if(!id||!messageContextMenu)return;
+      document.querySelectorAll('.msg.context-selected').forEach(x=>x.classList.remove('context-selected'));el.classList.add('context-selected');
+      const mine=el.classList.contains('sent');
+      messageContextMenu.innerHTML=`
+        <button data-msg-action="reply"><i class="fas fa-reply"></i><span>Reply</span></button>
+        <button data-msg-action="copy"><i class="fas fa-copy"></i><span>Copy</span></button>
+        <button data-msg-action="star"><i class="fas fa-star"></i><span>Star Message</span></button>
+        <button data-msg-action="pin"><i class="fas fa-thumbtack"></i><span>Pin Message</span></button>
+        <button data-msg-action="translate"><i class="fas fa-language"></i><span>Translate</span></button>
+        <button data-msg-action="remind"><i class="fas fa-bell"></i><span>Remind Me</span></button>
+        <button data-msg-action="forward"><i class="fas fa-share"></i><span>Forward</span></button>
+        <button data-msg-action="read"><i class="fas fa-volume-high"></i><span>Read Out</span></button>
+        <button data-msg-action="delete-me" class="danger-menu"><i class="fas fa-trash"></i><span>Delete for Me</span></button>
+        ${mine?'<button data-msg-action="delete-everyone" class="danger-menu"><i class="fas fa-trash-can"></i><span>Delete for Everyone</span></button>':''}`;
+      const rect=el.getBoundingClientRect();positionMenu(messageContextMenu,Math.min(rect.right,innerWidth-230),Math.min(rect.top,innerHeight-330));
+      messageContextMenu.dataset.messageId=id;
     }
-
     async function copyText(text){
-      text = String(text || '').trim();
-      if(!text){
-        alert('There is no text to copy from this message.');
-        return false;
-      }
-
-      try{
-        if(navigator.clipboard?.writeText){
-          await navigator.clipboard.writeText(text);
-        }else{
-          const ta = document.createElement('textarea');
-          ta.value = text;
-          ta.setAttribute('readonly','');
-          ta.style.position = 'fixed';
-          ta.style.opacity = '0';
-          document.body.appendChild(ta);
-          ta.focus();
-          ta.select();
-          const ok = document.execCommand('copy');
-          ta.remove();
-          if(!ok) throw new Error('Clipboard copy was blocked.');
-        }
-
-        alert('✓ Message copied.');
-        return true;
-      }catch(e){
-        console.error('Copy failed:',e);
-        alert('Copy failed. Your browser blocked clipboard access.');
-        return false;
-      }
+      text=String(text||'').trim();if(!text){alert('There is no text to copy from this message.');return;}
+      try{if(navigator.clipboard?.writeText){await navigator.clipboard.writeText(text);}else{const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();}alert('✓ Message copied.');}
+      catch(e){alert('Copy failed. Please select and copy the message manually.');}
     }
-
     async function translateMessage(msg){
-      const text = String(msg?.text || '').trim();
-      if(!text){
-        alert('Only text messages can be translated.');
-        return false;
-      }
-
-      const defaultTarget =
-        detectLanguage(text) === 'si' ? 'English' : 'Sinhala';
-
-      const targetRaw = prompt(
-        'Translate to which language?\n\nType English or Sinhala:',
-        defaultTarget
-      );
-
-      if(targetRaw === null) return false;
-
-      const target = targetRaw.trim().toLowerCase();
-      if(!target) return false;
-
-      const targetName = target.startsWith('sinh') ? 'Sinhala' : 'English';
-
+      const text=String(msg?.text||'').trim();if(!text){alert('Only text messages can be translated.');return;}
+      const target=(prompt('Translate to which language?\n\nType English or Sinhala:', detectLanguage(text)==='si'?'English':'Sinhala')||'').trim().toLowerCase();
+      if(!target)return;
       if(window.chatproNextGen?.runAIAction && aiBtn && aiInput && aiSend){
-        try{
-          aiBtn.click();
-          setTimeout(() => {
-            aiInput.value =
-              `Translate exactly this message into ${targetName}. ` +
-              `Return only the translation:\n\n${text}`;
-            aiInput.dispatchEvent(new Event('input',{bubbles:true}));
-            aiSend.click();
-          },180);
-          return true;
-        }catch(e){
-          console.warn('AI translation unavailable, using local translator.',e);
-        }
+        aiBtn.click();setTimeout(()=>{aiInput.value=`Translate exactly this message into ${target.startsWith('sinh')?'Sinhala':'English'}. Return only the translation:\n\n${text}`;aiSend.click();},180);return;
       }
-
-      const translated = simpleTranslate(text,targetName);
-      alert('🌐 Translation:\n\n' + translated);
-      return true;
+      const translated=simpleTranslate(text,target);alert('🌐 Translation:\n\n'+translated);
     }
-
-    let pendingForwardMessage = null;
-
-    function getForwardContacts(){
-      const my = String(currentUser?.email || '').trim().toLowerCase();
-      const source = Array.isArray(contacts) ? contacts : [];
-      const seen = new Set();
-      return source.filter(c => {
-        const email=String(c?.email||'').trim().toLowerCase();
-        if(!email || email===my || seen.has(email)) return false;
-        seen.add(email);
-        return true;
-      });
-    }
-
-    function renderForwardContacts(filter=''){
-      if(!forwardContactList) return;
-      const q=String(filter||'').trim().toLowerCase();
-      const list=getForwardContacts().filter(c => {
-        const name=String(c?.name||'').toLowerCase();
-        const email=String(c?.email||'').toLowerCase();
-        return !q || name.includes(q) || email.includes(q);
-      });
-      if(!list.length){
-        forwardContactList.innerHTML='<div class="forward-empty"><i class="fas fa-user-slash" style="font-size:25px;display:block;margin-bottom:8px"></i>No matching contacts found.</div>';
-        return;
-      }
-      forwardContactList.innerHTML=list.map((c,i)=>{
-        const name=escapeHtml(c.name||c.email);
-        const email=escapeHtml(c.email);
-        const photo=c.photo_url||c.avatar||c.profile_photo||c.profilePhoto||'';
-        const initial=escapeHtml(String(c.name||c.email||'?').trim().charAt(0).toUpperCase());
-        const avatar=photo ? `<img src="${escapeHtml(photo)}" alt="">` : initial;
-        return `<button type="button" class="forward-contact-item" data-forward-email="${escapeHtml(c.email)}">
-          <span class="forward-contact-avatar">${avatar}</span>
-          <span class="forward-contact-info"><span class="forward-contact-name">${name}</span><span class="forward-contact-email">${email}</span></span>
-          <i class="fas fa-chevron-right" style="opacity:.45"></i>
-        </button>`;
-      }).join('');
-    }
-
-    function openForwardContactPicker(msg){
-      if(!msg) return;
-      pendingForwardMessage=msg;
-      if(!getForwardContacts().length){
-        alert('No contacts are available to forward this message to.');
-        return;
-      }
-      if(forwardContactSearch) forwardContactSearch.value='';
-      renderForwardContacts('');
-      forwardContactModal?.classList.remove('hidden');
-      setTimeout(()=>forwardContactSearch?.focus(),80);
-    }
-
-    function closeForwardContactPicker(){
-      forwardContactModal?.classList.add('hidden');
-      pendingForwardMessage=null;
-      if(forwardContactSearch) forwardContactSearch.value='';
-    }
-
-    async function sendForwardedMessage(msg,target){
-      if(!msg || !target || !currentUser) return false;
-      await requireSupabase();
-      const chatId=getChatId(currentUser.email,target.email);
-      const forwardedMeta={
-        ...(msg.metadata && typeof msg.metadata==='object' ? msg.metadata : {}),
-        forwardedFrom:{
-          id:msg.id, sender:msg.sender||null, senderName:msg.sender_name||msg.sender||'Unknown',
-          text:msg.text||null, media_type:msg.media_type||null, media_url:msg.media_url||null
-        }
-      };
-      const payload={
-        chat_id:chatId, sender:currentUser.email, sender_name:currentUserData?.name||currentUser.email.split('@')[0],
-        timestamp:new Date().toISOString(), recipient:target.email, recipient_name:target.name||target.email,
-        language:msg.language||detectLanguage(msg.text||''), text:msg.text||null, media_type:msg.media_type||null,
-        media_url:msg.media_url||null, media_path:msg.media_path||null, media_mime_type:msg.media_mime_type||null,
-        duration:msg.duration||null, is_broadcast:false, status:'sent', scheduled_at:null, message_type:'forwarded', metadata:forwardedMeta
-      };
-      const {error}=await supabaseClient.from('messages').insert(payload);
-      if(error) throw error;
-      return true;
-    }
-
     async function forwardMessage(msg){
-      openForwardContactPicker(msg);
-      return true;
+      const options=(contacts||[]).filter(c=>c.email!==currentUser.email);
+      if(!options.length){alert('No contacts are available to forward this message to.');return;}
+      const list=options.slice(0,30).map((c,i)=>`${i+1}. ${c.name||c.email} — ${c.email}`).join('\n');
+      const choice=prompt('Forward message to:\n\n'+list+'\n\nEnter the contact number or email:');if(!choice)return;
+      const trimmed=choice.trim();let target=options[Number(trimmed)-1];
+      if(!target) target=options.find(c=>String(c.email).toLowerCase()===trimmed.toLowerCase());
+      if(!target){alert('Contact not found.');return;}
+      const payload={chat_id:getChatId(currentUser.email,target.email),sender:currentUser.email,sender_name:currentUserData?.name||currentUser.email,recipient:target.email,recipient_name:target.name||target.email,text:msg.text||null,media_type:msg.media_type||null,media_url:msg.media_url||null,media_path:msg.media_path||null,media_mime_type:msg.media_mime_type||null,duration:msg.duration||null,language:msg.language||detectLanguage(msg.text||''),status:'sent',scheduled_at:null,message_type:'forwarded',is_broadcast:false,metadata:{forwardedFrom:{id:msg.id,senderName:msg.sender_name||msg.sender||'Unknown',text:msg.text||null}}};
+      const {error}=await supabaseClient.from('messages').insert(payload);if(error)throw error;alert('✓ Message forwarded to '+(target.name||target.email)+'.');
     }
-
-    forwardContactSearch?.addEventListener('input',()=>renderForwardContacts(forwardContactSearch.value));
-    cancelForwardBtn?.addEventListener('click',closeForwardContactPicker);
-    forwardContactModal?.addEventListener('click',e=>{
-      if(e.target===forwardContactModal) closeForwardContactPicker();
-      const item=e.target.closest('[data-forward-email]');
-      if(!item || !pendingForwardMessage) return;
-      const email=item.dataset.forwardEmail;
-      const target=getForwardContacts().find(c=>String(c.email).toLowerCase()===String(email).toLowerCase());
-      if(!target) return;
-      const msg=pendingForwardMessage;
-      item.disabled=true;
-      item.style.opacity='.65';
-      sendForwardedMessage(msg,target).then(()=>{
-        closeForwardContactPicker();
-        if(currentChatWith) loadMessages(currentChatWith);
-        alert('✓ Message forwarded to ' + (target.name || target.email) + '.');
-      }).catch(err=>{
-        item.disabled=false; item.style.opacity='';
-        console.error('Forward message error:',err);
-        alert('Failed to forward message: ' + (err?.message || err));
-      });
-    });
-
     async function handleMessageContextAction(action,id){
       try{
-        if(!id) return;
-
-        const msg = await getMessageById(id);
-        if(!msg){
-          alert('This message could not be found. It may have been removed.');
-          return;
+        const msg=await getMessageById(id);if(!msg)return;
+        const starred=messageList('chatproStarredMessages'), pinned=messageList('chatproPinnedMessages'), deleted=messageList('chatproDeletedForMe');
+        if(action==='reply'){setReplyMessage(msg);return}
+        if(action==='copy'){await copyText(msg.text||'');return}
+        if(action==='star'){const i=starred.indexOf(String(id));if(i>=0)starred.splice(i,1);else starred.push(String(id));saveMessageList('chatproStarredMessages',starred);if(currentChatWith)loadMessages(currentChatWith);return}
+        if(action==='pin'){const i=pinned.indexOf(String(id));if(i>=0)pinned.splice(i,1);else pinned.push(String(id));saveMessageList('chatproPinnedMessages',pinned);if(currentChatWith)loadMessages(currentChatWith);return}
+        if(action==='translate'){await translateMessage(msg);return}
+        if(action==='remind'){showReminderMenu(id);return}
+        if(action==='forward'){await forwardMessage(msg);return}
+        if(action==='read'){const text=String(msg.text||'Media message');if('speechSynthesis'in window){speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang=(msg.language==='si'||detectLanguage(text)==='si')?'si-LK':'en-US';speechSynthesis.speak(u);}else alert('Read Out is not supported by this browser.');return}
+        if(action==='delete-me'){if(deleted.includes(String(id)))return;deleted.push(String(id));saveMessageList('chatproDeletedForMe',deleted);if(currentChatWith)loadMessages(currentChatWith);return}
+        if(action==='delete-everyone'){
+          if(msg.sender!==currentUser.email){alert('You can only delete your own messages for everyone.');return;}
+          if(!confirm('Delete this message for everyone? This replaces its content with “This message was deleted”.'))return;
+          const meta=msg.metadata&&typeof msg.metadata==='object'?msg.metadata:{};
+          const updated={...meta,deletedForEveryone:true,deletedAt:new Date().toISOString(),deletedBy:currentUser.email};
+          const {error}=await supabaseClient.from('messages').update({text:null,media_url:null,media_path:null,media_type:null,media_mime_type:null,duration:null,message_type:'deleted',metadata:updated}).eq('id',id).eq('sender',currentUser.email);if(error)throw error;
+          if(currentChatWith)loadMessages(currentChatWith);return;
         }
-
-        const idString = String(id);
-
-        if(action === 'reply'){
-          setReplyMessage(msg);
-          return;
-        }
-
-        if(action === 'copy'){
-          await copyText(msg.text || '');
-          return;
-        }
-
-        if(action === 'star'){
-          const starred = messageList('chatproStarredMessages');
-          const index = starred.indexOf(idString);
-
-          if(index >= 0) starred.splice(index,1);
-          else starred.push(idString);
-
-          saveMessageList('chatproStarredMessages',starred);
-          if(currentChatWith) await loadMessages(currentChatWith);
-          return;
-        }
-
-        if(action === 'pin'){
-          const pinned = messageList('chatproPinnedMessages');
-          const index = pinned.indexOf(idString);
-
-          if(index >= 0) pinned.splice(index,1);
-          else pinned.push(idString);
-
-          saveMessageList('chatproPinnedMessages',pinned);
-          if(currentChatWith) await loadMessages(currentChatWith);
-          return;
-        }
-
-        if(action === 'translate'){
-          await translateMessage(msg);
-          return;
-        }
-
-        if(action === 'remind'){
-          await showReminderMenu(idString);
-          return;
-        }
-
-        if(action === 'forward'){
-          await forwardMessage(msg);
-          return;
-        }
-
-        if(action === 'read'){
-          const text = String(
-            msg.text ||
-            (msg.media_type === 'image' ? 'Photo message' :
-             msg.media_type === 'video' ? 'Video message' :
-             msg.media_type === 'voice' ? 'Voice message' :
-             'Media message')
-          ).trim();
-
-          if(!text){
-            alert('There is nothing readable in this message.');
-            return;
-          }
-
-          if(!('speechSynthesis' in window) ||
-             typeof SpeechSynthesisUtterance === 'undefined'){
-            alert('Read Out is not supported by this browser.');
-            return;
-          }
-
-          try{
-            speechSynthesis.cancel();
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.lang =
-              (msg.language === 'si' || detectLanguage(text) === 'si')
-                ? 'si-LK'
-                : 'en-US';
-
-            utterance.rate = 1;
-            utterance.pitch = 1;
-            speechSynthesis.speak(utterance);
-          }catch(e){
-            console.error('Read Out failed:',e);
-            alert('Read Out could not start: ' + (e.message || e));
-          }
-          return;
-        }
-
-        if(action === 'delete-me'){
-          const deleted = messageList('chatproDeletedForMe');
-
-          if(!deleted.includes(idString)){
-            deleted.push(idString);
-            saveMessageList('chatproDeletedForMe',deleted);
-          }
-
-          if(currentChatWith) await loadMessages(currentChatWith);
-          return;
-        }
-
-        if(action === 'delete-everyone'){
-          if(String(msg.sender).toLowerCase() !==
-             String(currentUser.email).toLowerCase()){
-            alert('You can only delete your own messages for everyone.');
-            return;
-          }
-
-          const confirmed = confirm(
-            'Delete this message for everyone?\n\n' +
-            'The message will be replaced with “This message was deleted”.'
-          );
-
-          if(!confirmed) return;
-
-          const oldMeta =
-            msg.metadata && typeof msg.metadata === 'object'
-              ? msg.metadata
-              : {};
-
-          const updatedMetadata = {
-            ...oldMeta,
-            deletedForEveryone: true,
-            deletedAt: new Date().toISOString(),
-            deletedBy: currentUser.email
-          };
-
-          const {data,error} = await supabaseClient
-            .from('messages')
-            .update({
-              text: null,
-              media_url: null,
-              media_path: null,
-              media_type: null,
-              media_mime_type: null,
-              duration: null,
-              message_type: 'deleted',
-              metadata: updatedMetadata
-            })
-            .eq('id',idString)
-            .eq('sender',currentUser.email)
-            .select('id')
-            .maybeSingle();
-
-          if(error) throw error;
-
-          if(!data){
-            throw new Error(
-              'The message was not changed. Check your Supabase UPDATE policy for the messages table.'
-            );
-          }
-
-          if(currentChatWith) await loadMessages(currentChatWith);
-          return;
-        }
-      }catch(e){
-        console.error('Message action failed:',e);
-        alert('Message action failed: ' + (e?.message || e));
-      }
+      }catch(e){console.error('Message action failed',e);alert('Message action failed: '+(e.message||e));}
     }
-
     async function showReminderMenu(messageId){
-      const choice = (
-        prompt(
-          '🔔 Remind Me\n\n' +
-          '1. In 10 minutes\n' +
-          '2. Tonight\n' +
-          '3. Tomorrow morning\n' +
-          '4. Custom date/time\n\n' +
-          'Enter 1-4:'
-        ) || ''
-      ).trim();
-
-      if(!choice) return;
-
-      const now = new Date();
-      let when = new Date(now);
-
-      if(choice === '1'){
-        when = new Date(now.getTime() + 10 * 60000);
-      }else if(choice === '2'){
-        when.setHours(20,0,0,0);
-        if(when <= now) when.setDate(when.getDate()+1);
-      }else if(choice === '3'){
-        when.setDate(when.getDate()+1);
-        when.setHours(9,0,0,0);
-      }else if(choice === '4'){
-        const raw = prompt(
-          'Enter date and time, for example:\n2026-10-15 18:00'
-        );
-        if(!raw) return;
-
-        const normalized = raw.trim().replace(' ','T');
-        when = new Date(normalized);
-
-        if(isNaN(when.getTime())){
-          when = new Date(raw.trim());
-        }
-      }else{
-        alert('Please choose 1, 2, 3 or 4.');
-        return;
-      }
-
-      if(isNaN(when.getTime()) || when <= now){
-        alert('Choose a valid future date/time.');
-        return;
-      }
-
-      const list = Array.isArray(currentUserData?.chatReminders)
-        ? [...currentUserData.chatReminders]
-        : [];
-
-      const reminderId =
-        (typeof crypto !== 'undefined' && crypto.randomUUID)
-          ? crypto.randomUUID()
-          : 'reminder-' + Date.now() + '-' + Math.random().toString(36).slice(2);
-
-      list.push({
-        id: reminderId,
-        chat: currentChatWith,
-        messageId: String(messageId),
-        when: when.toISOString(),
-        created_at: now.toISOString(),
-        notified: false
-      });
-
-      try{
-        await profilePatch({chatReminders:list.slice(-200)});
-        alert('🔔 Reminder saved for ' + when.toLocaleString());
-      }catch(e){
-        console.error('Reminder save failed:',e);
-        alert('Could not save reminder: ' + (e?.message || e));
-      }
+      const choice=(prompt('🔔 Remind Me\n\n1. In 10 minutes\n2. Tonight\n3. Tomorrow morning\n4. Custom date/time\n\nEnter 1-4:')||'').trim();if(!choice)return;
+      const now=new Date();let when=new Date(now);
+      if(choice==='1')when=new Date(now.getTime()+10*60000);
+      else if(choice==='2'){when.setHours(20,0,0,0);if(when<=now)when.setDate(when.getDate()+1);}
+      else if(choice==='3'){when.setDate(when.getDate()+1);when.setHours(9,0,0,0);}
+      else if(choice==='4'){const raw=prompt('Enter date and time, e.g. 2026-10-15 18:00');if(!raw)return;when=new Date(raw.replace(' ','T'));}
+      else {alert('Please choose 1, 2, 3 or 4.');return;}
+      if(isNaN(when.getTime())||when<=now){alert('Choose a valid future date/time.');return;}
+      const list=Array.isArray(currentUserData?.chatReminders)?[...currentUserData.chatReminders]:[];
+      list.push({id:crypto.randomUUID?.()||Date.now().toString(),chat:currentChatWith,messageId:String(messageId),when:when.toISOString(),created_at:now.toISOString(),notified:false});
+      try{await profilePatch({chatReminders:list.slice(-200)});alert('🔔 Reminder saved for '+when.toLocaleString());}catch(e){alert('Could not save reminder: '+e.message);}
     }
-
-    async function checkReminders(){
-      const list = Array.isArray(currentUserData?.chatReminders)
-        ? currentUserData.chatReminders
-        : [];
-
-      const due = list.filter(r =>
-        !r.notified &&
-        new Date(r.when).getTime() <= Date.now()
-      );
-
-      if(!due.length) return;
-
-      due.forEach(r => { r.notified = true; });
-      currentUserData.chatReminders = list;
-
-      try{
-        await profilePatch({chatReminders:list});
-      }catch(_){}
-
-      due.forEach(r => {
-        const when = new Date(r.when).toLocaleString();
-        const message = '🔔 ChatPro Reminder\n\n' +
-          'You asked to be reminded about this message.\n\n' + when;
-
-        if(document.visibilityState === 'visible'){
-          alert(message);
-        }else if('Notification' in window && Notification.permission === 'granted'){
-          new Notification('ChatPro Reminder',{body:'Reminder for '+when});
-        }else{
-          alert(message);
-        }
-      });
-    }
-
-    function attachLongPress(){
-      document.querySelectorAll('.msg[data-message-id]').forEach(startLongPress);
-    }
-
-    setInterval(checkReminders,15000);
-    setInterval(attachLongPress,1200);
-    attachLongPress();
+    async function checkReminders(){const list=Array.isArray(currentUserData?.chatReminders)?currentUserData.chatReminders:[];const due=list.filter(r=>!r.notified&&new Date(r.when).getTime()<=Date.now());if(!due.length)return;due.forEach(r=>{r.notified=true;});currentUserData.chatReminders=list;try{await profilePatch({chatReminders:list});}catch(_){}due.forEach(r=>{const when=new Date(r.when).toLocaleString();if(document.visibilityState==='visible')alert('🔔 ChatPro Reminder\nYou asked to be reminded about this message.\n\n'+when);});}
+    function attachLongPress(){document.querySelectorAll('.msg[data-message-id]').forEach(startLongPress)}
+    setInterval(checkReminders,15000);setInterval(attachLongPress,1200);
 
     // Expose safe public helpers.
     window.chatproNextGen={runAIAction,voiceEverything,processIntent,showMemory,themeDialog,presenceDialog,meetingMode};
