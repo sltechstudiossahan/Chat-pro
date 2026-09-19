@@ -4904,36 +4904,174 @@ messageContextMenu?.addEventListener('click',e=>{const b=e.target.closest('[data
 document.addEventListener('click',e=>{if(!e.target.closest('.wa-menu')&&!e.target.closest('.contact-more-btn')&&!e.target.closest('.mobile-top-more'))closeWaMenus();});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeWaMenus();});
 
-let callChannel=null, callPc=null, callLocalStream=null, callRemoteStream=null, activeCallPeer=null, activeCallVideo=false, pendingIce=[];
+// ============================================================
+// CALLING ENGINE (voice + video) â WebRTC with Supabase Realtime signaling.
+// Design: each user keeps one persistent "inbox" channel (for ringing / busy /
+// cancel-before-answer). Once a call is being set up, BOTH sides join one
+// shared, deterministic "room" channel for the rest of the handshake
+// (SDP answer + all ICE candidates), instead of opening a throwaway channel
+// per message. This avoids dropped ICE candidates and race conditions, and
+// adds busy/no-answer/failed-connection handling so a call never hangs forever.
+// ============================================================
+let callChannel=null, callPc=null, callLocalStream=null, callRemoteStream=null, activeCallPeer=null, activeCallVideo=false, pendingIce=[], callRoomChannel=null, callWatchdog=null, callAnswered=false;
+function normEmail(e){return String(e||'').trim().toLowerCase();}
 async function ensureCallChannel(){
   if(callChannel||!currentUser||!supabaseClient)return;
-  callChannel=supabaseClient.channel('chatpro-calls-'+encodeURIComponent(currentUser.email));
+  callChannel=supabaseClient.channel('chatpro-calls-'+encodeURIComponent(normEmail(currentUser.email)));
   callChannel.on('broadcast',{event:'signal'},({payload})=>handleCallSignal(payload)).subscribe();
 }
-async function sendCallSignal(to,payload){await ensureCallChannel();const ch=supabaseClient.channel('chatpro-calls-'+encodeURIComponent(to));ch.subscribe(status=>{if(status==='SUBSCRIBED')ch.send({type:'broadcast',event:'signal',payload:{...payload,to,from:currentUser.email}})});setTimeout(()=>{try{supabaseClient.removeChannel(ch)}catch(_){ }},5000)}
-function closeCallUI(){document.querySelector('.call-overlay')?.remove();if(callLocalStream)callLocalStream.getTracks().forEach(t=>t.stop());callLocalStream=null;if(callPc){callPc.onicecandidate=null;callPc.ontrack=null;callPc.close();}callPc=null;activeCallPeer=null;pendingIce=[];}
-function showCallUI(video,peer){
-  document.querySelector('.call-overlay')?.remove();const box=document.createElement('div');box.className='call-overlay';box.innerHTML=`<div class="call-box"><video class="call-remote" autoplay playsinline></video><video class="call-local" autoplay muted playsinline></video><div class="call-label">${video?'ð¹ Video call':'ð Voice call'} Â· ${escapeHtml(peer)}</div><button class="call-end" title="End call"><i class="fas fa-phone-slash"></i></button></div>`;document.body.appendChild(box);box.querySelector('.call-end').onclick=async()=>{if(activeCallPeer)await sendCallSignal(activeCallPeer,{type:'hangup'});closeCallUI()};return box;
+// One-shot delivery to a user's personal inbox: used only for the initial ring, "busy", and cancel-before-answer.
+function notifyPeer(to,payload){
+  return new Promise(resolve=>{
+    if(!supabaseClient){resolve(false);return}
+    const ch=supabaseClient.channel('chatpro-calls-'+encodeURIComponent(normEmail(to)));
+    let done=false;const finish=ok=>{if(done)return;done=true;try{supabaseClient.removeChannel(ch)}catch(_){}resolve(ok)};
+    const timer=setTimeout(()=>finish(false),6000);
+    ch.subscribe(status=>{
+      if(status==='SUBSCRIBED'){ch.send({type:'broadcast',event:'signal',payload:{...payload,to:normEmail(to),from:normEmail(currentUser.email)}});clearTimeout(timer);setTimeout(()=>finish(true),400);}
+      else if(status==='CHANNEL_ERROR'||status==='TIMED_OUT'||status==='CLOSED'){clearTimeout(timer);finish(false);}
+    });
+  });
+}
+function callRoomTopic(a,b){const pair=[normEmail(a),normEmail(b)].sort();return 'chatpro-call-room-'+encodeURIComponent(pair[0])+'__'+encodeURIComponent(pair[1]);}
+// Joins the shared signaling room for a call with `peer`; resolves once actually subscribed.
+function joinCallRoom(peer,onMessage){
+  return new Promise((resolve,reject)=>{
+    if(!supabaseClient){reject(new Error('Not connected.'));return}
+    const ch=supabaseClient.channel(callRoomTopic(currentUser.email,peer));
+    ch.on('broadcast',{event:'call'},({payload})=>onMessage(payload));
+    const timer=setTimeout(()=>reject(new Error('Could not reach the signaling server. Check your connection and try again.')),10000);
+    ch.subscribe(status=>{
+      if(status==='SUBSCRIBED'){clearTimeout(timer);resolve(ch);}
+      else if(status==='CHANNEL_ERROR'||status==='TIMED_OUT'||status==='CLOSED'){clearTimeout(timer);reject(new Error('Signaling connection failed ('+status+').'));}
+    });
+  });
+}
+function sendRoom(payload){if(callRoomChannel)callRoomChannel.send({type:'broadcast',event:'call',payload:{...payload,from:normEmail(currentUser.email)}});}
+function setCallLabel(text){const l=document.querySelector('.call-label');if(l)l.textContent=text;}
+function clearCallWatchdog(){if(callWatchdog){clearTimeout(callWatchdog);callWatchdog=null;}}
+function closeCallUI(message){
+  clearCallWatchdog();
+  document.querySelector('.call-incoming')?.remove();
+  const overlay=document.querySelector('.call-overlay');
+  if(overlay){
+    if(message){setCallLabel(message);const endBtn=overlay.querySelector('.call-end');if(endBtn)endBtn.style.display='none';setTimeout(()=>overlay.remove(),1700);}
+    else overlay.remove();
+  }
+  if(callLocalStream)callLocalStream.getTracks().forEach(t=>t.stop());
+  callLocalStream=null;callRemoteStream=null;
+  if(callPc){callPc.onicecandidate=null;callPc.ontrack=null;callPc.oniceconnectionstatechange=null;try{callPc.close()}catch(_){}}
+  callPc=null;
+  if(callRoomChannel){try{supabaseClient.removeChannel(callRoomChannel)}catch(_){}}
+  callRoomChannel=null;activeCallPeer=null;pendingIce=[];callAnswered=false;
+}
+function showCallUI(video,peer,label){
+  document.querySelector('.call-overlay')?.remove();
+  const box=document.createElement('div');box.className='call-overlay';
+  box.innerHTML=`<div class="call-box"><video class="call-remote" autoplay playsinline></video><video class="call-local" autoplay muted playsinline></video><div class="call-label">${escapeHtml(label||((video?'ð¹ Video call':'ð Voice call')+' Â· '+peer))}</div><button class="call-end" title="End call"><i class="fas fa-phone-slash"></i></button></div>`;
+  document.body.appendChild(box);
+  box.querySelector('.call-end').onclick=async()=>{const peerToNotify=activeCallPeer,wasAnswered=callAnswered;sendRoom({type:'hangup'});if(peerToNotify&&!wasAnswered)await notifyPeer(peerToNotify,{type:'hangup'});closeCallUI();};
+  return box;
+}
+function wireConnectionWatchdog(peer){
+  clearCallWatchdog();if(!callPc)return;
+  callPc.oniceconnectionstatechange=()=>{
+    const st=callPc?.iceConnectionState;
+    if(st==='connected'||st==='completed'){callAnswered=true;clearCallWatchdog();setCallLabel((activeCallVideo?'ð¹ Video call':'ð Voice call')+' Â· '+peer);}
+    else if(st==='failed'){sendRoom({type:'hangup'});closeCallUI('â ï¸ Call failed to connect. Check your network and try again.');}
+    else if(st==='disconnected'){setCallLabel('Reconnectingâ¦');}
+  };
+  callWatchdog=setTimeout(()=>{if(!callPc)return;const st=callPc.iceConnectionState;if(st!=='connected'&&st!=='completed'){sendRoom({type:'hangup'});closeCallUI('â ï¸ No answer / connection timed out.');}},30000);
 }
 async function createPeer(video,peer){
-  callPc=new RTCPeerConnection({iceServers:[{urls:'stun:stun.l.google.com:19302'}]});
-  callPc.onicecandidate=e=>{if(e.candidate)sendCallSignal(peer,{type:'ice',candidate:e.candidate.toJSON?.()||e.candidate})};
+  callPc=new RTCPeerConnection({iceServers:[
+    {urls:'stun:stun.l.google.com:19302'},
+    {urls:'stun:stun1.l.google.com:19302'}
+    // If calls fail to connect across strict corporate/campus networks, add a TURN server here, e.g.
+    // {urls:'turn:your-turn-host:3478',username:'...',credential:'...'} â STUN alone cannot traverse symmetric NATs.
+  ]});
+  callPc.onicecandidate=e=>{if(e.candidate)sendRoom({type:'ice',candidate:e.candidate.toJSON?.()||e.candidate})};
   callPc.ontrack=e=>{const v=document.querySelector('.call-remote');if(v){if(!callRemoteStream)callRemoteStream=new MediaStream();callRemoteStream.addTrack(e.track);v.srcObject=callRemoteStream}};
-  callLocalStream=await navigator.mediaDevices.getUserMedia({audio:true,video:video});callLocalStream.getTracks().forEach(t=>callPc.addTrack(t,callLocalStream));const lv=document.querySelector('.call-local');if(lv)lv.srcObject=callLocalStream;
+  callLocalStream=await navigator.mediaDevices.getUserMedia({audio:true,video:video});
+  callLocalStream.getTracks().forEach(t=>callPc.addTrack(t,callLocalStream));
+  const lv=document.querySelector('.call-local');if(lv)lv.srcObject=callLocalStream;
+  wireConnectionWatchdog(peer);
 }
 async function startCall(video){
+  if(callPc){alert('You are already in a call.');return}
   if(!currentUser||!currentChatWith){alert('Select a contact first.');return}
-  try{await ensureCallChannel();activeCallPeer=currentChatWith;activeCallVideo=video;showCallUI(video,currentChatWith);await createPeer(video,currentChatWith);const offer=await callPc.createOffer();await callPc.setLocalDescription(offer);await sendCallSignal(currentChatWith,{type:'offer',video,offer});}catch(e){closeCallUI();alert('Call could not start: '+(e.message||e))}
+  const peer=normEmail(currentChatWith);
+  try{
+    await ensureCallChannel();
+    activeCallPeer=peer;activeCallVideo=video;callAnswered=false;
+    showCallUI(video,peer,'ð Calling '+peer+'â¦');
+    callRoomChannel=await joinCallRoom(peer,payload=>handleRoomSignal(payload));
+    await createPeer(video,peer);
+    const offer=await callPc.createOffer();
+    await callPc.setLocalDescription(offer);
+    const delivered=await notifyPeer(peer,{type:'offer',video,offer});
+    if(!delivered){closeCallUI('â ï¸ Could not reach '+peer+'. Check they are online and try again.');return}
+  }catch(e){
+    closeCallUI();
+    if(e?.name==='NotAllowedError')alert('Camera/microphone permission was denied. Please allow access and try again.');
+    else alert('Call could not start: '+(e.message||e));
+  }
 }
+// Personal-inbox signals: only the initial ring, a busy reply, and cancel/hangup before the room is joined.
 async function handleCallSignal(p){
-  if(!p||p.to!==currentUser?.email)return;
+  if(!p||normEmail(p.to)!==normEmail(currentUser?.email))return;
   try{
     if(p.type==='offer'){
-      if(callPc)return;activeCallPeer=p.from;activeCallVideo=!!p.video;const incoming=document.createElement('div');incoming.className='call-incoming';incoming.innerHTML=`<strong>${activeCallVideo?'ð¹ Incoming video call':'ð Incoming voice call'}</strong><div style="margin-top:6px;color:#aeb4ca">${escapeHtml(p.from)}</div><div class="call-incoming-actions"><button class="call-answer">Answer</button><button class="call-reject">Decline</button></div>`;document.body.appendChild(incoming);incoming.querySelector('.call-reject').onclick=async()=>{await sendCallSignal(p.from,{type:'hangup'});incoming.remove()};incoming.querySelector('.call-answer').onclick=async()=>{incoming.remove();showCallUI(!!p.video,p.from);await createPeer(!!p.video,p.from);await callPc.setRemoteDescription(new RTCSessionDescription(p.offer));for(const c of pendingIce){try{await callPc.addIceCandidate(c)}catch(_){}}pendingIce=[];const ans=await callPc.createAnswer();await callPc.setLocalDescription(ans);await sendCallSignal(p.from,{type:'answer',answer:ans});};
-    }else if(p.type==='answer'&&callPc){await callPc.setRemoteDescription(new RTCSessionDescription(p.answer));for(const c of pendingIce){try{await callPc.addIceCandidate(c)}catch(_){}}pendingIce=[];
-    }else if(p.type==='ice'){if(callPc?.remoteDescription)await callPc.addIceCandidate(new RTCIceCandidate(p.candidate));else pendingIce.push(new RTCIceCandidate(p.candidate));
-    }else if(p.type==='hangup'){document.querySelector('.call-incoming')?.remove();closeCallUI();}
+      if(callPc){await notifyPeer(p.from,{type:'busy'});return}
+      const peer=normEmail(p.from);
+      activeCallPeer=peer;activeCallVideo=!!p.video;callAnswered=false;
+      const incoming=document.createElement('div');incoming.className='call-incoming';
+      incoming.innerHTML=`<strong>${activeCallVideo?'ð¹ Incoming video call':'ð Incoming voice call'}</strong><div style="margin-top:6px;color:#aeb4ca">${escapeHtml(peer)}</div><div class="call-incoming-actions"><button class="call-answer">Answer</button><button class="call-reject">Decline</button></div>`;
+      document.body.appendChild(incoming);
+      incoming.querySelector('.call-reject').onclick=async()=>{await notifyPeer(peer,{type:'hangup'});incoming.remove();activeCallPeer=null;};
+      incoming.querySelector('.call-answer').onclick=async()=>{
+        incoming.remove();
+        try{
+          showCallUI(activeCallVideo,peer,'ð Connectingâ¦');
+          callRoomChannel=await joinCallRoom(peer,payload=>handleRoomSignal(payload));
+          await createPeer(activeCallVideo,peer);
+          await callPc.setRemoteDescription(new RTCSessionDescription(p.offer));
+          for(const c of pendingIce){try{await callPc.addIceCandidate(c)}catch(_){}}
+          pendingIce=[];
+          const ans=await callPc.createAnswer();
+          await callPc.setLocalDescription(ans);
+          sendRoom({type:'answer',answer:ans});
+          callAnswered=true;
+        }catch(e){
+          closeCallUI();
+          if(e?.name==='NotAllowedError')alert('Camera/microphone permission was denied. Please allow access and try again.');
+          else alert('Could not answer the call: '+(e.message||e));
+        }
+      };
+    }else if(p.type==='hangup'){
+      document.querySelector('.call-incoming')?.remove();
+      if(!callAnswered)closeCallUI(activeCallPeer?('Call ended by '+activeCallPeer):undefined);
+    }else if(p.type==='busy'){
+      closeCallUI('ðµ '+(p.from||'They')+' is busy.');
+    }
   }catch(e){console.warn('Call signal error:',e)}
+}
+// Room-channel signals: the SDP answer and every ICE candidate, plus hangup once a call is under way.
+async function handleRoomSignal(p){
+  if(!p||normEmail(p.from)===normEmail(currentUser?.email))return; // ignore our own broadcasts echoed back
+  try{
+    if(p.type==='answer'&&callPc){
+      await callPc.setRemoteDescription(new RTCSessionDescription(p.answer));
+      for(const c of pendingIce){try{await callPc.addIceCandidate(c)}catch(_){}}
+      pendingIce=[];callAnswered=true;
+    }else if(p.type==='ice'){
+      const cand=new RTCIceCandidate(p.candidate);
+      if(callPc?.remoteDescription&&callPc.remoteDescription.type)await callPc.addIceCandidate(cand).catch(()=>{});
+      else pendingIce.push(cand);
+    }else if(p.type==='hangup'){
+      closeCallUI(activeCallPeer?('Call ended by '+activeCallPeer):'Call ended');
+    }
+  }catch(e){console.warn('Room signal error:',e)}
 }
 voiceCallBtn?.addEventListener('click',()=>startCall(false));videoCallBtn?.addEventListener('click',()=>startCall(true));
 document.getElementById('backToContactsBtn')?.addEventListener('click',()=>{if(aiChatMode){aiChatMode=false;chatPage?.classList.remove('ai-chat-mode');voiceCallBtn?.classList.remove('hidden');videoCallBtn?.classList.remove('hidden');showWelcomeChat();renderContacts();return;}currentChatWith=null;document.querySelector('.chat-layout')?.classList.remove('mobile-chat-open');chatContactHeader?.classList.add('hidden');messageInput.disabled=true;sendBtn.disabled=true;});
