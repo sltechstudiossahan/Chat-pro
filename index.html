@@ -1653,11 +1653,13 @@ input,textarea,.search-box{background:rgba(255,255,255,.055)!important;border-co
 .call-btn:hover{background:rgba(124,92,255,.18)!important;transform:translateY(-1px)!important}
 .contact-more-btn{font-size:16px!important}
 .mobile-top-more{display:none!important}
-.wa-menu{position:fixed;min-width:225px;max-width:290px;padding:7px;background:rgba(18,21,38,.98);border:1px solid rgba(255,255,255,.11);border-radius:17px;box-shadow:0 24px 70px rgba(0,0,0,.5);backdrop-filter:blur(25px);z-index:5000;animation:waMenuIn .14s ease}
+.wa-menu{position:fixed;min-width:225px;max-width:290px;padding:7px;background:rgba(18,21,38,.98);border:1px solid rgba(255,255,255,.11);border-radius:17px;box-shadow:0 24px 70px rgba(0,0,0,.5);backdrop-filter:blur(25px);z-index:5000;animation:waMenuIn .14s ease;max-height:min(78vh,560px);overflow-y:auto}
 .wa-menu.hidden{display:none!important}
 .wa-menu button{width:100%;display:flex;align-items:center;gap:12px;padding:11px 12px;border:0;background:transparent;color:#eef0fa;border-radius:11px;cursor:pointer;text-align:left;font-size:13px}
 .wa-menu button:hover{background:rgba(255,255,255,.075)}
 .wa-menu button i{width:18px;text-align:center;color:#aaa1ff}
+.wa-menu-divider{padding:10px 12px 4px;font-size:10.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--text-muted,#6a7a85);border-top:1px solid rgba(255,255,255,.07);margin-top:5px}
+.wa-menu-divider:first-child{border-top:0;margin-top:0}
 .message-context-menu{min-width:205px}
 @keyframes waMenuIn{from{opacity:0;transform:scale(.96) translateY(-4px)}to{opacity:1;transform:scale(1) translateY(0)}}
 .msg[data-message-id]{touch-action:manipulation;user-select:none;-webkit-user-select:none}
@@ -2063,6 +2065,29 @@ input,textarea,.search-box{background:rgba(255,255,255,.055)!important;border-co
     <button data-wa-action="export"><i class="fas fa-file-export"></i><span>Export chat</span></button>
     <button data-wa-action="ai"><i class="fas fa-sparkles"></i><span>ChatPro AI</span></button>
     <button data-wa-action="schedule"><i class="fas fa-clock"></i><span>Scheduled messages</span></button>
+
+    <div class="wa-menu-divider">ð¤ Personal AI</div>
+    <button data-wa-action="ai-summarize"><i class="fas fa-align-left"></i><span>Summarize conversation</span></button>
+    <button data-wa-action="ai-find"><i class="fas fa-magnifying-glass-arrow-right"></i><span>Find something said before</span></button>
+    <button data-wa-action="ai-translate"><i class="fas fa-language"></i><span>Translate last message</span></button>
+    <button data-wa-action="ai-rewrite"><i class="fas fa-pen"></i><span>Rewrite last message</span></button>
+    <button data-wa-action="ai-explain"><i class="fas fa-lightbulb"></i><span>Explain last message</span></button>
+    <button data-wa-action="ai-reply"><i class="fas fa-reply"></i><span>Create a reply</span></button>
+    <button data-wa-action="ai-doc"><i class="fas fa-file-lines"></i><span>Summarize a document</span></button>
+    <button data-wa-action="ai-vision"><i class="fas fa-eye"></i><span>Analyze / extract image</span></button>
+    <button data-wa-action="ai-poll"><i class="fas fa-square-poll-vertical"></i><span>Create poll from chat</span></button>
+
+    <div class="wa-menu-divider">ð§  Memory & Intent</div>
+    <button data-wa-action="chat-memory"><i class="fas fa-brain"></i><span>Chat memory</span></button>
+    <button data-wa-action="save-memory"><i class="fas fa-floppy-disk"></i><span>Save memory from last message</span></button>
+    <button data-wa-action="intent"><i class="fas fa-bolt"></i><span>Type a command (remind / schedule)</span></button>
+    <button data-wa-action="voice-cmd"><i class="fas fa-microphone-lines"></i><span>Voice â everything</span></button>
+
+    <div class="wa-menu-divider">â¨ Experience</div>
+    <button data-wa-action="morph"><i class="fas fa-shuffle"></i><span>Message morphing</span></button>
+    <button data-wa-action="presence"><i class="fas fa-satellite-dish"></i><span>Smart presence</span></button>
+    <button data-wa-action="live-translate"><i class="fas fa-globe"></i><span>Live translation mode</span></button>
+    <button data-wa-action="meeting"><i class="fas fa-headset"></i><span>AI meeting mode</span></button>
 </div>
 <div id="mobileTopMenu" class="wa-menu hidden" role="menu" aria-label="Application options">
     <button data-wa-top="settings"><i class="fas fa-cog"></i><span>Settings</span></button>
@@ -4513,13 +4538,67 @@ adminNicModal.addEventListener('click',e=>{if(e.target===adminNicModal)adminNicM
     function themeDialog(){const p=prompt('Describe your theme (e.g. futuristic blue cyberpunk):');if(!p)return;const x=p.toLowerCase();let bg='#0a0f1e',accent='#7c5cff',bubble='rgba(124,92,255,.18)';if(x.includes('green')){accent='#00a884';bubble='rgba(0,168,132,.18)'}if(x.includes('red')){accent='#ff5e7a';bubble='rgba(255,94,122,.18)'}if(x.includes('blue')){accent='#4da3ff';bubble='rgba(77,163,255,.18)'}document.documentElement.style.setProperty('--primary',accent);document.documentElement.style.setProperty('--bubble-sent',bubble);document.body.style.background=`radial-gradient(circle at 20% 10%,${accent}22,transparent 35%),${bg}`;localStorage.setItem('chatproThemePrompt',p);alert('ð¨ Theme applied and saved on this device.');}
     function presenceDialog(){const states=['available','busy','listening to music','working','studying','focus mode','do not disturb'];const p=prompt('Presence state:\n'+states.join(' Â· '),NG.presence)||NG.presence;NG.presence=p;profilePatch({presenceState:p,presenceVisible:true}).then(()=>{const h=q('#contactStatus');if(h)h.innerHTML=`<i class="fas fa-circle" style="font-size:8px;"></i> ${esc(p)}`;alert('ð°ï¸ Presence updated.')})}
     function meetingMode(){if(!currentUser){return}if(!('webkitSpeechRecognition'in window||'SpeechRecognition'in window)){alert('Live transcription is not supported by this browser.');return}const SR=window.SpeechRecognition||window.webkitSpeechRecognition;const sr=new SR();sr.continuous=true;sr.interimResults=true;sr.lang='en-US';const box=document.createElement('div');box.className='modal-overlay';box.innerHTML='<div class="modal-box" style="max-width:720px"><h3>ð LIVE AI Meeting Mode</h3><p class="modal-sub">Live browser transcription, notes, tasks and decisions.</p><div id="meetingLive" class="ng-card" style="min-height:160px">Listeningâ¦</div><div class="modal-actions"><button id="stopMeeting" class="btn-confirm">Stop & Summarize</button><button class="btn-cancel">Close</button></div></div>';document.body.appendChild(box);let transcript='';sr.onresult=e=>{transcript=Array.from(e.results).map(r=>r[0].transcript).join(' ');box.querySelector('#meetingLive').textContent=transcript};sr.start();box.querySelector('.btn-cancel').onclick=()=>{sr.stop();box.remove()};box.querySelector('#stopMeeting').onclick=()=>{sr.stop();const tasks=(transcript.match(/(?:todo|task|need to|must)\b[^.!?]*/gi)||[]).slice(0,8);const decisions=(transcript.match(/(?:decided|agree|agreed|decision)\b[^.!?]*/gi)||[]).slice(0,8);box.querySelector('#meetingLive').innerHTML=`<strong>Meeting Summary</strong><p>${esc(transcript.slice(0,1200)||'No transcript captured.')}</p><p><b>Tasks:</b> ${esc(tasks.join(' Â· ')||'None detected')}</p><p><b>Decisions:</b> ${esc(decisions.join(' Â· ')||'None detected')}</p>`};}
+    function intentCommandDialog(){
+      const text=(prompt('â¡ Type a command naturally, for example:\n\n"Remind me to send the assignment to Nimal tomorrow at 6"\n\nor\n\n"Send this to the class group every Monday at 8 AM"')||'').trim();
+      if(!text)return;
+      processIntent(text).then(handled=>{
+        if(!handled)alert('I could not detect a reminder or schedule in that sentence.\nTry phrasing it like "Remind me to â¦ tomorrow at 6" or "Send this to X every Monday at 8am".');
+      });
+    }
+    function liveTranslationMode(){
+      if(!('webkitSpeechRecognition'in window||'SpeechRecognition'in window)){alert('Live translation needs browser speech recognition, which is not supported here.');return}
+      const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+      const box=document.createElement('div');box.className='modal-overlay';
+      box.innerHTML=`<div class="modal-box" style="max-width:640px">
+        <h3>ð Live Translation Mode</h3>
+        <p class="modal-sub">Speak â ChatPro shows the original and the translation side by side.</p>
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;">
+          <select id="ltFrom" style="flex:1;padding:8px;border-radius:8px;background:var(--bg-hover);color:#fff;border:1px solid var(--border-color);">
+            <option value="si-LK">ð±ð° Sinhala (speaking)</option>
+            <option value="en-US" selected>ð¬ð§ English (speaking)</option>
+          </select>
+          <span>â</span>
+          <select id="ltTo" style="flex:1;padding:8px;border-radius:8px;background:var(--bg-hover);color:#fff;border:1px solid var(--border-color);">
+            <option value="Sinhala" selected>ð±ð° Sinhala (shown)</option>
+            <option value="English">ð¬ð§ English (shown)</option>
+          </select>
+        </div>
+        <div class="ng-card" id="ltOriginal" style="min-height:46px;">Original: â</div>
+        <div class="ng-card" id="ltTranslated" style="min-height:46px;margin-top:8px;">Translation: â</div>
+        <div class="modal-actions">
+          <button id="ltStartBtn" class="btn-confirm">Start Listening</button>
+          <button class="btn-cancel">Close</button>
+        </div>
+      </div>`;
+      document.body.appendChild(box);
+      let sr=null,listening=false;
+      const startBtn=box.querySelector('#ltStartBtn');
+      function startRec(){
+        sr=new SR();sr.lang=box.querySelector('#ltFrom').value;sr.interimResults=false;sr.continuous=true;
+        sr.onresult=e=>{
+          const text=Array.from(e.results).map(r=>r[0].transcript).join(' ');
+          const fromFlag=sr.lang.startsWith('si')?'ð±ð°':'ð¬ð§';
+          box.querySelector('#ltOriginal').textContent=`${fromFlag} Original: ${text}`;
+          const target=box.querySelector('#ltTo').value;
+          const translated=simpleTranslate(text,target);
+          const toFlag=target.toLowerCase().startsWith('sinh')?'ð±ð°':'ð¬ð§';
+          box.querySelector('#ltTranslated').textContent=`${toFlag} Translation: ${translated}`;
+          if('speechSynthesis'in window){try{const u=new SpeechSynthesisUtterance(translated);u.lang=target.toLowerCase().startsWith('sinh')?'si-LK':'en-US';speechSynthesis.speak(u);}catch(_){}}
+        };
+        sr.onerror=()=>{};
+        sr.onend=()=>{if(listening){try{sr.start()}catch(_){}}};
+        sr.start();listening=true;startBtn.textContent='Stop Listening';
+      }
+      startBtn.onclick=()=>{if(!listening)startRec();else{listening=false;try{sr?.stop()}catch(_){}startBtn.textContent='Start Listening'}};
+      box.querySelector('.btn-cancel').onclick=()=>{listening=false;try{sr?.stop()}catch(_){}box.remove()};
+    }
     async function visionFromLastImage(rows){const m=[...rows].reverse().find(x=>x.media_type==='image'&&x.media_url);if(!m){aiSay('No image message was found in this chat.');return}const action=prompt('Vision action: Describe / Translate / Extract Text / Solve / Summarize / Identify')||'Describe';try{const img=await fetch(m.media_url).then(r=>r.blob());if(typeof Tesseract!=='undefined'&&/extract|solve|translate|summarize/i.test(action)){aiSay('ðï¸ Reading imageâ¦');const res=await Tesseract.recognize(img,'eng');const text=res.data.text.trim();aiSay(`ðï¸ ${action}:\n${text||'No readable text detected.'}`)}else aiSay(`ðï¸ ${action}: Image received. For full visual understanding, configure the optional AI vision Edge Function.`)}catch(e){aiSay('Vision error: '+e.message)}}
     async function documentAssistant(){const input=document.createElement('input');input.type='file';input.accept='.txt,.md,.csv,.json,.pdf,.doc,.docx';input.onchange=async()=>{const f=input.files[0];if(!f)return;if(f.type==='application/pdf'){aiSay('ð PDF selected. Browser-only extraction is limited; connect the optional AI document Edge Function for full PDF summarization.');return}const text=await f.text();aiSay('ð Document summary:\n'+summarizeRows([{text}]))};input.click()}
     function addVisionButtons(){
       document.querySelectorAll('.msg .media-wrapper img').forEach(img=>{
         if(img.parentElement.querySelector('.vision-actions')) return;
         const b=document.createElement('div'); b.className='vision-actions';
-        b.innerHTML='<button>â¨ Describe</button><button>Extract Text</button><button>ð Translate</button><button>ð§® Solve</button>';
+        b.innerHTML='<button>â¨ Describe</button><button>Extract Text</button><button>ð Translate</button><button>ð§® Solve</button><button>ð Summarize</button><button>ð Identify</button>';
         b.querySelectorAll('button').forEach(x=>x.onclick=async()=>{
           if(typeof Tesseract==='undefined'){alert('Vision OCR is unavailable.');return;}
           try{const r=await Tesseract.recognize(img.src,'eng');alert(x.textContent+':\n\n'+(r.data.text.trim()||'No text detected.'));}catch(e){alert(e.message);}
@@ -4741,13 +4820,23 @@ adminNicModal.addEventListener('click',e=>{if(e.target===adminNicModal)adminNicM
       }catch(e){console.error('Message action failed',e);alert('Message action failed: '+(e.message||e));}
     }
     async function showReminderMenu(messageId){
-      const choice=(prompt('ð Remind Me\n\n1. In 10 minutes\n2. Tonight\n3. Tomorrow morning\n4. Custom date/time\n\nEnter 1-4:')||'').trim();if(!choice)return;
+      const choice=(prompt('ð Remind Me\n\n1. In 10 minutes\n2. Tonight\n3. Tomorrow morning\n4. Custom date/time\n5. When I\'m at a location\n\nEnter 1-5:')||'').trim();if(!choice)return;
+      if(choice==='5'){
+        if(!navigator.geolocation){alert('Location services are not available in this browser.');return}
+        const label=(prompt('Describe the location (e.g. "Home", "School"):')||'').trim()||'that location';
+        navigator.geolocation.getCurrentPosition(async pos=>{
+          const list=Array.isArray(currentUserData?.chatReminders)?[...currentUserData.chatReminders]:[];
+          list.push({id:crypto.randomUUID?.()||Date.now().toString(),chat:currentChatWith,messageId:String(messageId),type:'location',locationLabel:label,lat:pos.coords.latitude,lng:pos.coords.longitude,radius:250,created_at:new Date().toISOString(),notified:false});
+          try{await profilePatch({chatReminders:list.slice(-200)});alert('ð You will be reminded next time you are near '+label+'.');}catch(e){alert('Could not save reminder: '+e.message);}
+        },()=>alert('Could not access your location.'));
+        return;
+      }
       const now=new Date();let when=new Date(now);
       if(choice==='1')when=new Date(now.getTime()+10*60000);
       else if(choice==='2'){when.setHours(20,0,0,0);if(when<=now)when.setDate(when.getDate()+1);}
       else if(choice==='3'){when.setDate(when.getDate()+1);when.setHours(9,0,0,0);}
       else if(choice==='4'){const raw=prompt('Enter date and time, e.g. 2026-10-15 18:00');if(!raw)return;when=new Date(raw.replace(' ','T'));}
-      else {alert('Please choose 1, 2, 3 or 4.');return;}
+      else {alert('Please choose 1, 2, 3, 4 or 5.');return;}
       if(isNaN(when.getTime())||when<=now){alert('Choose a valid future date/time.');return;}
       const list=Array.isArray(currentUserData?.chatReminders)?[...currentUserData.chatReminders]:[];
       list.push({id:crypto.randomUUID?.()||Date.now().toString(),chat:currentChatWith,messageId:String(messageId),when:when.toISOString(),created_at:now.toISOString(),notified:false});
@@ -4755,7 +4844,23 @@ adminNicModal.addEventListener('click',e=>{if(e.target===adminNicModal)adminNicM
     }
     async function checkReminders(){const list=Array.isArray(currentUserData?.chatReminders)?currentUserData.chatReminders:[];const due=list.filter(r=>!r.notified&&new Date(r.when).getTime()<=Date.now());if(!due.length)return;due.forEach(r=>{r.notified=true;});currentUserData.chatReminders=list;try{await profilePatch({chatReminders:list});}catch(_){}due.forEach(r=>{const when=new Date(r.when).toLocaleString();if(document.visibilityState==='visible')alert('ð ChatPro Reminder\nYou asked to be reminded about this message.\n\n'+when);});}
     function attachLongPress(){document.querySelectorAll('.msg[data-message-id]').forEach(startLongPress)}
-    setInterval(checkReminders,15000);setInterval(attachLongPress,1200);
+    function distanceMeters(lat1,lng1,lat2,lng2){const R=6371000;const toRad=x=>x*Math.PI/180;const dLat=toRad(lat2-lat1),dLng=toRad(lng2-lng1);const a=Math.sin(dLat/2)**2+Math.cos(toRad(lat1))*Math.cos(toRad(lat2))*Math.sin(dLng/2)**2;return 2*R*Math.asin(Math.sqrt(a));}
+    function checkLocationReminders(){
+      const list=Array.isArray(currentUserData?.chatReminders)?currentUserData.chatReminders:[];
+      const pending=list.filter(r=>r.type==='location'&&!r.notified);
+      if(!pending.length||!navigator.geolocation)return;
+      navigator.geolocation.getCurrentPosition(pos=>{
+        let changed=false;
+        pending.forEach(r=>{
+          if(distanceMeters(pos.coords.latitude,pos.coords.longitude,r.lat,r.lng)<=(r.radius||250)){
+            r.notified=true;changed=true;
+            if(document.visibilityState==='visible')alert('ð ChatPro Reminder\nYou are near '+(r.locationLabel||'the saved location')+'.');
+          }
+        });
+        if(changed){currentUserData.chatReminders=list;profilePatch({chatReminders:list}).catch(()=>{});}
+      },()=>{},{maximumAge:60000,timeout:8000});
+    }
+    setInterval(checkReminders,15000);setInterval(attachLongPress,1200);setInterval(checkLocationReminders,60000);
 
     // Global code (send, menu click handlers) calls these; they live inside this IIFE so they must be exposed.
     window.handleMessageContextAction=handleMessageContextAction;
@@ -4766,7 +4871,7 @@ adminNicModal.addEventListener('click',e=>{if(e.target===adminNicModal)adminNicM
     bindMessageMenuEvents();
 
     // Expose safe public helpers.
-    window.chatproNextGen={runAIAction,voiceEverything,processIntent,showMemory,themeDialog,presenceDialog,meetingMode};
+    window.chatproNextGen={runAIAction,voiceEverything,processIntent,showMemory,themeDialog,presenceDialog,meetingMode,morphDialog,documentAssistant,intentCommandDialog,liveTranslationMode,openPollFromAI,visionFromLastImage};
 })();
 
 // ============================================================
@@ -4776,7 +4881,25 @@ function closeWaMenus(){[mobileTopMenu,contactMoreMenu,messageContextMenu].forEa
 mobileTopMoreBtn?.addEventListener('click',e=>{e.stopPropagation();contactMoreMenu?.classList.add('hidden');messageContextMenu?.classList.add('hidden');if(mobileTopMenu?.classList.contains('hidden'))positionMenu(mobileTopMenu,e.clientX||innerWidth-240,e.clientY||60);else mobileTopMenu.classList.add('hidden');});
 contactMoreBtn?.addEventListener('click',e=>{e.stopPropagation();mobileTopMenu?.classList.add('hidden');messageContextMenu?.classList.add('hidden');if(contactMoreMenu?.classList.contains('hidden')){const r=contactMoreBtn.getBoundingClientRect();positionMenu(contactMoreMenu,r.right-235,r.bottom+5)}else contactMoreMenu.classList.add('hidden');});
 mobileTopMenu?.addEventListener('click',e=>{const b=e.target.closest('[data-wa-top]');if(!b)return;closeWaMenus();const a=b.dataset.waTop;if(a==='settings')settingsBtn?.click();if(a==='profile'){settingsBtn?.click();setTimeout(()=>document.querySelector('[data-section="profile"]')?.click(),150)}if(a==='memory')window.chatproNextGen?.showMemory?.();if(a==='theme')window.chatproNextGen?.themeDialog?.();if(a==='presence')window.chatproNextGen?.presenceDialog?.();if(a==='meeting')window.chatproNextGen?.meetingMode?.();if(a==='logout')logoutBtn?.click();});
-contactMoreMenu?.addEventListener('click',async e=>{const b=e.target.closest('[data-wa-action]');if(!b)return;closeWaMenus();const a=b.dataset.waAction;if(a==='contact-info'){if(currentChatWith)displayContactProfile(currentChatWith);return}if(a==='media'){alert('Media, links & documents are available through the messages in this chat.');return}if(a==='search'){aiBtn?.click();setTimeout(()=>{if(aiInput){aiInput.value='Find a message in this conversation';aiInput.focus()}},100);return}if(a==='mute'){alert('ð Notifications muted for this browser session.');return}if(a==='wallpaper'){window.chatproNextGen?.themeDialog?.();return}if(a==='lock'){lockCurrentChatBtn?.click();return}if(a==='clear'){if(confirm('Clear this chat from the current view?'))chatMessages.innerHTML='<div class="empty-chat"><i class="fas fa-comment"></i><p>Chat cleared from this view.</p></div>';return}if(a==='export'){if(window.chatproNextGen?.runAIAction){aiBtn?.click();setTimeout(()=>{aiInput.value='Summarize and prepare an export of this conversation';aiSend?.click()},120)}return}if(a==='ai'){aiBtn?.click();return}if(a==='schedule'){scheduleBtn?.click();return}});
+contactMoreMenu?.addEventListener('click',async e=>{const b=e.target.closest('[data-wa-action]');if(!b)return;closeWaMenus();const a=b.dataset.waAction;if(a==='contact-info'){if(currentChatWith)displayContactProfile(currentChatWith);return}if(a==='media'){alert('Media, links & documents are available through the messages in this chat.');return}if(a==='search'){aiBtn?.click();setTimeout(()=>{if(aiInput){aiInput.value='Find a message in this conversation';aiInput.focus()}},100);return}if(a==='mute'){alert('ð Notifications muted for this browser session.');return}if(a==='wallpaper'){window.chatproNextGen?.themeDialog?.();return}if(a==='lock'){lockCurrentChatBtn?.click();return}if(a==='clear'){if(confirm('Clear this chat from the current view?'))chatMessages.innerHTML='<div class="empty-chat"><i class="fas fa-comment"></i><p>Chat cleared from this view.</p></div>';return}if(a==='export'){if(window.chatproNextGen?.runAIAction){aiBtn?.click();setTimeout(()=>{aiInput.value='Summarize and prepare an export of this conversation';aiSend?.click()},120)}return}if(a==='ai'){aiBtn?.click();return}if(a==='schedule'){scheduleBtn?.click();return}
+if(a==='ai-summarize'){aiBtn?.click();setTimeout(()=>window.chatproNextGen?.runAIAction?.('summarize'),150);return}
+if(a==='ai-find'){aiBtn?.click();setTimeout(()=>window.chatproNextGen?.runAIAction?.('find'),150);return}
+if(a==='ai-translate'){aiBtn?.click();setTimeout(()=>window.chatproNextGen?.runAIAction?.('translate'),150);return}
+if(a==='ai-rewrite'){aiBtn?.click();setTimeout(()=>window.chatproNextGen?.runAIAction?.('rewrite'),150);return}
+if(a==='ai-explain'){aiBtn?.click();setTimeout(()=>window.chatproNextGen?.runAIAction?.('explain'),150);return}
+if(a==='ai-reply'){aiBtn?.click();setTimeout(()=>window.chatproNextGen?.runAIAction?.('reply'),150);return}
+if(a==='ai-doc'){aiBtn?.click();setTimeout(()=>window.chatproNextGen?.runAIAction?.('doc'),150);return}
+if(a==='ai-vision'){aiBtn?.click();setTimeout(()=>window.chatproNextGen?.runAIAction?.('vision'),150);return}
+if(a==='ai-poll'){aiBtn?.click();setTimeout(()=>window.chatproNextGen?.runAIAction?.('poll'),150);return}
+if(a==='chat-memory'){window.chatproNextGen?.showMemory?.();return}
+if(a==='save-memory'){aiBtn?.click();setTimeout(()=>window.chatproNextGen?.runAIAction?.('memory'),150);return}
+if(a==='intent'){window.chatproNextGen?.intentCommandDialog?.();return}
+if(a==='voice-cmd'){window.chatproNextGen?.voiceEverything?.();return}
+if(a==='morph'){window.chatproNextGen?.morphDialog?.();return}
+if(a==='presence'){window.chatproNextGen?.presenceDialog?.();return}
+if(a==='live-translate'){window.chatproNextGen?.liveTranslationMode?.();return}
+if(a==='meeting'){window.chatproNextGen?.meetingMode?.();return}
+});
 messageContextMenu?.addEventListener('click',e=>{const b=e.target.closest('[data-msg-action]');if(!b)return;const id=messageContextMenu.dataset.messageId;closeWaMenus();handleMessageContextAction(b.dataset.msgAction,id)});
 document.addEventListener('click',e=>{if(!e.target.closest('.wa-menu')&&!e.target.closest('.contact-more-btn')&&!e.target.closest('.mobile-top-more'))closeWaMenus();});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeWaMenus();});
