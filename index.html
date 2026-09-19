@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="en"> 
+<html lang="en">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>ChatPro - Premium Messaging</title>
     <meta name="chatpro-backend" content="Supabase">
-<link rel="icon" type="image/png" href="ChatGPT Image Sep 15, 2026, 07_31_07 PM.png">
-<link rel="apple-touch-icon" href="ChatGPT Image Sep 15, 2026, 07_31_07 PM.png">
+    <link rel="icon" type="image/png" href="ChatGPT Image Sep 15, 2026, 07_31_07 PM.png">
+    <link rel="apple-touch-icon" href="ChatGPT Image Sep 15, 2026, 07_31_07 PM.png">
     <!-- Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <!-- Tesseract.js for OCR -->
@@ -2310,6 +2310,41 @@ input,textarea,.search-box{background:rgba(255,255,255,.055)!important;border-co
 <style id="chatpro-nextgen-css">
 .nextgen-toolbar{display:flex;gap:7px;flex-wrap:wrap;width:100%;padding:0 4px 3px}.nextgen-toolbar button{background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.08);color:#c8c7ff;border-radius:14px;padding:8px 10px;cursor:pointer}.ai-action-row{display:flex;gap:6px;flex-wrap:wrap;padding:8px;border-top:1px solid rgba(255,255,255,.06)}.ai-action-row button{border:0;border-radius:12px;padding:7px 9px;background:rgba(124,92,255,.12);color:#d5d1ff;cursor:pointer}.ng-card{background:linear-gradient(145deg,rgba(255,255,255,.06),rgba(255,255,255,.025));border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:14px;margin:8px 0}.ng-memory{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.ng-memory small{color:var(--text-muted)}.presence-pill{display:inline-flex;align-items:center;gap:6px;padding:5px 9px;border-radius:999px;background:rgba(124,92,255,.12);font-size:11px;color:#cfcaff}.vision-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}.vision-actions button{border:0;border-radius:10px;padding:6px 8px;background:rgba(0,168,132,.12);color:#bff8ec;cursor:pointer}.reminder-chip{display:inline-block;margin-top:5px;padding:5px 8px;border-radius:9px;background:rgba(255,193,7,.12);color:#ffe39a;font-size:11px}
 </style>
+<style id="chatpro-personal-ai-css">
+/* Personal AI inside every chat – contextual assistant */
+.ai-personal-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: #8f7cff;
+  background: rgba(124,92,255,.08);
+  border: 1px solid rgba(124,92,255,.16);
+  border-radius: 20px;
+  padding: 3px 10px;
+  margin-left: 6px;
+  white-space: nowrap;
+}
+.ai-msg .ai-source-tag {
+  font-size: 10px;
+  color: #7c6bc4;
+  margin-top: 4px;
+  display: block;
+  font-style: italic;
+  opacity: .8;
+}
+.ai-context-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  color: #a99cff;
+  background: rgba(124,92,255,.10);
+  border-radius: 12px;
+  padding: 2px 8px;
+  margin: 2px 0;
+}
+</style>
 <script>
 // ============================================================
 // SUPABASE CONFIG
@@ -2479,7 +2514,9 @@ const storageVoice = $('storageVoice');
 // LANGUAGE DETECTION
 // ============================================================
 const SINHALA_UNICODE_RANGE = /[\u0D80-\u0DFF]/;
-const SINHALA_CHARS = ['à¶','à¶','à¶','à¶','à¶','à¶','à¶','à¶','à¶','à¶','à¶','à¶','à¶','à¶','à¶','à¶','à¶','à¶','à¶','à¶','à¶','à¶','à¶','à¶','à¶ ','à¶¡','à¶¢','à¶£','à¶¤','à¶¥','à¶¦','à¶§','à¶¨','à¶©','à¶ª','à¶«','à¶¬','à¶­','à¶®','à¶¯','à¶°','à¶±','à¶³','à¶´','à¶µ','à¶¶','à¶·','à¶¸','à¶¹','à¶º','à¶»','à¶½','à·','à·','à·','à·','à·','à·','à·','à·','à·','à·','à·','à·','à·','à·','à·','à·','à·','à·','à·','à·','à·','à·','à·'];
+const SINHALA_CHARS = ['à¶
+','à¶','à¶','à¶','à¶','à¶','à¶','à¶','à¶','à¶','à¶','à¶','à¶','à¶','à¶','à¶','à¶','à¶','à¶','à¶','à¶','à¶','à¶','à¶','à¶ ','à¶¡','à¶¢','à¶£','à¶¤','à¶¥','à¶¦','à¶§','à¶¨','à¶©','à¶ª','à¶«','à¶¬','à¶­','à¶®','à¶¯','à¶°','à¶±','à¶³','à¶´','à¶µ','à¶¶','à¶·','à¶¸','à¶¹','à¶º','à¶»','à¶½','à·','à·','à·','à·','à·','à·
+','à·','à·','à·','à·','à·','à·','à·','à·','à·','à·','à·','à·','à·','à·','à·','à·','à·'];
 
 function detectLanguage(text) {
     if (!text || text.trim().length === 0) return 'en';
@@ -4153,7 +4190,8 @@ saveProfileSettings.addEventListener('click', async () => {
             headerAvatar.textContent = selectedEmoji;
         }
         
-        settingsProfileSuccess.textContent = 'â Profile saved successfully!';
+        settingsProfileSuccess.textContent = 'â
+ Profile saved successfully!';
         settingsProfileSuccess.style.color = 'var(--primary)';
         setTimeout(() => {
             settingsProfileSuccess.textContent = '';
@@ -4198,7 +4236,8 @@ profilePhotoInput.addEventListener('change', async (e) => {
         allUsersCache[currentUser.email.toLowerCase()] = { id: currentUser.id, ...currentUserData };
         headerAvatar.innerHTML = `<img src="${uploaded.publicUrl}" alt="Profile" />`;
         profilePhotoPreview.innerHTML = `<img src="${uploaded.publicUrl}" alt="Profile" />`;
-        settingsProfileSuccess.textContent = 'â Profile photo saved to Supabase Storage.';
+        settingsProfileSuccess.textContent = 'â
+ Profile photo saved to Supabase Storage.';
         settingsProfileSuccess.style.color = 'var(--primary)';
         URL.revokeObjectURL(previewUrl);
     } catch (err) {
@@ -4221,7 +4260,8 @@ clearMediaBtn.addEventListener('click', async () => {
         if (paths.length) { const { error: storageError } = await supabaseClient.storage.from(MEDIA_BUCKET).remove(paths); if (storageError) console.warn(storageError); }
         const ids = (rows || []).map(r => r.id);
         if (ids.length) { const { error: updateError } = await supabaseClient.from('messages').update({ media_url: null, media_type: null, media_path: null, media_mime_type: null, duration: null }).in('id', ids); if (updateError) throw updateError; }
-        alert(`â Cleared ${ids.length} media files.`); updateStorageStats();
+        alert(`â
+ Cleared ${ids.length} media files.`); updateStorageStats();
     } catch (err) { alert('Error clearing media: ' + err.message); }
 });
 
