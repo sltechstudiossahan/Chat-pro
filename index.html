@@ -3537,14 +3537,14 @@ async function loadMessages(contactEmail) {
             chatMessages.innerHTML = '<div class="empty-chat"><i class="fas fa-exclamation-circle" style="font-size:32px;color:#ff5e5e;"></i><p>Error loading messages</p></div>';
             return;
         }
-        const hiddenForMe=JSON.parse(localStorage.getItem('chatproDeletedForMe')||'[]');
+        const hiddenForMe=messageList('chatproDeletedForMe');
         const visibleRows=(rows||[]).filter(msg=>!hiddenForMe.includes(String(msg.id)));
         if (!visibleRows.length) {
             chatMessages.innerHTML = '<div class="empty-chat"><i class="fas fa-comment" style="font-size:40px;color:rgba(0,168,132,0.15);"></i><p>No messages yet. Say hello!</p></div>';
             return;
         }
-        const starred=JSON.parse(localStorage.getItem('chatproStarredMessages')||'[]');
-        const pinned=JSON.parse(localStorage.getItem('chatproPinnedMessages')||'[]');
+        const starred=messageList('chatproStarredMessages');
+        const pinned=messageList('chatproPinnedMessages');
         let messagesHTML = '';
         visibleRows.forEach(msg => {
             const isSent = msg.sender === currentUser.email;
@@ -4432,118 +4432,633 @@ adminNicModal.addEventListener('click',e=>{if(e.target===adminNicModal)adminNicM
         img.parentElement.appendChild(b);
       });
     }
+    /* ============================================================
+       ROBUST MESSAGE ACTIONS
+       - Event-safe context menu
+       - Per-user local state for Star / Pin / Delete for Me
+       - Supabase-backed Delete for Everyone
+       - Reliable Reply / Forward / Translate / Reminder / Read Out
+       ============================================================ */
     function startLongPress(el){
-      let timer=null,moved=false;
-      const clear=()=>{if(timer){clearTimeout(timer);timer=null}};
-      el.addEventListener('pointerdown',()=>{moved=false;clear();timer=setTimeout(()=>{if(!moved)showMessageContextMenu(el)},520)},{passive:true});
-      el.addEventListener('pointermove',()=>{moved=true;clear()},{passive:true});
-      ['pointerup','pointerleave','pointercancel'].forEach(ev=>el.addEventListener(ev,clear,{passive:true}));
-      el.addEventListener('contextmenu',e=>{e.preventDefault();showMessageContextMenu(el);});
+      if(!el || el.dataset.actionBound === '1') return;
+      el.dataset.actionBound = '1';
+
+      let timer = null, moved = false;
+      const clear = () => {
+        if(timer){ clearTimeout(timer); timer = null; }
+      };
+
+      el.addEventListener('pointerdown', () => {
+        moved = false;
+        clear();
+        timer = setTimeout(() => {
+          if(!moved) showMessageContextMenu(el);
+        }, 520);
+      }, {passive:true});
+
+      el.addEventListener('pointermove', () => {
+        moved = true;
+        clear();
+      }, {passive:true});
+
+      ['pointerup','pointerleave','pointercancel'].forEach(ev =>
+        el.addEventListener(ev, clear, {passive:true})
+      );
+
+      el.addEventListener('contextmenu', e => {
+        e.preventDefault();
+        e.stopPropagation();
+        showMessageContextMenu(el);
+      });
     }
+
     async function getMessageById(id){
-      if(!id||!supabaseClient)return null;
-      const {data,error}=await supabaseClient.from('messages').select('*').eq('id',id).maybeSingle();
-      if(error) throw error; return data||null;
+      if(!id) return null;
+      await requireSupabase();
+      const {data,error} = await supabaseClient
+        .from('messages')
+        .select('*')
+        .eq('id', id)
+        .maybeSingle();
+      if(error) throw error;
+      return data || null;
     }
+
     function positionMenu(menu,x,y){
+      if(!menu) return;
       menu.classList.remove('hidden');
-      const r=menu.getBoundingClientRect();
-      menu.style.left=Math.max(8,Math.min(x,innerWidth-r.width-8))+'px';
-      menu.style.top=Math.max(8,Math.min(y,innerHeight-r.height-8))+'px';
+
+      const r = menu.getBoundingClientRect();
+      const maxX = Math.max(8, innerWidth - r.width - 8);
+      const maxY = Math.max(8, innerHeight - r.height - 8);
+
+      menu.style.left = Math.max(8, Math.min(Number(x)||8, maxX)) + 'px';
+      menu.style.top  = Math.max(8, Math.min(Number(y)||8, maxY)) + 'px';
     }
+
     function setReplyMessage(msg){
-      pendingReplyMessage=msg||null;
-      if(!pendingReplyMessage){clearReplyPreview();return;}
-      replyPreviewName.textContent='Replying to '+(pendingReplyMessage.sender_name||pendingReplyMessage.sender||'contact');
-      replyPreviewText.textContent=(pendingReplyMessage.text||('📎 '+(pendingReplyMessage.media_type||'Media message'))).slice(0,180);
-      replyPreviewBar.classList.remove('hidden'); messageInput.focus();
-    }
-    function clearReplyPreview(){pendingReplyMessage=null;replyPreviewBar?.classList.add('hidden');if(replyPreviewName)replyPreviewName.textContent='Replying';if(replyPreviewText)replyPreviewText.textContent='Message';}
-    cancelReplyBtn?.addEventListener('click',clearReplyPreview);
-    function messageList(key){try{const a=JSON.parse(localStorage.getItem(key)||'[]');return Array.isArray(a)?a.map(String):[]}catch(_){return[]}}
-    function saveMessageList(key,a){localStorage.setItem(key,JSON.stringify([...new Set(a.map(String))]));}
-    function showMessageContextMenu(el){
-      const id=el?.dataset?.messageId;if(!id||!messageContextMenu)return;
-      document.querySelectorAll('.msg.context-selected').forEach(x=>x.classList.remove('context-selected'));el.classList.add('context-selected');
-      const mine=el.classList.contains('sent');
-      messageContextMenu.innerHTML=`
-        <button data-msg-action="reply"><i class="fas fa-reply"></i><span>Reply</span></button>
-        <button data-msg-action="copy"><i class="fas fa-copy"></i><span>Copy</span></button>
-        <button data-msg-action="star"><i class="fas fa-star"></i><span>Star Message</span></button>
-        <button data-msg-action="pin"><i class="fas fa-thumbtack"></i><span>Pin Message</span></button>
-        <button data-msg-action="translate"><i class="fas fa-language"></i><span>Translate</span></button>
-        <button data-msg-action="remind"><i class="fas fa-bell"></i><span>Remind Me</span></button>
-        <button data-msg-action="forward"><i class="fas fa-share"></i><span>Forward</span></button>
-        <button data-msg-action="read"><i class="fas fa-volume-high"></i><span>Read Out</span></button>
-        <button data-msg-action="delete-me" class="danger-menu"><i class="fas fa-trash"></i><span>Delete for Me</span></button>
-        ${mine?'<button data-msg-action="delete-everyone" class="danger-menu"><i class="fas fa-trash-can"></i><span>Delete for Everyone</span></button>':''}`;
-      const rect=el.getBoundingClientRect();positionMenu(messageContextMenu,Math.min(rect.right,innerWidth-230),Math.min(rect.top,innerHeight-330));
-      messageContextMenu.dataset.messageId=id;
-    }
-    async function copyText(text){
-      text=String(text||'').trim();if(!text){alert('There is no text to copy from this message.');return;}
-      try{if(navigator.clipboard?.writeText){await navigator.clipboard.writeText(text);}else{const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();}alert('✓ Message copied.');}
-      catch(e){alert('Copy failed. Please select and copy the message manually.');}
-    }
-    async function translateMessage(msg){
-      const text=String(msg?.text||'').trim();if(!text){alert('Only text messages can be translated.');return;}
-      const target=(prompt('Translate to which language?\n\nType English or Sinhala:', detectLanguage(text)==='si'?'English':'Sinhala')||'').trim().toLowerCase();
-      if(!target)return;
-      if(window.chatproNextGen?.runAIAction && aiBtn && aiInput && aiSend){
-        aiBtn.click();setTimeout(()=>{aiInput.value=`Translate exactly this message into ${target.startsWith('sinh')?'Sinhala':'English'}. Return only the translation:\n\n${text}`;aiSend.click();},180);return;
+      pendingReplyMessage = msg || null;
+      if(!pendingReplyMessage){
+        clearReplyPreview();
+        return;
       }
-      const translated=simpleTranslate(text,target);alert('🌐 Translation:\n\n'+translated);
+
+      replyPreviewName.textContent =
+        'Replying to ' + (pendingReplyMessage.sender_name || pendingReplyMessage.sender || 'contact');
+
+      replyPreviewText.textContent =
+        (pendingReplyMessage.text ||
+         ('📎 ' + (pendingReplyMessage.media_type || 'Media message'))).slice(0,180);
+
+      replyPreviewBar.classList.remove('hidden');
+      messageInput.focus();
     }
+
+    function clearReplyPreview(){
+      pendingReplyMessage = null;
+      replyPreviewBar?.classList.add('hidden');
+      if(replyPreviewName) replyPreviewName.textContent = 'Replying';
+      if(replyPreviewText) replyPreviewText.textContent = 'Message';
+    }
+
+    cancelReplyBtn?.addEventListener('click', clearReplyPreview);
+
+    function scopedMessageKey(base){
+      const uid = currentUser?.id || currentUser?.email || 'anonymous';
+      return base + ':' + String(uid).replace(/[^a-zA-Z0-9_.@-]/g,'_');
+    }
+
+    function messageList(key){
+      try{
+        const scoped = scopedMessageKey(key);
+        let raw = localStorage.getItem(scoped);
+
+        if(raw === null && key){
+          const old = localStorage.getItem(key);
+          if(old !== null){
+            localStorage.setItem(scoped, old);
+            raw = old;
+          }
+        }
+
+        const a = JSON.parse(raw || '[]');
+        return Array.isArray(a) ? a.map(String) : [];
+      }catch(_){
+        return [];
+      }
+    }
+
+    function saveMessageList(key,a){
+      try{
+        localStorage.setItem(
+          scopedMessageKey(key),
+          JSON.stringify([...new Set((a || []).map(String))])
+        );
+      }catch(e){
+        console.error('Could not save message state:',e);
+      }
+    }
+
+    function showMessageContextMenu(el){
+      const id = el?.dataset?.messageId;
+      if(!id || !messageContextMenu) return;
+
+      document.querySelectorAll('.msg.context-selected')
+        .forEach(x => x.classList.remove('context-selected'));
+
+      el.classList.add('context-selected');
+
+      const mine = el.classList.contains('sent');
+      const starred = messageList('chatproStarredMessages').includes(String(id));
+      const pinned = messageList('chatproPinnedMessages').includes(String(id));
+
+      messageContextMenu.innerHTML = `
+        <button type="button" data-msg-action="reply">
+          <i class="fas fa-reply"></i><span>Reply</span>
+        </button>
+        <button type="button" data-msg-action="copy">
+          <i class="fas fa-copy"></i><span>Copy</span>
+        </button>
+        <button type="button" data-msg-action="star">
+          <i class="fas fa-star"></i><span>${starred ? 'Unstar Message' : 'Star Message'}</span>
+        </button>
+        <button type="button" data-msg-action="pin">
+          <i class="fas fa-thumbtack"></i><span>${pinned ? 'Unpin Message' : 'Pin Message'}</span>
+        </button>
+        <button type="button" data-msg-action="translate">
+          <i class="fas fa-language"></i><span>Translate</span>
+        </button>
+        <button type="button" data-msg-action="remind">
+          <i class="fas fa-bell"></i><span>Remind Me</span>
+        </button>
+        <button type="button" data-msg-action="forward">
+          <i class="fas fa-share"></i><span>Forward</span>
+        </button>
+        <button type="button" data-msg-action="read">
+          <i class="fas fa-volume-high"></i><span>Read Out</span>
+        </button>
+        <button type="button" data-msg-action="delete-me" class="danger-menu">
+          <i class="fas fa-trash"></i><span>Delete for Me</span>
+        </button>
+        ${mine ? `
+          <button type="button" data-msg-action="delete-everyone" class="danger-menu">
+            <i class="fas fa-trash-can"></i><span>Delete for Everyone</span>
+          </button>` : ''}
+      `;
+
+      messageContextMenu.dataset.messageId = String(id);
+
+      const rect = el.getBoundingClientRect();
+      positionMenu(
+        messageContextMenu,
+        Math.min(rect.right, innerWidth - 230),
+        Math.max(8, rect.top - 4)
+      );
+    }
+
+    async function copyText(text){
+      text = String(text || '').trim();
+      if(!text){
+        alert('There is no text to copy from this message.');
+        return false;
+      }
+
+      try{
+        if(navigator.clipboard?.writeText){
+          await navigator.clipboard.writeText(text);
+        }else{
+          const ta = document.createElement('textarea');
+          ta.value = text;
+          ta.setAttribute('readonly','');
+          ta.style.position = 'fixed';
+          ta.style.opacity = '0';
+          document.body.appendChild(ta);
+          ta.focus();
+          ta.select();
+          const ok = document.execCommand('copy');
+          ta.remove();
+          if(!ok) throw new Error('Clipboard copy was blocked.');
+        }
+
+        alert('✓ Message copied.');
+        return true;
+      }catch(e){
+        console.error('Copy failed:',e);
+        alert('Copy failed. Your browser blocked clipboard access.');
+        return false;
+      }
+    }
+
+    async function translateMessage(msg){
+      const text = String(msg?.text || '').trim();
+      if(!text){
+        alert('Only text messages can be translated.');
+        return false;
+      }
+
+      const defaultTarget =
+        detectLanguage(text) === 'si' ? 'English' : 'Sinhala';
+
+      const targetRaw = prompt(
+        'Translate to which language?\n\nType English or Sinhala:',
+        defaultTarget
+      );
+
+      if(targetRaw === null) return false;
+
+      const target = targetRaw.trim().toLowerCase();
+      if(!target) return false;
+
+      const targetName = target.startsWith('sinh') ? 'Sinhala' : 'English';
+
+      if(window.chatproNextGen?.runAIAction && aiBtn && aiInput && aiSend){
+        try{
+          aiBtn.click();
+          setTimeout(() => {
+            aiInput.value =
+              `Translate exactly this message into ${targetName}. ` +
+              `Return only the translation:\n\n${text}`;
+            aiInput.dispatchEvent(new Event('input',{bubbles:true}));
+            aiSend.click();
+          },180);
+          return true;
+        }catch(e){
+          console.warn('AI translation unavailable, using local translator.',e);
+        }
+      }
+
+      const translated = simpleTranslate(text,targetName);
+      alert('🌐 Translation:\n\n' + translated);
+      return true;
+    }
+
     async function forwardMessage(msg){
-      const options=(contacts||[]).filter(c=>c.email!==currentUser.email);
-      if(!options.length){alert('No contacts are available to forward this message to.');return;}
-      const list=options.slice(0,30).map((c,i)=>`${i+1}. ${c.name||c.email} — ${c.email}`).join('\n');
-      const choice=prompt('Forward message to:\n\n'+list+'\n\nEnter the contact number or email:');if(!choice)return;
-      const trimmed=choice.trim();let target=options[Number(trimmed)-1];
-      if(!target) target=options.find(c=>String(c.email).toLowerCase()===trimmed.toLowerCase());
-      if(!target){alert('Contact not found.');return;}
-      const payload={chat_id:getChatId(currentUser.email,target.email),sender:currentUser.email,sender_name:currentUserData?.name||currentUser.email,recipient:target.email,recipient_name:target.name||target.email,text:msg.text||null,media_type:msg.media_type||null,media_url:msg.media_url||null,media_path:msg.media_path||null,media_mime_type:msg.media_mime_type||null,duration:msg.duration||null,language:msg.language||detectLanguage(msg.text||''),status:'sent',scheduled_at:null,message_type:'forwarded',is_broadcast:false,metadata:{forwardedFrom:{id:msg.id,senderName:msg.sender_name||msg.sender||'Unknown',text:msg.text||null}}};
-      const {error}=await supabaseClient.from('messages').insert(payload);if(error)throw error;alert('✓ Message forwarded to '+(target.name||target.email)+'.');
+      await requireSupabase();
+
+      const options = (contacts || [])
+        .filter(c => c?.email && c.email !== currentUser.email);
+
+      if(!options.length){
+        alert('No contacts are available to forward this message to.');
+        return false;
+      }
+
+      const visibleOptions = options.slice(0,50);
+      const list = visibleOptions
+        .map((c,i) => `${i+1}. ${c.name || c.email} — ${c.email}`)
+        .join('\n');
+
+      const choice = prompt(
+        'Forward message to:\n\n' + list +
+        '\n\nEnter the contact number or email:'
+      );
+
+      if(choice === null) return false;
+
+      const trimmed = choice.trim();
+      let target = visibleOptions[Number(trimmed)-1];
+
+      if(!target){
+        target = visibleOptions.find(c =>
+          String(c.email).toLowerCase() === trimmed.toLowerCase()
+        );
+      }
+
+      if(!target){
+        alert('Contact not found.');
+        return false;
+      }
+
+      const chatId = getChatId(currentUser.email,target.email);
+      const now = new Date().toISOString();
+
+      const forwardedMeta = {
+        ...(msg.metadata && typeof msg.metadata === 'object' ? msg.metadata : {}),
+        forwardedFrom: {
+          id: msg.id,
+          sender: msg.sender || null,
+          senderName: msg.sender_name || msg.sender || 'Unknown',
+          text: msg.text || null
+        }
+      };
+
+      const payload = {
+        chat_id: chatId,
+        sender: currentUser.email,
+        sender_name: currentUserData?.name || currentUser.email.split('@')[0],
+        timestamp: now,
+        recipient: target.email,
+        recipient_name: target.name || target.email,
+        language: msg.language || detectLanguage(msg.text || ''),
+        text: msg.text || null,
+        media_type: msg.media_type || null,
+        media_url: msg.media_url || null,
+        media_path: msg.media_path || null,
+        media_mime_type: msg.media_mime_type || null,
+        duration: msg.duration || null,
+        is_broadcast: false,
+        status: 'sent',
+        scheduled_at: null,
+        message_type: 'forwarded',
+        metadata: forwardedMeta
+      };
+
+      const {error} = await supabaseClient
+        .from('messages')
+        .insert(payload);
+
+      if(error) throw error;
+
+      alert('✓ Message forwarded to ' + (target.name || target.email) + '.');
+      return true;
     }
+
     async function handleMessageContextAction(action,id){
       try{
-        const msg=await getMessageById(id);if(!msg)return;
-        const starred=messageList('chatproStarredMessages'), pinned=messageList('chatproPinnedMessages'), deleted=messageList('chatproDeletedForMe');
-        if(action==='reply'){setReplyMessage(msg);return}
-        if(action==='copy'){await copyText(msg.text||'');return}
-        if(action==='star'){const i=starred.indexOf(String(id));if(i>=0)starred.splice(i,1);else starred.push(String(id));saveMessageList('chatproStarredMessages',starred);if(currentChatWith)loadMessages(currentChatWith);return}
-        if(action==='pin'){const i=pinned.indexOf(String(id));if(i>=0)pinned.splice(i,1);else pinned.push(String(id));saveMessageList('chatproPinnedMessages',pinned);if(currentChatWith)loadMessages(currentChatWith);return}
-        if(action==='translate'){await translateMessage(msg);return}
-        if(action==='remind'){showReminderMenu(id);return}
-        if(action==='forward'){await forwardMessage(msg);return}
-        if(action==='read'){const text=String(msg.text||'Media message');if('speechSynthesis'in window){speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang=(msg.language==='si'||detectLanguage(text)==='si')?'si-LK':'en-US';speechSynthesis.speak(u);}else alert('Read Out is not supported by this browser.');return}
-        if(action==='delete-me'){if(deleted.includes(String(id)))return;deleted.push(String(id));saveMessageList('chatproDeletedForMe',deleted);if(currentChatWith)loadMessages(currentChatWith);return}
-        if(action==='delete-everyone'){
-          if(msg.sender!==currentUser.email){alert('You can only delete your own messages for everyone.');return;}
-          if(!confirm('Delete this message for everyone? This replaces its content with “This message was deleted”.'))return;
-          const meta=msg.metadata&&typeof msg.metadata==='object'?msg.metadata:{};
-          const updated={...meta,deletedForEveryone:true,deletedAt:new Date().toISOString(),deletedBy:currentUser.email};
-          const {error}=await supabaseClient.from('messages').update({text:null,media_url:null,media_path:null,media_type:null,media_mime_type:null,duration:null,message_type:'deleted',metadata:updated}).eq('id',id).eq('sender',currentUser.email);if(error)throw error;
-          if(currentChatWith)loadMessages(currentChatWith);return;
+        if(!id) return;
+
+        const msg = await getMessageById(id);
+        if(!msg){
+          alert('This message could not be found. It may have been removed.');
+          return;
         }
-      }catch(e){console.error('Message action failed',e);alert('Message action failed: '+(e.message||e));}
+
+        const idString = String(id);
+
+        if(action === 'reply'){
+          setReplyMessage(msg);
+          return;
+        }
+
+        if(action === 'copy'){
+          await copyText(msg.text || '');
+          return;
+        }
+
+        if(action === 'star'){
+          const starred = messageList('chatproStarredMessages');
+          const index = starred.indexOf(idString);
+
+          if(index >= 0) starred.splice(index,1);
+          else starred.push(idString);
+
+          saveMessageList('chatproStarredMessages',starred);
+          if(currentChatWith) await loadMessages(currentChatWith);
+          return;
+        }
+
+        if(action === 'pin'){
+          const pinned = messageList('chatproPinnedMessages');
+          const index = pinned.indexOf(idString);
+
+          if(index >= 0) pinned.splice(index,1);
+          else pinned.push(idString);
+
+          saveMessageList('chatproPinnedMessages',pinned);
+          if(currentChatWith) await loadMessages(currentChatWith);
+          return;
+        }
+
+        if(action === 'translate'){
+          await translateMessage(msg);
+          return;
+        }
+
+        if(action === 'remind'){
+          await showReminderMenu(idString);
+          return;
+        }
+
+        if(action === 'forward'){
+          await forwardMessage(msg);
+          return;
+        }
+
+        if(action === 'read'){
+          const text = String(
+            msg.text ||
+            (msg.media_type === 'image' ? 'Photo message' :
+             msg.media_type === 'video' ? 'Video message' :
+             msg.media_type === 'voice' ? 'Voice message' :
+             'Media message')
+          ).trim();
+
+          if(!text){
+            alert('There is nothing readable in this message.');
+            return;
+          }
+
+          if(!('speechSynthesis' in window) ||
+             typeof SpeechSynthesisUtterance === 'undefined'){
+            alert('Read Out is not supported by this browser.');
+            return;
+          }
+
+          try{
+            speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang =
+              (msg.language === 'si' || detectLanguage(text) === 'si')
+                ? 'si-LK'
+                : 'en-US';
+
+            utterance.rate = 1;
+            utterance.pitch = 1;
+            speechSynthesis.speak(utterance);
+          }catch(e){
+            console.error('Read Out failed:',e);
+            alert('Read Out could not start: ' + (e.message || e));
+          }
+          return;
+        }
+
+        if(action === 'delete-me'){
+          const deleted = messageList('chatproDeletedForMe');
+
+          if(!deleted.includes(idString)){
+            deleted.push(idString);
+            saveMessageList('chatproDeletedForMe',deleted);
+          }
+
+          if(currentChatWith) await loadMessages(currentChatWith);
+          return;
+        }
+
+        if(action === 'delete-everyone'){
+          if(String(msg.sender).toLowerCase() !==
+             String(currentUser.email).toLowerCase()){
+            alert('You can only delete your own messages for everyone.');
+            return;
+          }
+
+          const confirmed = confirm(
+            'Delete this message for everyone?\n\n' +
+            'The message will be replaced with “This message was deleted”.'
+          );
+
+          if(!confirmed) return;
+
+          const oldMeta =
+            msg.metadata && typeof msg.metadata === 'object'
+              ? msg.metadata
+              : {};
+
+          const updatedMetadata = {
+            ...oldMeta,
+            deletedForEveryone: true,
+            deletedAt: new Date().toISOString(),
+            deletedBy: currentUser.email
+          };
+
+          const {data,error} = await supabaseClient
+            .from('messages')
+            .update({
+              text: null,
+              media_url: null,
+              media_path: null,
+              media_type: null,
+              media_mime_type: null,
+              duration: null,
+              message_type: 'deleted',
+              metadata: updatedMetadata
+            })
+            .eq('id',idString)
+            .eq('sender',currentUser.email)
+            .select('id')
+            .maybeSingle();
+
+          if(error) throw error;
+
+          if(!data){
+            throw new Error(
+              'The message was not changed. Check your Supabase UPDATE policy for the messages table.'
+            );
+          }
+
+          if(currentChatWith) await loadMessages(currentChatWith);
+          return;
+        }
+      }catch(e){
+        console.error('Message action failed:',e);
+        alert('Message action failed: ' + (e?.message || e));
+      }
     }
+
     async function showReminderMenu(messageId){
-      const choice=(prompt('🔔 Remind Me\n\n1. In 10 minutes\n2. Tonight\n3. Tomorrow morning\n4. Custom date/time\n\nEnter 1-4:')||'').trim();if(!choice)return;
-      const now=new Date();let when=new Date(now);
-      if(choice==='1')when=new Date(now.getTime()+10*60000);
-      else if(choice==='2'){when.setHours(20,0,0,0);if(when<=now)when.setDate(when.getDate()+1);}
-      else if(choice==='3'){when.setDate(when.getDate()+1);when.setHours(9,0,0,0);}
-      else if(choice==='4'){const raw=prompt('Enter date and time, e.g. 2026-10-15 18:00');if(!raw)return;when=new Date(raw.replace(' ','T'));}
-      else {alert('Please choose 1, 2, 3 or 4.');return;}
-      if(isNaN(when.getTime())||when<=now){alert('Choose a valid future date/time.');return;}
-      const list=Array.isArray(currentUserData?.chatReminders)?[...currentUserData.chatReminders]:[];
-      list.push({id:crypto.randomUUID?.()||Date.now().toString(),chat:currentChatWith,messageId:String(messageId),when:when.toISOString(),created_at:now.toISOString(),notified:false});
-      try{await profilePatch({chatReminders:list.slice(-200)});alert('🔔 Reminder saved for '+when.toLocaleString());}catch(e){alert('Could not save reminder: '+e.message);}
+      const choice = (
+        prompt(
+          '🔔 Remind Me\n\n' +
+          '1. In 10 minutes\n' +
+          '2. Tonight\n' +
+          '3. Tomorrow morning\n' +
+          '4. Custom date/time\n\n' +
+          'Enter 1-4:'
+        ) || ''
+      ).trim();
+
+      if(!choice) return;
+
+      const now = new Date();
+      let when = new Date(now);
+
+      if(choice === '1'){
+        when = new Date(now.getTime() + 10 * 60000);
+      }else if(choice === '2'){
+        when.setHours(20,0,0,0);
+        if(when <= now) when.setDate(when.getDate()+1);
+      }else if(choice === '3'){
+        when.setDate(when.getDate()+1);
+        when.setHours(9,0,0,0);
+      }else if(choice === '4'){
+        const raw = prompt(
+          'Enter date and time, for example:\n2026-10-15 18:00'
+        );
+        if(!raw) return;
+
+        const normalized = raw.trim().replace(' ','T');
+        when = new Date(normalized);
+
+        if(isNaN(when.getTime())){
+          when = new Date(raw.trim());
+        }
+      }else{
+        alert('Please choose 1, 2, 3 or 4.');
+        return;
+      }
+
+      if(isNaN(when.getTime()) || when <= now){
+        alert('Choose a valid future date/time.');
+        return;
+      }
+
+      const list = Array.isArray(currentUserData?.chatReminders)
+        ? [...currentUserData.chatReminders]
+        : [];
+
+      const reminderId =
+        (typeof crypto !== 'undefined' && crypto.randomUUID)
+          ? crypto.randomUUID()
+          : 'reminder-' + Date.now() + '-' + Math.random().toString(36).slice(2);
+
+      list.push({
+        id: reminderId,
+        chat: currentChatWith,
+        messageId: String(messageId),
+        when: when.toISOString(),
+        created_at: now.toISOString(),
+        notified: false
+      });
+
+      try{
+        await profilePatch({chatReminders:list.slice(-200)});
+        alert('🔔 Reminder saved for ' + when.toLocaleString());
+      }catch(e){
+        console.error('Reminder save failed:',e);
+        alert('Could not save reminder: ' + (e?.message || e));
+      }
     }
-    async function checkReminders(){const list=Array.isArray(currentUserData?.chatReminders)?currentUserData.chatReminders:[];const due=list.filter(r=>!r.notified&&new Date(r.when).getTime()<=Date.now());if(!due.length)return;due.forEach(r=>{r.notified=true;});currentUserData.chatReminders=list;try{await profilePatch({chatReminders:list});}catch(_){}due.forEach(r=>{const when=new Date(r.when).toLocaleString();if(document.visibilityState==='visible')alert('🔔 ChatPro Reminder\nYou asked to be reminded about this message.\n\n'+when);});}
-    function attachLongPress(){document.querySelectorAll('.msg[data-message-id]').forEach(startLongPress)}
-    setInterval(checkReminders,15000);setInterval(attachLongPress,1200);
+
+    async function checkReminders(){
+      const list = Array.isArray(currentUserData?.chatReminders)
+        ? currentUserData.chatReminders
+        : [];
+
+      const due = list.filter(r =>
+        !r.notified &&
+        new Date(r.when).getTime() <= Date.now()
+      );
+
+      if(!due.length) return;
+
+      due.forEach(r => { r.notified = true; });
+      currentUserData.chatReminders = list;
+
+      try{
+        await profilePatch({chatReminders:list});
+      }catch(_){}
+
+      due.forEach(r => {
+        const when = new Date(r.when).toLocaleString();
+        const message = '🔔 ChatPro Reminder\n\n' +
+          'You asked to be reminded about this message.\n\n' + when;
+
+        if(document.visibilityState === 'visible'){
+          alert(message);
+        }else if('Notification' in window && Notification.permission === 'granted'){
+          new Notification('ChatPro Reminder',{body:'Reminder for '+when});
+        }else{
+          alert(message);
+        }
+      });
+    }
+
+    function attachLongPress(){
+      document.querySelectorAll('.msg[data-message-id]').forEach(startLongPress);
+    }
+
+    setInterval(checkReminders,15000);
+    setInterval(attachLongPress,1200);
+    attachLongPress();
 
     // Expose safe public helpers.
     window.chatproNextGen={runAIAction,voiceEverything,processIntent,showMemory,themeDialog,presenceDialog,meetingMode};
@@ -4664,4 +5179,3 @@ document.addEventListener('click',async function(e){
 </script>
 </body>
 </html>
-                
