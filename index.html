@@ -1617,7 +1617,7 @@ input,textarea,.search-box{background:rgba(255,255,255,.055)!important;border-co
 .contact-item .last-msg{display:block!important;margin-top:4px!important;max-width:100%;color:#9298b1!important}
 .contact-item .contact-lock{margin-left:auto;color:#a99cff;font-size:12px}
 .contacts-sidebar.list-locked .contacts-list>*{display:none!important}
-.contacts-sidebar.list-locked .contacts-list:after{content:'🔒  Contact list locked';display:flex;align-items:center;justify-content:center;height:100%;color:#747994;font-size:14px;text-align:center;padding:30px}
+.contacts-sidebar.list-locked .contacts-list:after{content:'ð  Contact list locked';display:flex;align-items:center;justify-content:center;height:100%;color:#747994;font-size:14px;text-align:center;padding:30px}
 .search-area .search-wrapper.lock-search i{color:#a99cff}
 .schedule-btn,.tool-btn{background:rgba(255,255,255,.055)!important;border:1px solid rgba(255,255,255,.08)!important;color:#c8c7ff!important;border-radius:14px!important;padding:10px 12px!important;cursor:pointer}
 .schedule-chip{display:inline-flex;align-items:center;gap:6px;margin:5px 0;padding:7px 10px;border-radius:12px;background:rgba(124,92,255,.12);border:1px solid rgba(124,92,255,.18);color:#bdb4ff;font-size:11px}
@@ -1662,6 +1662,17 @@ input,textarea,.search-box{background:rgba(255,255,255,.055)!important;border-co
 @keyframes waMenuIn{from{opacity:0;transform:scale(.96) translateY(-4px)}to{opacity:1;transform:scale(1) translateY(0)}}
 .msg[data-message-id]{touch-action:manipulation;user-select:none;-webkit-user-select:none}
 .msg.context-selected{outline:2px solid rgba(124,92,255,.55);outline-offset:2px}
+.msg[data-message-id]{-webkit-touch-callout:none}
+.message-context-menu{max-height:calc(100vh - 16px);max-height:calc(100dvh - 16px);overflow-y:auto}
+.msg .quoted-reply[data-reply-id]{cursor:pointer}
+.msg .forwarded-label{display:block;font-size:11px;font-style:italic;opacity:.75;margin-bottom:4px}
+.msg.reply-highlight{animation:replyFlash 1.5s ease}
+@keyframes replyFlash{0%,65%{outline:2px solid rgba(37,211,102,.9);outline-offset:2px}100%{outline:2px solid transparent;outline-offset:2px}}
+.fwd-row{display:flex;align-items:center;gap:12px;padding:10px 8px;border-radius:12px;cursor:pointer;color:#eef0fa;font-size:14px}
+.fwd-row:hover{background:rgba(255,255,255,.06)}
+.fwd-row .fwd-check{width:20px;height:20px;border-radius:50%;border:2px solid rgba(255,255,255,.3);display:inline-flex;align-items:center;justify-content:center;font-size:11px;color:transparent;flex-shrink:0}
+.fwd-row.selected .fwd-check{background:#25d366;border-color:#25d366;color:#06150b}
+.fwd-row small{display:block;color:#8f95ad;font-size:11px}
 .call-overlay{position:fixed;inset:0;background:rgba(2,4,12,.84);backdrop-filter:blur(15px);z-index:7000;display:flex;align-items:center;justify-content:center;padding:18px}
 .call-box{width:min(760px,96vw);height:min(650px,90vh);background:#0b0e1a;border:1px solid rgba(255,255,255,.12);border-radius:28px;overflow:hidden;position:relative;box-shadow:0 35px 100px rgba(0,0,0,.65)}
 .call-remote{width:100%;height:100%;object-fit:cover;background:#05070e}
@@ -1835,7 +1846,7 @@ input,textarea,.search-box{background:rgba(255,255,255,.055)!important;border-co
             <div class="privacy-consent-icon"><i class="fas fa-shield-halved"></i></div>
             <div>
                 <h3 id="nicPrivacyTitle">NIC Verification Privacy Policy</h3>
-                <p>ChatPro identity verification • Version 1.0 • Effective September 18, 2026</p>
+                <p>ChatPro identity verification â¢ Version 1.0 â¢ Effective September 18, 2026</p>
             </div>
         </div>
         <div class="privacy-consent-body">
@@ -1942,7 +1953,7 @@ input,textarea,.search-box{background:rgba(255,255,255,.055)!important;border-co
         </div>
         <div class="user-section">
             <div class="user-badge">
-                <div class="avatar" id="headerAvatar">👤</div>
+                <div class="avatar" id="headerAvatar">ð¤</div>
                 <span class="name" id="currentUserName">User</span>
             </div>
             <span class="role-badge" id="roleBadge">User</span>
@@ -1986,7 +1997,7 @@ input,textarea,.search-box{background:rgba(255,255,255,.055)!important;border-co
             <div id="chatContactHeader" class="chat-contact-header hidden">
                 <button class="call-btn back-mobile-btn" id="backToContactsBtn" type="button" title="Back"><i class="fas fa-arrow-left"></i></button>
                 <button class="call-btn" id="chatHeaderAIBtn" type="button" title="Ask ChatPro AI" aria-label="Ask ChatPro AI"><i class="fas fa-sparkles"></i></button>
-                <div class="avatar" id="contactAvatar">👤</div>
+                <div class="avatar" id="contactAvatar">ð¤</div>
                 <div class="contact-info">
                     <div class="name">
                         <span id="contactNameDisplay">Contact</span>
@@ -2078,7 +2089,7 @@ input,textarea,.search-box{background:rgba(255,255,255,.055)!important;border-co
             
             <div class="profile-photo-upload">
                 <div class="preview" id="profilePhotoPreview">
-                    <span id="profilePhotoEmoji">😊</span>
+                    <span id="profilePhotoEmoji">ð</span>
                 </div>
                 <div>
                     <button class="upload-btn" id="uploadPhotoBtn"><i class="fas fa-camera"></i> Upload Photo</button>
@@ -2100,24 +2111,24 @@ input,textarea,.search-box{background:rgba(255,255,255,.055)!important;border-co
             <div style="margin-top:12px;">
                 <label style="color:var(--text-secondary);font-size:13px;font-weight:500;">Profile Emoji</label>
                 <div class="emoji-grid-settings" id="settingsEmojiGrid">
-                    <div class="emoji-option" data-emoji="😊">😊</div>
-                    <div class="emoji-option" data-emoji="😎">😎</div>
-                    <div class="emoji-option" data-emoji="🤩">🤩</div>
-                    <div class="emoji-option" data-emoji="😍">😍</div>
-                    <div class="emoji-option" data-emoji="🧐">🧐</div>
-                    <div class="emoji-option" data-emoji="🤓">🤓</div>
-                    <div class="emoji-option" data-emoji="😇">😇</div>
-                    <div class="emoji-option" data-emoji="🥰">🥰</div>
-                    <div class="emoji-option" data-emoji="😜">😜</div>
-                    <div class="emoji-option" data-emoji="🤗">🤗</div>
-                    <div class="emoji-option" data-emoji="🥳">🥳</div>
-                    <div class="emoji-option" data-emoji="💪">💪</div>
-                    <div class="emoji-option" data-emoji="🦄">🦄</div>
-                    <div class="emoji-option" data-emoji="🌟">🌟</div>
-                    <div class="emoji-option" data-emoji="🔥">🔥</div>
-                    <div class="emoji-option" data-emoji="✨">✨</div>
-                    <div class="emoji-option" data-emoji="🎯">🎯</div>
-                    <div class="emoji-option" data-emoji="🚀">🚀</div>
+                    <div class="emoji-option" data-emoji="ð">ð</div>
+                    <div class="emoji-option" data-emoji="ð">ð</div>
+                    <div class="emoji-option" data-emoji="ð¤©">ð¤©</div>
+                    <div class="emoji-option" data-emoji="ð">ð</div>
+                    <div class="emoji-option" data-emoji="ð§">ð§</div>
+                    <div class="emoji-option" data-emoji="ð¤">ð¤</div>
+                    <div class="emoji-option" data-emoji="ð">ð</div>
+                    <div class="emoji-option" data-emoji="ð¥°">ð¥°</div>
+                    <div class="emoji-option" data-emoji="ð">ð</div>
+                    <div class="emoji-option" data-emoji="ð¤">ð¤</div>
+                    <div class="emoji-option" data-emoji="ð¥³">ð¥³</div>
+                    <div class="emoji-option" data-emoji="ðª">ðª</div>
+                    <div class="emoji-option" data-emoji="ð¦">ð¦</div>
+                    <div class="emoji-option" data-emoji="ð">ð</div>
+                    <div class="emoji-option" data-emoji="ð¥">ð¥</div>
+                    <div class="emoji-option" data-emoji="â¨">â¨</div>
+                    <div class="emoji-option" data-emoji="ð¯">ð¯</div>
+                    <div class="emoji-option" data-emoji="ð">ð</div>
                 </div>
             </div>
             
@@ -2340,7 +2351,7 @@ let mediaStream = null;
 let isAdmin = false;
 let isLoginMode = true;
 let isProcessingNIC = false;
-let selectedEmoji = '😊';
+let selectedEmoji = 'ð';
 let currentLanguage = 'en';
 let mediaRecorder = null;
 let audioChunks = [];
@@ -2429,7 +2440,7 @@ function saveAIConversation(rows){ try { localStorage.setItem(AI_CHAT_STORAGE_KE
 function aiTime(){return new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});}
 function aiChatAppend(text,user=false){ const row={text:String(text||''),user:!!user,time:aiTime()}; const rows=getAIConversation(); rows.push(row); saveAIConversation(rows); renderAIChatMessages(); }
 function renderAIChatMessages(){ if(!chatMessages)return; const rows=getAIConversation(); if(!rows.length){ chatMessages.innerHTML='<div class="empty-chat" style="padding-top:12vh"><div style="width:72px;height:72px;border-radius:50%;margin:0 auto 14px;background:linear-gradient(135deg,#7c5cff,#00c49a);display:flex;align-items:center;justify-content:center;box-shadow:0 15px 35px rgba(124,92,255,.22)"><i class="fas fa-sparkles" style="font-size:30px;color:#fff"></i></div><h3 style="margin:0 0 8px">ChatPro AI</h3><p style="max-width:430px;margin:auto">Your personal AI assistant. Ask anything about ChatPro, its features, settings, or Sahan Lakmina. You can also rewrite messages, translate text and get help using the site.</p><div class="ai-suggested" style="justify-content:center;margin-top:12px"><button data-ai-suggest="Explain ChatPro to me">Explain ChatPro</button><button data-ai-suggest="Help me write a message">Write a message</button><button data-ai-suggest="Summarize my current chat">Summarize chat</button></div></div>'; return;} chatMessages.innerHTML=rows.map(r=>`<div class="ai-msg ${r.user?'user':'bot'}">${escapeHtml(r.text).replace(/\n/g,'<br>')}<span class="ai-msg-time">${escapeHtml(r.time||'')}</span></div>`).join(''); chatMessages.scrollTop=chatMessages.scrollHeight; }
-function enterAIChat(){ aiChatMode=true; aiPanel?.classList.add('hidden'); currentChatWith=null; if(unsubscribeMessages){try{unsubscribeMessages()}catch(_){ } unsubscribeMessages=null;} chatPage?.classList.add('ai-chat-mode'); chatContactHeader.classList.remove('hidden'); chatContactHeader.classList.remove('unknown'); contactAvatar.innerHTML='<i class="fas fa-sparkles"></i>'; contactNameDisplay.textContent='ChatPro AI'; contactEmojiDisplay.textContent='✦'; contactAboutDisplay.textContent='Personal AI assistant'; contactNicDisplay.textContent=''; contactStatus.innerHTML='<span class="presence-dot online"></span><span>Always available</span>'; voiceCallBtn?.classList.add('hidden'); videoCallBtn?.classList.add('hidden'); contactMoreBtn?.classList.remove('hidden'); addUnknownContactBtn?.classList.add('hidden'); messageInput.disabled=false; sendBtn.disabled=false; messageInput.placeholder='Message ChatPro AI'; messageInput.value=''; renderAIChatMessages(); renderContacts(); document.querySelector('.chat-layout')?.classList.add('mobile-chat-open'); messageInput.focus(); }
+function enterAIChat(){ aiChatMode=true; aiPanel?.classList.add('hidden'); currentChatWith=null; if(unsubscribeMessages){try{unsubscribeMessages()}catch(_){ } unsubscribeMessages=null;} chatPage?.classList.add('ai-chat-mode'); chatContactHeader.classList.remove('hidden'); chatContactHeader.classList.remove('unknown'); contactAvatar.innerHTML='<i class="fas fa-sparkles"></i>'; contactNameDisplay.textContent='ChatPro AI'; contactEmojiDisplay.textContent='â¦'; contactAboutDisplay.textContent='Personal AI assistant'; contactNicDisplay.textContent=''; contactStatus.innerHTML='<span class="presence-dot online"></span><span>Always available</span>'; voiceCallBtn?.classList.add('hidden'); videoCallBtn?.classList.add('hidden'); contactMoreBtn?.classList.remove('hidden'); addUnknownContactBtn?.classList.add('hidden'); messageInput.disabled=false; sendBtn.disabled=false; messageInput.placeholder='Message ChatPro AI'; messageInput.value=''; renderAIChatMessages(); renderContacts(); document.querySelector('.chat-layout')?.classList.add('mobile-chat-open'); messageInput.focus(); }
 document.addEventListener('click',e=>{const b=e.target.closest('[data-ai-suggest]');if(!b||!aiChatMode)return;messageInput.value=b.dataset.aiSuggest||'';messageInput.focus();});
 function leaveAIChat(){aiChatMode=false; chatPage?.classList.remove('ai-chat-mode'); voiceCallBtn?.classList.remove('hidden'); videoCallBtn?.classList.remove('hidden'); if(currentChatWith){loadMessages(currentChatWith);displayContactProfile(currentChatWith);} else showWelcomeChat();}
 
@@ -2468,7 +2479,7 @@ const storageVoice = $('storageVoice');
 // LANGUAGE DETECTION
 // ============================================================
 const SINHALA_UNICODE_RANGE = /[\u0D80-\u0DFF]/;
-const SINHALA_CHARS = ['අ','ආ','ඇ','ඈ','ඉ','ඊ','උ','ඌ','ඍ','ඎ','ඏ','ඐ','එ','ඒ','ඓ','ඔ','ඕ','ඖ','ක','ඛ','ග','ඝ','ඞ','ඟ','ච','ඡ','ජ','ඣ','ඤ','ඥ','ඦ','ට','ඨ','ඩ','ඪ','ණ','ඬ','ත','ථ','ද','ධ','න','ඳ','ප','ඵ','බ','භ','ම','ඹ','ය','ර','ල','ව','ශ','ෂ','ස','හ','ළ','ෆ','්','ා','ැ','ෑ','ි','ී','ු','ූ','ෘ','ෙ','ේ','ෛ','ො','ෝ','ෞ','ෟ'];
+const SINHALA_CHARS = ['à¶','à¶','à¶','à¶','à¶','à¶','à¶','à¶','à¶','à¶','à¶','à¶','à¶','à¶','à¶','à¶','à¶','à¶','à¶','à¶','à¶','à¶','à¶','à¶','à¶ ','à¶¡','à¶¢','à¶£','à¶¤','à¶¥','à¶¦','à¶§','à¶¨','à¶©','à¶ª','à¶«','à¶¬','à¶­','à¶®','à¶¯','à¶°','à¶±','à¶³','à¶´','à¶µ','à¶¶','à¶·','à¶¸','à¶¹','à¶º','à¶»','à¶½','à·','à·','à·','à·','à·','à·','à·','à·','à·','à·','à·','à·','à·','à·','à·','à·','à·','à·','à·','à·','à·','à·','à·'];
 
 function detectLanguage(text) {
     if (!text || text.trim().length === 0) return 'en';
@@ -2485,7 +2496,7 @@ function updateLanguageIndicator(text) {
     const lang = detectLanguage(text);
     currentLanguage = lang;
     if (lang === 'si') {
-        langIndicator.textContent = 'සිං';
+        langIndicator.textContent = 'à·à·à¶';
         langIndicator.className = 'language-indicator sinhala';
         messageInput.className = 'sinhala-input';
     } else {
@@ -2542,7 +2553,7 @@ async function ensureProfileForUser(user) {
             id: user.id,
             email,
             name: admin ? admin.name : email.split('@')[0],
-            emoji: admin ? '👑' : '😊',
+            emoji: admin ? 'ð' : 'ð',
             about: admin ? 'ChatPro Administrator' : 'Hey there! I\'m using ChatPro',
             contacts: [],
             is_admin: !!admin,
@@ -2561,7 +2572,7 @@ async function ensureProfileForUser(user) {
         await saveProfilePatch(user.id, {
             isAdmin: true,
             name: admin.name,
-            emoji: '👑',
+            emoji: 'ð',
             about: 'ChatPro Administrator',
             nicCaptured: false,
             profileSetup: true
@@ -3122,7 +3133,7 @@ function startContactProfileWatchers() {
             allUsersCache[email] = userData;
             const index = contacts.findIndex(c => String(c.email || '').toLowerCase() === email);
             if (index !== -1) {
-                contacts[index] = { ...contacts[index], name: userData.name || contacts[index].name || email.split('@')[0], emoji: userData.emoji || '👤', profilePhoto: userData.profilePhoto || null };
+                contacts[index] = { ...contacts[index], name: userData.name || contacts[index].name || email.split('@')[0], emoji: userData.emoji || 'ð¤', profilePhoto: userData.profilePhoto || null };
             }
             scheduleContactProfileRender();
         })
@@ -3134,7 +3145,7 @@ async function syncContactProfilesOnce() {
     const synced = await Promise.all(contacts.map(async contact => {
         const userData = await getUserByEmail(contact.email, true);
         if (!userData) return contact;
-        return { ...contact, name: userData.name || contact.name || contact.email.split('@')[0], emoji: userData.emoji || '👤', profilePhoto: userData.profilePhoto || null };
+        return { ...contact, name: userData.name || contact.name || contact.email.split('@')[0], emoji: userData.emoji || 'ð¤', profilePhoto: userData.profilePhoto || null };
     }));
     contacts = synced;
     if (currentUserData) currentUserData.contacts = synced;
@@ -3223,7 +3234,7 @@ async function refreshContactPreviews(){
         if(error)throw error;
         const latest={};
         (data||[]).forEach(m=>{if(!latest[m.chat_id])latest[m.chat_id]=m;});
-        contacts=contacts.map(c=>{const m=latest[getChatId(currentUser.email,c.email)];if(!m)return c;return {...c,lastMessage:m.text||(m.media_type==='image'?'📷 Photo':m.media_type==='video'?'🎥 Video':m.media_type==='voice'?'🎤 Voice':m.media_type==='location'?'📍 Location':m.media_type==='poll'?'📊 Poll':m.media_type==='sticker'?'🙂 Sticker':'New message'),lastTimestamp:m.timestamp||null};});
+        contacts=contacts.map(c=>{const m=latest[getChatId(currentUser.email,c.email)];if(!m)return c;return {...c,lastMessage:m.text||(m.media_type==='image'?'ð· Photo':m.media_type==='video'?'ð¥ Video':m.media_type==='voice'?'ð¤ Voice':m.media_type==='location'?'ð Location':m.media_type==='poll'?'ð Poll':m.media_type==='sticker'?'ð Sticker':'New message'),lastTimestamp:m.timestamp||null};});
     }catch(e){console.warn('Contact preview refresh failed:',e.message)}
 }
 
@@ -3251,7 +3262,7 @@ async function loadChat() {
     isAdmin = currentUserData.isAdmin || ADMIN_ACCOUNTS.some(a => a.email === currentUser.email);
 
     const displayName = currentUserData.name || currentUser.email.split('@')[0];
-    const displayEmoji = currentUserData.emoji || '😊';
+    const displayEmoji = currentUserData.emoji || 'ð';
     currentUserName.textContent = displayName;
 
     if (currentUserData.profilePhoto) {
@@ -3315,7 +3326,7 @@ function showWelcomeChat() {
     messageInput.value = '';
     chatMessages.innerHTML = `
         <div class="empty-chat">
-            <div style="font-size:56px;margin-bottom:10px;">💬</div>
+            <div style="font-size:56px;margin-bottom:10px;">ð¬</div>
             <h3 style="margin:0 0 8px;color:var(--text-primary);">Welcome to ChatPro</h3>
             <p style="margin:0;">Select a contact to start chatting.</p>
             <p style="margin:7px 0 0;font-size:12px;">New messages from people outside your contacts will appear in the chat list.</p>
@@ -3361,11 +3372,11 @@ async function discoverUnknownChats() {
             if (discovered[email]) continue;
 
             const profile = await getUserByEmail(email, true);
-            const preview = msg.text || (msg.media_type === 'image' ? '📷 Photo' : msg.media_type === 'video' ? '🎥 Video' : msg.media_type === 'voice' ? '🎤 Voice' : 'New message');
+            const preview = msg.text || (msg.media_type === 'image' ? 'ð· Photo' : msg.media_type === 'video' ? 'ð¥ Video' : msg.media_type === 'voice' ? 'ð¤ Voice' : 'New message');
             discovered[email] = {
                 email,
                 name: profile?.name || msg.sender_name || 'Unknown User',
-                emoji: profile?.emoji || '👤',
+                emoji: profile?.emoji || 'ð¤',
                 profilePhoto: profile?.profilePhoto || null,
                 lastMessage: preview,
                 lastTimestamp: msg.timestamp || null,
@@ -3410,7 +3421,7 @@ async function renderContacts() {
         <div class="info">
             <div class="name ai-chat-name">ChatPro AI <span class="ai-verified"><i class="fas fa-circle-check"></i></span><span class="ai-online"></span></div>
             <div class="email">Personal AI assistant</div>
-            <div class="last-msg ai-chat-preview">${getAIConversation().length ? escapeHtml(getAIConversation().at(-1)?.text?.slice(0,55)||'Ask me anything') : 'Ask me anything ✨'}</div>
+            <div class="last-msg ai-chat-preview">${getAIConversation().length ? escapeHtml(getAIConversation().at(-1)?.text?.slice(0,55)||'Ask me anything') : 'Ask me anything â¨'}</div>
         </div>
     </div>` : '';
     // Unknown chats are shown like WhatsApp's unsaved-number conversations.
@@ -3419,7 +3430,7 @@ async function renderContacts() {
              data-email="${contact.email}"
              onclick="selectContact('${contact.email}')">
             <div class="avatar">
-                ${contact.profilePhoto ? `<img src="${contact.profilePhoto}" alt="Profile" />` : (contact.emoji || '👤')}
+                ${contact.profilePhoto ? `<img src="${contact.profilePhoto}" alt="Profile" />` : (contact.emoji || 'ð¤')}
             </div>
             <div class="info">
                 <div class="name">
@@ -3487,7 +3498,7 @@ async function displayContactProfile(email) {
         if (data.profilePhoto) {
             contactAvatar.innerHTML = `<img src="${data.profilePhoto}" alt="Profile" />`;
         } else {
-            contactAvatar.textContent = data.emoji || '👤';
+            contactAvatar.textContent = data.emoji || 'ð¤';
         }
 
         contactNameDisplay.textContent = data.name || unknownContact?.name || 'Unknown User';
@@ -3533,6 +3544,7 @@ async function loadMessages(contactEmail) {
     const loadToken = ++chatLoadToken;
     const normalizedContact = String(contactEmail || '').trim().toLowerCase();
     if (!currentUser || !normalizedContact) return;
+    if (pendingReplyMessage && pendingReplyMessage.chat_id && String(pendingReplyMessage.chat_id) !== getChatId(currentUser.email, normalizedContact)) { try { clearReplyPreview(); } catch (_) {} }
 
     if (unsubscribeMessages) {
         try { await unsubscribeMessages(); } catch (_) {}
@@ -3591,6 +3603,8 @@ async function loadMessages(contactEmail) {
 
             // Never hide delivered/read messages. Only hide messages explicitly deleted for this user.
             const hiddenForMe = JSON.parse(localStorage.getItem('chatproDeletedForMe') || '[]');
+            window.chatproMessageCache = window.chatproMessageCache || {};
+            (rows || []).forEach(r => { window.chatproMessageCache[String(r.id)] = r; });
             const visibleRows = (rows || []).filter(msg => !hiddenForMe.includes(String(msg.id)));
 
             if (!visibleRows.length) {
@@ -3618,9 +3632,9 @@ async function loadMessages(contactEmail) {
                     mediaHTML = `<div class="location-card"><i class="fas fa-location-dot" style="font-size:24px;color:#00cdbd"></i><div><strong>Location</strong><div style="font-size:11px;color:var(--text-muted)">${escapeHtml(String(loc.lat ?? '') + ', ' + String(loc.lng ?? ''))}</div><a href="https://www.google.com/maps?q=${encodeURIComponent(String(loc.lat ?? '') + ',' + String(loc.lng ?? ''))}" target="_blank" rel="noopener" style="color:#a99cff;font-size:11px">Open map</a></div></div>`;
                 } else if (msg.media_type === 'poll' && msg.metadata) {
                     const poll = msg.metadata;
-                    mediaHTML = `<div class="poll-box"><strong>📊 ${escapeHtml(poll.question || 'Poll')}</strong>${(poll.options || []).map((o,i)=>`<button class="poll-option" onclick="votePoll('${escapeHtml(msg.id)}',${i})">${escapeHtml(o)}</button>`).join('')}</div>`;
+                    mediaHTML = `<div class="poll-box"><strong>ð ${escapeHtml(poll.question || 'Poll')}</strong>${(poll.options || []).map((o,i)=>`<button class="poll-option" onclick="votePoll('${escapeHtml(msg.id)}',${i})">${escapeHtml(o)}</button>`).join('')}</div>`;
                 } else if (msg.media_type === 'sticker') {
-                    mediaHTML = `<div class="sticker-msg">${escapeHtml(msg.text || '🙂')}</div>`;
+                    mediaHTML = `<div class="sticker-msg">${escapeHtml(msg.text || 'ð')}</div>`;
                 } else if (msg.media_type === 'voice' && msg.media_url) {
                     const duration = msg.duration || 5;
                     const bars = Array.from({length: 20}, () => Math.random() * 60 + 20);
@@ -3630,10 +3644,11 @@ async function loadMessages(contactEmail) {
                 const time = msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : '';
                 const scheduledTag = msg.status === 'scheduled' ? `<span class="schedule-chip"><i class="fas fa-clock"></i> Scheduled for ${msg.scheduled_at ? new Date(msg.scheduled_at).toLocaleString() : ''}</span>` : '';
                 const replyMeta = meta.replyTo || meta.reply_to;
-                const quoted = replyMeta ? `<div class="quoted-reply"><strong>↩ ${escapeHtml(replyMeta.senderName || 'Reply')}</strong>${escapeHtml(String(replyMeta.text || 'Message').slice(0,180))}</div>` : '';
-                const body = deletedForEveryone ? '<div class="media-caption"><i class="fas fa-ban"></i> This message was deleted</div>' : `${mediaHTML}${msg.text ? `<div class="media-caption">${escapeHtml(msg.text)}</div>` : ''}`;
-                const indicators = `<div class="message-action-indicators">${starred.includes(String(msg.id))?'<span title="Starred">⭐</span>':''}${pinned.includes(String(msg.id))?'<span title="Pinned">📌</span>':''}${deletedForEveryone?'<span>Deleted</span>':''}</div>`;
-                messagesHTML += `<div class="msg ${msgClass} ${msg.status==='scheduled'?'scheduled':''} ${deletedForEveryone?'deleted-message':''} ${isSinhala ? 'sinhala' : ''}" data-message-id="${escapeHtml(msg.id)}">${!isSent && !isBroadcast ? `<span class="sender">${escapeHtml(msg.sender_name || 'Unknown')}</span>` : ''}${isBroadcast ? '<span class="sender">📢 ADMIN</span>' : ''}${scheduledTag}${quoted}${body}<span class="time-stamp">${time}</span>${indicators}</div>`;
+                const quoted = replyMeta ? `<div class="quoted-reply" data-reply-id="${escapeHtml(replyMeta.id || '')}"><strong>â© ${escapeHtml((replyMeta.sender && String(replyMeta.sender).trim().toLowerCase() === myEmail) ? 'You' : (replyMeta.senderName || 'Reply'))}</strong>${escapeHtml(String(replyMeta.text || 'Message').slice(0,180))}</div>` : '';
+                const body = deletedForEveryone ? '<div class="media-caption"><i class="fas fa-ban"></i> ' + (isSent ? 'You deleted this message' : 'This message was deleted') + '</div>' : `${mediaHTML}${msg.text ? `<div class="media-caption">${escapeHtml(msg.text)}</div>` : ''}`;
+                const fwdLabel = (!deletedForEveryone && (meta.forwarded || meta.forwardedFrom)) ? '<span class="forwarded-label"><i class="fas fa-share"></i> Forwarded</span>' : '';
+                const indicators = `<div class="message-action-indicators">${starred.includes(String(msg.id))?'<span title="Starred">â­</span>':''}${pinned.includes(String(msg.id))?'<span title="Pinned">ð</span>':''}${deletedForEveryone?'<span>Deleted</span>':''}</div>`;
+                messagesHTML += `<div class="msg ${msgClass} ${msg.status==='scheduled'?'scheduled':''} ${deletedForEveryone?'deleted-message':''} ${isSinhala ? 'sinhala' : ''}" data-message-id="${escapeHtml(msg.id)}">${!isSent && !isBroadcast ? `<span class="sender">${escapeHtml(msg.sender_name || 'Unknown')}</span>` : ''}${isBroadcast ? '<span class="sender">ð¢ ADMIN</span>' : ''}${scheduledTag}${deletedForEveryone ? '' : fwdLabel}${deletedForEveryone ? '' : quoted}${body}<span class="time-stamp">${time}</span>${indicators}</div>`;
             });
 
             chatMessages.innerHTML = messagesHTML;
@@ -3643,7 +3658,7 @@ async function loadMessages(contactEmail) {
             if (newestReceived) maybeAutoReply(newestReceived);
 
             const lastMsg = visibleRows[visibleRows.length - 1];
-            const preview = lastMsg.text || (lastMsg.media_type === 'image' ? '📷 Photo' : lastMsg.media_type === 'video' ? '🎥 Video' : lastMsg.media_type === 'voice' ? '🎤 Voice' : lastMsg.media_type === 'location' ? '📍 Location' : lastMsg.media_type === 'poll' ? '📊 Poll' : lastMsg.media_type === 'sticker' ? '🙂 Sticker' : '');
+            const preview = lastMsg.text || (lastMsg.media_type === 'image' ? 'ð· Photo' : lastMsg.media_type === 'video' ? 'ð¥ Video' : lastMsg.media_type === 'voice' ? 'ð¤ Voice' : lastMsg.media_type === 'location' ? 'ð Location' : lastMsg.media_type === 'poll' ? 'ð Poll' : lastMsg.media_type === 'sticker' ? 'ð Sticker' : '');
             const contact = contacts.find(c => String(c.email || '').trim().toLowerCase() === normalizedContact);
             if (contact) {
                 contact.lastMessage = preview;
@@ -3728,7 +3743,7 @@ async function sendMessage(mediaFile = null, mediaType = null) {
     const contact = contacts.find(c => c.email === currentChatWith);
     const senderName = currentUserData?.name || currentUser.email.split('@')[0];
     const language = detectLanguage(text);
-    const messageData = { chat_id: chatId, sender: currentUser.email, sender_name: senderName, timestamp: new Date().toISOString(), recipient: currentChatWith, recipient_name: contact?.name || currentChatWith, language, text: text || null, media_type: null, media_url: null, media_mime_type: null, duration: null, is_broadcast: false, status:'sent', scheduled_at:null, message_type:mediaType || 'text', metadata:pendingReplyMessage ? {replyTo:{id:pendingReplyMessage.id,text:pendingReplyMessage.text||'Media message',senderName:pendingReplyMessage.sender_name||pendingReplyMessage.sender||'Unknown'}} : null };
+    const messageData = { chat_id: chatId, sender: currentUser.email, sender_name: senderName, timestamp: new Date().toISOString(), recipient: currentChatWith, recipient_name: contact?.name || currentChatWith, language, text: text || null, media_type: null, media_url: null, media_mime_type: null, duration: null, is_broadcast: false, status:'sent', scheduled_at:null, message_type:mediaType || 'text', metadata:pendingReplyMessage ? {replyTo:{id:pendingReplyMessage.id,text:(typeof messagePreviewText==='function'?messagePreviewText(pendingReplyMessage):(pendingReplyMessage.text||'Media message')),senderName:pendingReplyMessage.sender_name||pendingReplyMessage.sender||'Unknown',sender:pendingReplyMessage.sender||null}} : null };
     if (mediaFile && mediaType) {
         try {
             const uploaded = await uploadMedia(mediaFile, mediaType);
@@ -3777,7 +3792,7 @@ fileInput.addEventListener('change', async (e) => {
 
     const statusMsg = document.createElement('div');
     statusMsg.className = 'msg sent';
-    statusMsg.textContent = isVideo ? '🎥 Uploading video...' : '📷 Uploading image...';
+    statusMsg.textContent = isVideo ? 'ð¥ Uploading video...' : 'ð· Uploading image...';
     chatMessages.appendChild(statusMsg);
     chatMessages.scrollTop = chatMessages.scrollHeight;
 
@@ -3788,7 +3803,7 @@ fileInput.addEventListener('change', async (e) => {
         statusMsg.remove();
     } catch (err) {
         console.error('Upload error:', err);
-        statusMsg.textContent = '❌ Failed to upload: ' + err.message;
+        statusMsg.textContent = 'â Failed to upload: ' + err.message;
         statusMsg.style.background = '#ff5e5e';
         setTimeout(() => statusMsg.remove(), 3000);
     }
@@ -3872,16 +3887,16 @@ cancelSchedule.addEventListener('click',()=>scheduleModal.classList.add('hidden'
 confirmSchedule.addEventListener('click',async()=>{try{if(!pendingSchedule||!currentChatWith)throw new Error('Select a chat first.');const t=new Date(scheduleDateTime.value);if(isNaN(t)||t<=new Date())throw new Error('Choose a future time.');await insertAdvancedMessage({...pendingSchedule,scheduledAt:t.toISOString()});scheduleModal.classList.add('hidden');pendingSchedule=null;}catch(e){scheduleError.textContent=e.message;}});
 async function insertAdvancedMessage(extra){await requireSupabase();const contact=contacts.find(c=>c.email===currentChatWith);const row={chat_id:getChatId(currentUser.email,currentChatWith),sender:currentUser.email,sender_name:currentUserData?.name||currentUser.email.split('@')[0],timestamp:new Date().toISOString(),recipient:currentChatWith,recipient_name:contact?.name||currentChatWith,language:detectLanguage(extra.text||''),text:extra.text||null,media_type:extra.media_type||null,media_url:extra.media_url||null,media_path:extra.media_path||null,media_mime_type:extra.media_mime_type||null,duration:extra.duration||null,is_broadcast:false,status:extra.scheduledAt?'scheduled':'sent',scheduled_at:extra.scheduledAt||null,message_type:extra.message_type||extra.media_type||'text',metadata:extra.metadata||null};const {error}=await supabaseClient.from('messages').insert(row);if(error)throw error;}
 scheduleBtn.addEventListener('click',()=>{const text=messageInput.value.trim();if(!text)return openScheduleFor({text,summary:`Text: ${text.slice(0,70)}`});openScheduleFor({text:'',summary:'No text content selected. Use Photo/Video/Voice, Location, Poll or Sticker to schedule that content.'});});
-locationBtn.addEventListener('click',async()=>{if(!navigator.geolocation){alert('Location is not supported by this browser.');return}navigator.geolocation.getCurrentPosition(pos=>{const payload={media_type:'location',message_type:'location',metadata:{lat:pos.coords.latitude,lng:pos.coords.longitude,accuracy:pos.coords.accuracy},summary:'📍 Your current location'};if(confirm('Send location now? Cancel to schedule it.'))insertAdvancedMessage(payload).catch(e=>alert(e.message));else openScheduleFor(payload)},e=>alert('Could not get location: '+e.message),{enableHighAccuracy:true,timeout:10000});});
+locationBtn.addEventListener('click',async()=>{if(!navigator.geolocation){alert('Location is not supported by this browser.');return}navigator.geolocation.getCurrentPosition(pos=>{const payload={media_type:'location',message_type:'location',metadata:{lat:pos.coords.latitude,lng:pos.coords.longitude,accuracy:pos.coords.accuracy},summary:'ð Your current location'};if(confirm('Send location now? Cancel to schedule it.'))insertAdvancedMessage(payload).catch(e=>alert(e.message));else openScheduleFor(payload)},e=>alert('Could not get location: '+e.message),{enableHighAccuracy:true,timeout:10000});});
 pollScheduleToggle.addEventListener('change',()=>pollScheduleTime.classList.toggle('hidden',!pollScheduleToggle.checked));
 pollBtn.addEventListener('click',()=>{pollError.textContent='';pollQuestion.value='';[pollOption1,pollOption2,pollOption3,pollOption4].forEach(x=>x.value='');pollScheduleToggle.checked=false;pollScheduleTime.classList.add('hidden');pollModal.classList.remove('hidden');});cancelPoll.addEventListener('click',()=>pollModal.classList.add('hidden'));
 confirmPoll.addEventListener('click',async()=>{try{const q=pollQuestion.value.trim();const options=[pollOption1.value,pollOption2.value,pollOption3.value,pollOption4.value].map(x=>x.trim()).filter(Boolean);if(!q||options.length<2)throw new Error('Add a question and at least two options.');let scheduledAt=null;if(pollScheduleToggle.checked){const d=new Date(pollScheduleTime.value);if(isNaN(d)||d<=new Date())throw new Error('Choose a future poll time.');scheduledAt=d.toISOString();}await insertAdvancedMessage({media_type:'poll',message_type:'poll',metadata:{question:q,options},text:null,scheduledAt});pollModal.classList.add('hidden');}catch(e){pollError.textContent=e.message;}});
-const STICKERS=['😀','😂','😍','🥰','😎','🤩','😇','🥳','🤗','😜','🤔','😴','😭','😡','❤️','💖','🔥','👍','👏','🎉','🚀','✨','💯','🙏','🌟'];
+const STICKERS=['ð','ð','ð','ð¥°','ð','ð¤©','ð','ð¥³','ð¤','ð','ð¤','ð´','ð­','ð¡','â¤ï¸','ð','ð¥','ð','ð','ð','ð','â¨','ð¯','ð','ð'];
 stickerGrid.innerHTML=STICKERS.map(s=>`<button class="tool-btn" style="font-size:30px;padding:10px" data-sticker="${s}">${s}</button>`).join('');stickerGrid.addEventListener('click',e=>{const b=e.target.closest('[data-sticker]');if(!b)return;const sticker=b.dataset.sticker;if(stickerScheduleMode){const d=new Date(stickerScheduleTime.value);if(isNaN(d)||d<=new Date()){alert('Choose a future time.');return;}insertAdvancedMessage({media_type:'sticker',message_type:'sticker',text:sticker,scheduledAt:d.toISOString()}).then(()=>stickerModal.classList.add('hidden')).catch(x=>alert(x.message));}else insertAdvancedMessage({media_type:'sticker',message_type:'sticker',text:sticker}).then(()=>stickerModal.classList.add('hidden')).catch(x=>alert(x.message));});
 stickerBtn.addEventListener('click',()=>{stickerScheduleMode=false;stickerScheduleTime.classList.add('hidden');stickerModal.classList.remove('hidden')});toggleStickerSchedule.addEventListener('click',()=>{stickerScheduleMode=!stickerScheduleMode;stickerScheduleTime.classList.toggle('hidden',!stickerScheduleMode);toggleStickerSchedule.textContent=stickerScheduleMode?'Pick time above':'Schedule'});cancelSticker.addEventListener('click',()=>stickerModal.classList.add('hidden'));
 window.votePoll=async function(id,index){try{const {data,error}=await supabaseClient.from('messages').select('metadata').eq('id',id).maybeSingle();if(error)throw error;const p=data?.metadata||{};alert(`You selected: ${(p.options||[])[index]||'Option'}`);}catch(e){alert(e.message)}};
 // Wrap media sending so it can be scheduled from the same content flow.
-function requestScheduleCurrentMedia(file,type){const ext=safeFileName(file.name||'file').split('.').pop()||'bin';return uploadToBucket(MEDIA_BUCKET,`${currentUser.id}/${Date.now()}_${crypto.randomUUID?crypto.randomUUID():Math.random().toString(36).slice(2)}.${ext}`,file).then(up=>openScheduleFor({media_type:type,media_url:up.publicUrl,media_path:up.path,media_mime_type:file.type||'application/octet-stream',summary:type==='image'?'📷 Photo':type==='video'?'🎥 Video':'🎤 Voice'}));}
+function requestScheduleCurrentMedia(file,type){const ext=safeFileName(file.name||'file').split('.').pop()||'bin';return uploadToBucket(MEDIA_BUCKET,`${currentUser.id}/${Date.now()}_${crypto.randomUUID?crypto.randomUUID():Math.random().toString(36).slice(2)}.${ext}`,file).then(up=>openScheduleFor({media_type:type,media_url:up.publicUrl,media_path:up.path,media_mime_type:file.type||'application/octet-stream',summary:type==='image'?'ð· Photo':type==='video'?'ð¥ Video':'ð¤ Voice'}));}
 
 // ============================================================
 // LOCKED CHATS / CONTACT LIST LOCK
@@ -3901,7 +3916,7 @@ async function unlockLockedChats(){
     return false;
 }
 
-function renderLockedContacts(){const list=Object.keys(lockedChats);const saved=list.map(email=>contacts.find(c=>String(c.email).toLowerCase()===email)).filter(Boolean);if(!saved.length){contactsList.innerHTML='<div style="padding:35px;text-align:center;color:var(--text-muted)">No locked chats available.</div>';return}contactsList.innerHTML=saved.map(c=>`<div class="contact-item" onclick="selectContact('${escapeHtml(c.email)}')"><div class="avatar">${c.profilePhoto?`<img src="${escapeHtml(c.profilePhoto)}" alt="Profile">`:(c.emoji||'👤')}</div><div class="info"><div class="name">${escapeHtml(c.name||c.email)} <span class="contact-lock">🔒</span></div><div class="last-msg">${escapeHtml(c.lastMessage||'Locked chat')}</div></div></div>`).join('');}
+function renderLockedContacts(){const list=Object.keys(lockedChats);const saved=list.map(email=>contacts.find(c=>String(c.email).toLowerCase()===email)).filter(Boolean);if(!saved.length){contactsList.innerHTML='<div style="padding:35px;text-align:center;color:var(--text-muted)">No locked chats available.</div>';return}contactsList.innerHTML=saved.map(c=>`<div class="contact-item" onclick="selectContact('${escapeHtml(c.email)}')"><div class="avatar">${c.profilePhoto?`<img src="${escapeHtml(c.profilePhoto)}" alt="Profile">`:(c.emoji||'ð¤')}</div><div class="info"><div class="name">${escapeHtml(c.name||c.email)} <span class="contact-lock">ð</span></div><div class="last-msg">${escapeHtml(c.lastMessage||'Locked chat')}</div></div></div>`).join('');}
 // Search supports either normal contact lookup or privacy password entry.
 searchContact.addEventListener('keydown',async e=>{if(e.key==='Escape'){searchContact.value='';renderContacts();return;}if(e.key==='Enter' && searchContact.value.trim() && currentUserData?.lockPasswordHash){if(await unlockLockedChats())e.preventDefault();}});
 
@@ -3944,57 +3959,57 @@ async function getPersonalAIResponse(question){
     if(has('summarize','summary','summarise','what happened','what did we talk')){
         if(!textRows.length) return `There are no text messages available in the conversation with ${currentName} to summarize.`;
         const facts=typeof extractKeyFacts==='function'?extractKeyFacts(allText):[];
-        return `🧠 Conversation summary with ${currentName}:\n${last.slice(-10).map(r=>`• ${r.sender===currentUser?.email?'You':(r.sender_name||'Contact')}: ${String(r.text).slice(0,220)}`).join('\n')}${facts.length?'\n\nKey points: '+facts.join('; '):''}`;
+        return `ð§  Conversation summary with ${currentName}:\n${last.slice(-10).map(r=>`â¢ ${r.sender===currentUser?.email?'You':(r.sender_name||'Contact')}: ${String(r.text).slice(0,220)}`).join('\n')}${facts.length?'\n\nKey points: '+facts.join('; '):''}`;
     }
     if(has('find','search','where did','what did','when did','who said')){
         const stop=['what','did','someone','they','say','said','where','when','who','find','search','message','conversation','chat'];
         const terms=lower.replace(/[^\p{L}\p{N}\s]/gu,' ').split(/\s+/).filter(w=>w.length>2&&!stop.includes(w));
         const hits=textRows.filter(r=>terms.length && terms.some(t=>String(r.text).toLowerCase().includes(t)));
         if(!hits.length) return 'I searched the available messages in this conversation but could not find a matching message.';
-        return `🔎 I found ${hits.length} matching message(s):\n`+hits.slice(-8).map(r=>`• ${new Date(r.timestamp).toLocaleString()} — ${r.sender===currentUser?.email?'You':(r.sender_name||'Contact')}: ${r.text}`).join('\n');
+        return `ð I found ${hits.length} matching message(s):\n`+hits.slice(-8).map(r=>`â¢ ${new Date(r.timestamp).toLocaleString()} â ${r.sender===currentUser?.email?'You':(r.sender_name||'Contact')}: ${r.text}`).join('\n');
     }
     if(has('decision','decided','agreed','agreement','plan','school project','meeting','deadline')){
         const facts=typeof extractKeyFacts==='function'?extractKeyFacts(allText):[];
         const likely=last.filter(r=>/decid|agree|meet|meeting|friday|saturday|sunday|monday|tuesday|wednesday|thursday|deadline|finish|project|plan|due/i.test(r.text));
         if(!likely.length&&!facts.length) return 'I could not find a clear decision, meeting time, or project plan in the available messages.';
-        return `📌 From this conversation, the relevant discussion is:\n${(likely.slice(-8).map(r=>`• ${r.text}`)).join('\n')}${facts.length?'\n\nKey facts: '+facts.join('; '):''}`;
+        return `ð From this conversation, the relevant discussion is:\n${(likely.slice(-8).map(r=>`â¢ ${r.text}`)).join('\n')}${facts.length?'\n\nKey facts: '+facts.join('; '):''}`;
     }
     if(has('translate','translation')){
-        const target=/sinhala|සිංහල/i.test(q)?'Sinhala':'English';
+        const target=/sinhala|à·à·à¶à·à¶½/i.test(q)?'Sinhala':'English';
         const source=textRows.length?textRows[textRows.length-1].text:q.replace(/.*?translate/i,'').trim();
-        return `🌐 Translation to ${target}:\n${typeof simpleTranslate==='function'?simpleTranslate(source,target):source}`;
+        return `ð Translation to ${target}:\n${typeof simpleTranslate==='function'?simpleTranslate(source,target):source}`;
     }
     if(has('rewrite','rephrase','make this','improve this','professional')){
         const source=q.replace(/^(please\s+)?(rewrite|rephrase|improve)( this message)?[:\s]*/i,'').trim() || textRows.at(-1)?.text;
-        return `✍️ Suggested rewrite:\n${typeof rewriteText==='function'?rewriteText(source):source}`;
+        return `âï¸ Suggested rewrite:\n${typeof rewriteText==='function'?rewriteText(source):source}`;
     }
     if(has('explain','meaning','what does this mean','what is this')){
         const source=textRows.at(-1)?.text || q;
-        return `💡 Explanation:\n${typeof explainText==='function'?explainText(source):'This appears to be a message from the current conversation.'}`;
+        return `ð¡ Explanation:\n${typeof explainText==='function'?explainText(source):'This appears to be a message from the current conversation.'}`;
     }
     if(has('reply','respond','response','what should i say','answer them')){
         const received=[...textRows].reverse().find(r=>r.sender!==currentUser?.email);
         if(!received) return 'I could not find a received text message to reply to.';
-        const reply=typeof makeReply==='function'?makeReply(received.text):`Thanks for your message. I’ll get back to you soon.`;
-        return `💬 Suggested reply to ${received.sender_name||currentName}:\n${reply}`;
+        const reply=typeof makeReply==='function'?makeReply(received.text):`Thanks for your message. Iâll get back to you soon.`;
+        return `ð¬ Suggested reply to ${received.sender_name||currentName}:\n${reply}`;
     }
     if(has('poll','vote','questionnaire')){
         const topic=(last.map(r=>r.text).join(' ').slice(-180)||'this conversation').replace(/\s+/g,' ');
-        return `📊 Poll idea based on this conversation:\nQuestion: What should we decide about ${topic}?\n\nOptions: Yes / No / Need to discuss`;
+        return `ð Poll idea based on this conversation:\nQuestion: What should we decide about ${topic}?\n\nOptions: Yes / No / Need to discuss`;
     }
     if(has('image','screenshot','photo','picture')){
         const image=rows.find(r=>r.media_type==='image');
-        return image?'🖼️ I found an image in this conversation. Use the Analyze Image action for OCR/description of the latest image.':'I could not find an image message in this conversation.';
+        return image?'ð¼ï¸ I found an image in this conversation. Use the Analyze Image action for OCR/description of the latest image.':'I could not find an image message in this conversation.';
     }
-    if(has('document','file','pdf','summarize document')) return '📄 Use the Summarize Document action to select a document. Text-based documents can be summarized in the browser; advanced PDF/vision analysis requires the optional AI service configuration.';
-    if(has('who','person','contact','name')) return `👤 This conversation is with ${currentName}. There are ${textRows.length} text messages available for my context.`;
+    if(has('document','file','pdf','summarize document')) return 'ð Use the Summarize Document action to select a document. Text-based documents can be summarized in the browser; advanced PDF/vision analysis requires the optional AI service configuration.';
+    if(has('who','person','contact','name')) return `ð¤ This conversation is with ${currentName}. There are ${textRows.length} text messages available for my context.`;
     if(has('about this chat','current chat','this conversation','messages')){
         return textRows.length?`I can work with this conversation. I currently have ${textRows.length} text messages available and can summarize them, search for decisions or old messages, translate, explain, rewrite, draft replies, and create poll ideas.`:'This conversation does not contain any text messages yet.';
     }
     // For ordinary questions, combine site knowledge with conversation context.
     const siteAnswer=localAIResponse(q);
     if(siteAnswer && !/I can help answer questions about ChatPro, its features, settings, identity verification, privacy, messaging, media, scheduling, polls/i.test(siteAnswer)) return siteAnswer;
-    if(textRows.length) return `I can answer that using the current chat when the messages contain the needed information. I found ${textRows.length} text messages here. Try asking, “What did we decide?”, “Find where they mentioned Friday”, “Summarize this chat”, or “Create a reply.”`;
+    if(textRows.length) return `I can answer that using the current chat when the messages contain the needed information. I found ${textRows.length} text messages here. Try asking, âWhat did we decide?â, âFind where they mentioned Fridayâ, âSummarize this chatâ, or âCreate a reply.â`;
     return siteAnswer;
 }
 
@@ -4007,10 +4022,10 @@ function localAIResponse(q){
         project:'ChatPro is a WhatsApp-style premium messaging web application.'
     };
     if(!raw) return 'Ask me anything about ChatPro, its features, how to use it, or about Sahan Lakmina.';
-    if(/^(hi|hello|hey|ආයුබෝවන්|හෙලෝ|හායි|හලෝ)[!,. ]*$/i.test(raw)) return 'Hello! 👋 I’m ChatPro AI. I can answer questions about this messenger, its features, settings, security and the person behind the project, Sahan Lakmina. What would you like to know?';
+    if(/^(hi|hello|hey|à¶à¶ºà·à¶¶à·à·à¶±à·|à·à·à¶½à·|à·à·à¶ºà·|à·à¶½à·)[!,. ]*$/i.test(raw)) return 'Hello! ð Iâm ChatPro AI. I can answer questions about this messenger, its features, settings, security and the person behind the project, Sahan Lakmina. What would you like to know?';
     if(has('who made you','who created you','who built you','creator of chatpro','developer of chatpro','who made chatpro','who created chatpro')) return `ChatPro AI is the built-in AI assistant of this messenger. The person associated with this ChatPro project is ${aboutMe.name}.`;
-    if(has('who is sahan','about sahan','about you','who are you talking about','tell me about sahan')) return `Sahan Lakmina is the name of the person behind this ChatPro project. In this site’s AI profile, Sahan is described as the creator/developer associated with the messenger. I won’t invent personal details that are not provided to me.`;
-    if(has('sahan lakmina')) return `Sahan Lakmina is the person associated with the ChatPro messenger project. If you ask me about Sahan, I can share the information configured in this site’s AI profile, but I won’t make up private or unverified facts.`;
+    if(has('who is sahan','about sahan','about you','who are you talking about','tell me about sahan')) return `Sahan Lakmina is the name of the person behind this ChatPro project. In this siteâs AI profile, Sahan is described as the creator/developer associated with the messenger. I wonât invent personal details that are not provided to me.`;
+    if(has('sahan lakmina')) return `Sahan Lakmina is the person associated with the ChatPro messenger project. If you ask me about Sahan, I can share the information configured in this siteâs AI profile, but I wonât make up private or unverified facts.`;
     if(has('what is chatpro','what is this site','about this site','about chatpro','this messenger','what is this messenger')) return 'ChatPro is a premium WhatsApp-style messaging web app. It is designed for account login/registration, identity verification for normal users, real-time conversations, contacts, media messaging, privacy tools, scheduling, polls, stickers, location sharing and a built-in ChatPro AI assistant.';
     if(has('feature','features','what can i do','what can this app do','capabilities')) return 'ChatPro includes messaging, contacts, profile management, photos/videos/voice messages, scheduled messages, polls, stickers, location sharing, privacy and chat-lock tools, auto-reply, administration features, identity verification, and ChatPro AI.';
     if(has('login','log in','sign in','register','registration','account')) return 'ChatPro provides account registration and login. Built-in administrator accounts can enter the messenger without NIC verification, while normal accounts are required to complete the configured identity-verification process.';
@@ -4019,19 +4034,19 @@ function localAIResponse(q){
     if(has('admin','administrator')) return 'ChatPro has built-in administrator accounts and an admin area. Administrators have additional management tools, and built-in admin accounts do not have to complete the normal NIC verification step.';
     if(has('message','messaging','chat','send text','send a message')) return 'To send a normal message, open a contact, type in the message box and press Send or Enter. ChatPro is designed around a WhatsApp-style conversation interface.';
     if(has('photo','photos','image','picture','video','media','voice','recording','audio')) return 'ChatPro supports media messaging, including photos, videos and voice recordings, subject to the storage/backend configuration of the site.';
-    if(has('schedule','scheduled')) return 'You can use ChatPro’s scheduling tools for messages and supported content. Choose the content, select a future date/time, and confirm the schedule.';
+    if(has('schedule','scheduled')) return 'You can use ChatProâs scheduling tools for messages and supported content. Choose the content, select a future date/time, and confirm the schedule.';
     if(has('poll','polls','vote')) return 'ChatPro supports polls. Create a question, add at least two options, and send or schedule the poll in a conversation.';
-    if(has('lock','locked chat','privacy and automation')) return 'Open Settings → Privacy & Automation to configure privacy options such as contact-list protection, chat locking and auto-reply.';
+    if(has('lock','locked chat','privacy and automation')) return 'Open Settings â Privacy & Automation to configure privacy options such as contact-list protection, chat locking and auto-reply.';
     if(has('auto reply','autoreply','automatic reply')) return 'Auto-reply is available in Settings. You can enable it and configure the automatic response text.';
     if(has('supabase','database','backend','storage')) return 'This ChatPro build uses Supabase for backend services such as authentication, database records, realtime data and storage.';
     if(has('google drive','drive')) return 'If Google Drive storage is configured for this build, Drive can be used for user media/profile storage. The exact behavior depends on the Google Cloud OAuth/API configuration used by the site.';
-    if(has('ai','artificial intelligence','meta ai','chatpro ai')) return 'I’m ChatPro AI, the built-in AI assistant. I can answer questions about this site and its configured features, help with writing and rewriting, explain settings, translate text, and provide information about Sahan Lakmina that has been configured for this assistant.';
-    if(has('help','how do i','how can i','where is')) return 'I can guide you through ChatPro. Tell me what you want to do—for example, “How do I lock a chat?”, “How do I send a photo?”, “How does NIC verification work?”, or “Who is Sahan Lakmina?”';
-    if(/write|rewrite|reply|caption|draft|compose/.test(x)) return 'Absolutely ✨ Tell me what you want to write, who it is for, and the tone you want (friendly, professional, short, formal, etc.). I can draft or rewrite it.';
+    if(has('ai','artificial intelligence','meta ai','chatpro ai')) return 'Iâm ChatPro AI, the built-in AI assistant. I can answer questions about this site and its configured features, help with writing and rewriting, explain settings, translate text, and provide information about Sahan Lakmina that has been configured for this assistant.';
+    if(has('help','how do i','how can i','where is')) return 'I can guide you through ChatPro. Tell me what you want to doâfor example, âHow do I lock a chat?â, âHow do I send a photo?â, âHow does NIC verification work?â, or âWho is Sahan Lakmina?â';
+    if(/write|rewrite|reply|caption|draft|compose/.test(x)) return 'Absolutely â¨ Tell me what you want to write, who it is for, and the tone you want (friendly, professional, short, formal, etc.). I can draft or rewrite it.';
     if(has('summarize','summary','summarise')) return 'I can help summarize text or a conversation. Paste the content you want summarized, or ask me about the current conversation if that feature is connected to the chat data.';
-    if(has('translate','translation','සිංහල','sinhala','english')) return 'I can help translate between English and Sinhala. Send the text and tell me the language you want as the result.';
-    if(has('thank','thanks','thank you')) return 'You’re welcome! 😊 I’m here whenever you need help with ChatPro.';
-    return `I can help answer questions about ChatPro, its features, settings, identity verification, privacy, messaging, media, scheduling, polls, and the project creator ${aboutMe.name}. I can also help with writing, rewriting, translation and summaries. If your question is about something outside the information configured for this site, I’ll tell you rather than invent an answer.`;
+    if(has('translate','translation','à·à·à¶à·à¶½','sinhala','english')) return 'I can help translate between English and Sinhala. Send the text and tell me the language you want as the result.';
+    if(has('thank','thanks','thank you')) return 'Youâre welcome! ð Iâm here whenever you need help with ChatPro.';
+    return `I can help answer questions about ChatPro, its features, settings, identity verification, privacy, messaging, media, scheduling, polls, and the project creator ${aboutMe.name}. I can also help with writing, rewriting, translation and summaries. If your question is about something outside the information configured for this site, Iâll tell you rather than invent an answer.`;
 }
 aiBtn.addEventListener('click',()=>enterAIChat());closeAi.addEventListener('click',()=>aiPanel.classList.add('hidden'));function sendAI(){const q=aiInput.value.trim();if(!q)return;aiSay(q,true);aiInput.value='';setTimeout(()=>aiSay(localAIResponse(q)),250)}aiSend.addEventListener('click',sendAI);aiInput.addEventListener('keydown',e=>{if(e.key==='Enter')sendAI()});
 
@@ -4077,7 +4092,7 @@ async function loadSettings() {
     
     if (currentUserData.profilePhoto) {
         profilePhotoPreview.innerHTML = `<img src="${currentUserData.profilePhoto}" alt="Profile" />`;
-        selectedEmoji = currentUserData.emoji || '😊';
+        selectedEmoji = currentUserData.emoji || 'ð';
     } else if (currentUserData.emoji) {
         profilePhotoPreview.innerHTML = `<span id="profilePhotoEmoji">${currentUserData.emoji}</span>`;
         selectedEmoji = currentUserData.emoji;
@@ -4138,7 +4153,7 @@ saveProfileSettings.addEventListener('click', async () => {
             headerAvatar.textContent = selectedEmoji;
         }
         
-        settingsProfileSuccess.textContent = '✅ Profile saved successfully!';
+        settingsProfileSuccess.textContent = 'â Profile saved successfully!';
         settingsProfileSuccess.style.color = 'var(--primary)';
         setTimeout(() => {
             settingsProfileSuccess.textContent = '';
@@ -4183,7 +4198,7 @@ profilePhotoInput.addEventListener('change', async (e) => {
         allUsersCache[currentUser.email.toLowerCase()] = { id: currentUser.id, ...currentUserData };
         headerAvatar.innerHTML = `<img src="${uploaded.publicUrl}" alt="Profile" />`;
         profilePhotoPreview.innerHTML = `<img src="${uploaded.publicUrl}" alt="Profile" />`;
-        settingsProfileSuccess.textContent = '✅ Profile photo saved to Supabase Storage.';
+        settingsProfileSuccess.textContent = 'â Profile photo saved to Supabase Storage.';
         settingsProfileSuccess.style.color = 'var(--primary)';
         URL.revokeObjectURL(previewUrl);
     } catch (err) {
@@ -4206,7 +4221,7 @@ clearMediaBtn.addEventListener('click', async () => {
         if (paths.length) { const { error: storageError } = await supabaseClient.storage.from(MEDIA_BUCKET).remove(paths); if (storageError) console.warn(storageError); }
         const ids = (rows || []).map(r => r.id);
         if (ids.length) { const { error: updateError } = await supabaseClient.from('messages').update({ media_url: null, media_type: null, media_path: null, media_mime_type: null, duration: null }).in('id', ids); if (updateError) throw updateError; }
-        alert(`✅ Cleared ${ids.length} media files.`); updateStorageStats();
+        alert(`â Cleared ${ids.length} media files.`); updateStorageStats();
     } catch (err) { alert('Error clearing media: ' + err.message); }
 });
 
@@ -4214,7 +4229,7 @@ clearMediaBtn.addEventListener('click', async () => {
 // DELETE ACCOUNT
 // ============================================================
 deleteAccountBtn.addEventListener('click', async () => {
-    if (!confirm('⚠️ Are you sure you want to delete your account? This is permanent!')) return;
+    if (!confirm('â ï¸ Are you sure you want to delete your account? This is permanent!')) return;
     if (!confirm('All your messages, contacts, profile and media will be permanently deleted. Continue?')) return;
     try {
         await requireSupabase();
@@ -4269,7 +4284,7 @@ confirmAddContact.addEventListener('click', async () => {
         const newContact = {
             name: name,
             email: email,
-            emoji: userData.emoji || '👤',
+            emoji: userData.emoji || 'ð¤',
             profilePhoto: userData.profilePhoto || null,
             lastMessage: ''
         };
@@ -4285,7 +4300,7 @@ confirmAddContact.addEventListener('click', async () => {
         const freshProfile = await getUserByEmail(email, true);
         if (freshProfile) {
             const idx = contacts.findIndex(c => c.email === email);
-            if (idx !== -1) contacts[idx] = { ...contacts[idx], name: freshProfile.name || contacts[idx].name, emoji: freshProfile.emoji || '👤', profilePhoto: freshProfile.profilePhoto || null };
+            if (idx !== -1) contacts[idx] = { ...contacts[idx], name: freshProfile.name || contacts[idx].name, emoji: freshProfile.emoji || 'ð¤', profilePhoto: freshProfile.profilePhoto || null };
             if (currentUserData) currentUserData.contacts = contacts;
         }
         renderContacts();
@@ -4330,7 +4345,7 @@ window.adminBroadcast = async function() {
     try {
         await requireSupabase();
         const { data: users, error } = await supabaseClient.from('profiles').select('email,name'); if (error) throw error;
-        const rows = (users || []).filter(u => u.email !== currentUser.email).map(u => ({ chat_id: getChatId(currentUser.email, u.email), text: `📢 ${message}`, sender: currentUser.email, sender_name: '📢 Admin', timestamp: new Date().toISOString(), recipient: u.email, recipient_name: u.name || u.email, is_broadcast: true, language: detectLanguage(message) }));
+        const rows = (users || []).filter(u => u.email !== currentUser.email).map(u => ({ chat_id: getChatId(currentUser.email, u.email), text: `ð¢ ${message}`, sender: currentUser.email, sender_name: 'ð¢ Admin', timestamp: new Date().toISOString(), recipient: u.email, recipient_name: u.name || u.email, is_broadcast: true, language: detectLanguage(message) }));
         if (rows.length) { const { error: insertError } = await supabaseClient.from('messages').insert(rows); if (insertError) throw insertError; }
         alert(`Broadcast sent to ${rows.length} users!`);
     } catch (err) { alert('Error: ' + err.message); }
@@ -4340,8 +4355,8 @@ window.adminViewUsers = async function() {
     if (!isAdmin) return;
     try {
         await requireSupabase(); const { data: users, error } = await supabaseClient.from('profiles').select('*').order('created_at', { ascending: true }); if (error) throw error;
-        let list = '📋 All Users:\n\n';
-        (users || []).forEach(data => { list += `${data.emoji || '👤'} ${data.name || 'Unnamed'} (${data.email})\n`; list += `  NIC: ${data.nic_number || 'Not provided'}\n`; list += `  About: ${data.about || 'N/A'}\n`; list += `  Storage: Supabase Storage\n\n`; });
+        let list = 'ð All Users:\n\n';
+        (users || []).forEach(data => { list += `${data.emoji || 'ð¤'} ${data.name || 'Unnamed'} (${data.email})\n`; list += `  NIC: ${data.nic_number || 'Not provided'}\n`; list += `  About: ${data.about || 'N/A'}\n`; list += `  Storage: Supabase Storage\n\n`; });
         alert(list);
     } catch (err) { alert('Error: ' + err.message); }
 };
@@ -4364,7 +4379,7 @@ async function adminRefreshStats(){
         ]);
         for(const r of [u,n,m,mm]) if(r.error) throw r.error;
         const stats={users:u.count||0,nics:n.count||0,msgs:m.count||0,media:mm.count||0};
-        adminStats.textContent=`Users: ${stats.users} • Verified NICs: ${stats.nics}`;
+        adminStats.textContent=`Users: ${stats.users} â¢ Verified NICs: ${stats.nics}`;
         adminUsersCount.textContent=stats.users; adminNicCount.textContent=stats.nics; adminMessagesCount.textContent=stats.msgs; adminMediaCount.textContent=stats.media;
         return stats;
     }catch(err){ console.error('Admin stats error:',err); adminStats.textContent='Admin stats unavailable'; }
@@ -4398,7 +4413,7 @@ window.adminViewUsers=async function(){
         adminDashboardContent.innerHTML='<input class="admin-search" id="adminUserSearch" placeholder="Search users by name, email or NIC..." /><div class="admin-user-grid" id="adminUserGrid"></div>';
         const grid=$('adminUserGrid'), search=$('adminUserSearch');
         const draw=()=>{ const q=(search.value||'').toLowerCase().trim(); const filtered=(users||[]).filter(u=>`${u.name||''} ${u.email||''} ${u.nic_number||''}`.toLowerCase().includes(q));
-          grid.innerHTML=filtered.length?filtered.map(u=>`<div class="admin-user-card"><div class="admin-user-top"><div class="admin-user-photo">${u.profile_photo?`<img src="${escapeHtml(u.profile_photo)}" alt="Profile">`:escapeHtml(u.emoji||'👤')}</div><div style="min-width:0"><strong>${escapeHtml(u.name||'Unnamed')}</strong><div style="font-size:11px;color:var(--text-muted);overflow:hidden;text-overflow:ellipsis;">${escapeHtml(u.email||'')}</div></div></div><div class="admin-user-meta"><div><b>Role:</b> ${u.is_admin?'Administrator':'User'}</div><div><b>NIC:</b> ${u.nic_captured?escapeHtml(u.nic_number||'Captured'):'Not captured'}</div><div><b>About:</b> ${escapeHtml(u.about||'—')}</div><div><b>Created:</b> ${u.created_at?new Date(u.created_at).toLocaleString():'—'}</div></div><div class="admin-user-actions">${u.nic_photo_path?`<button onclick="adminViewNIC('${u.id}')"><i class="fas fa-id-card"></i> View NIC</button>`:''}<button onclick="adminInspectUser('${u.id}')"><i class="fas fa-eye"></i> Details</button></div></div>`).join(''):'<div style="padding:25px;color:var(--text-muted);">No users found.</div>';
+          grid.innerHTML=filtered.length?filtered.map(u=>`<div class="admin-user-card"><div class="admin-user-top"><div class="admin-user-photo">${u.profile_photo?`<img src="${escapeHtml(u.profile_photo)}" alt="Profile">`:escapeHtml(u.emoji||'ð¤')}</div><div style="min-width:0"><strong>${escapeHtml(u.name||'Unnamed')}</strong><div style="font-size:11px;color:var(--text-muted);overflow:hidden;text-overflow:ellipsis;">${escapeHtml(u.email||'')}</div></div></div><div class="admin-user-meta"><div><b>Role:</b> ${u.is_admin?'Administrator':'User'}</div><div><b>NIC:</b> ${u.nic_captured?escapeHtml(u.nic_number||'Captured'):'Not captured'}</div><div><b>About:</b> ${escapeHtml(u.about||'â')}</div><div><b>Created:</b> ${u.created_at?new Date(u.created_at).toLocaleString():'â'}</div></div><div class="admin-user-actions">${u.nic_photo_path?`<button onclick="adminViewNIC('${u.id}')"><i class="fas fa-id-card"></i> View NIC</button>`:''}<button onclick="adminInspectUser('${u.id}')"><i class="fas fa-eye"></i> Details</button></div></div>`).join(''):'<div style="padding:25px;color:var(--text-muted);">No users found.</div>';
         }; search.addEventListener('input',draw); draw();
     }catch(err){adminDashboardContent.innerHTML=`<div class="error-msg">${escapeHtml(err.message)}</div>`;}
 };
@@ -4406,7 +4421,7 @@ window.adminViewUsers=async function(){
 window.adminInspectUser=async function(id){
     if(!adminGuard()) return; const {data,error}=await supabaseClient.from('profiles').select('*').eq('id',id).maybeSingle();
     if(error||!data){alert(error?.message||'User not found.');return;}
-    alert([`Name: ${data.name||'—'}`,`Email: ${data.email||'—'}`,`Role: ${data.is_admin?'Admin':'User'}`,`NIC: ${data.nic_number||'—'}`,`NIC captured: ${data.nic_captured?'Yes':'No'}`,`NIC image: ${data.nic_photo_path?'Saved as image file':'Not saved'}`,`About: ${data.about||'—'}`,`Created: ${data.created_at?new Date(data.created_at).toLocaleString():'—'}`].join('\n'));
+    alert([`Name: ${data.name||'â'}`,`Email: ${data.email||'â'}`,`Role: ${data.is_admin?'Admin':'User'}`,`NIC: ${data.nic_number||'â'}`,`NIC captured: ${data.nic_captured?'Yes':'No'}`,`NIC image: ${data.nic_photo_path?'Saved as image file':'Not saved'}`,`About: ${data.about||'â'}`,`Created: ${data.created_at?new Date(data.created_at).toLocaleString():'â'}`].join('\n'));
 };
 
 window.adminViewNIC=async function(userId){
@@ -4415,14 +4430,14 @@ window.adminViewNIC=async function(userId){
         const {data:user,error}=await supabaseClient.from('profiles').select('name,email,nic_photo_path,nic_number').eq('id',userId).maybeSingle(); if(error) throw error;
         if(!user?.nic_photo_path) throw new Error('No NIC image is stored for this account.');
         const {data,error:signError}=await supabaseClient.storage.from(NIC_BUCKET).createSignedUrl(user.nic_photo_path,300); if(signError) throw signError;
-        adminNicTitle.textContent=`${user.name||'User'} • ${user.email||''} • NIC ${user.nic_number||'—'}`; adminNicImage.src=data.signedUrl;
+        adminNicTitle.textContent=`${user.name||'User'} â¢ ${user.email||''} â¢ NIC ${user.nic_number||'â'}`; adminNicImage.src=data.signedUrl;
     }catch(err){adminNicError.textContent='Could not load NIC image: '+err.message;}
 };
 
 window.adminViewMessages=async function(){
     if(!adminGuard()) return; adminModal.classList.remove('hidden'); adminDashboardContent.innerHTML='<div style="padding:20px;text-align:center;"><span class="spinner"></span> Loading recent messages...</div>';
     try{const {data,error}=await supabaseClient.from('messages').select('sender,sender_name,recipient,recipient_name,text,media_type,timestamp,is_broadcast').order('timestamp',{ascending:false}).limit(250); if(error) throw error;
-      adminDashboardContent.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;"><div><h4 style="margin:0;">Recent 250 messages</h4><div style="font-size:11px;color:var(--text-muted);">Admin-only monitor</div></div><button class="btn-settings" onclick="adminOpenDashboard()">Back</button></div><div class="admin-user-grid" style="grid-template-columns:1fr;">${(data||[]).map(m=>`<div class="admin-user-card"><div style="font-size:11px;color:var(--text-muted);">${escapeHtml(m.sender_name||m.sender)} → ${escapeHtml(m.recipient_name||m.recipient)} • ${m.timestamp?new Date(m.timestamp).toLocaleString():''}</div><div style="margin-top:6px;">${escapeHtml(m.text||('['+(m.media_type||'media')+']'))}</div>${m.is_broadcast?'<span class="unknown-badge" style="margin-top:7px;">Broadcast</span>':''}</div>`).join('')}</div>`;
+      adminDashboardContent.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;"><div><h4 style="margin:0;">Recent 250 messages</h4><div style="font-size:11px;color:var(--text-muted);">Admin-only monitor</div></div><button class="btn-settings" onclick="adminOpenDashboard()">Back</button></div><div class="admin-user-grid" style="grid-template-columns:1fr;">${(data||[]).map(m=>`<div class="admin-user-card"><div style="font-size:11px;color:var(--text-muted);">${escapeHtml(m.sender_name||m.sender)} â ${escapeHtml(m.recipient_name||m.recipient)} â¢ ${m.timestamp?new Date(m.timestamp).toLocaleString():''}</div><div style="margin-top:6px;">${escapeHtml(m.text||('['+(m.media_type||'media')+']'))}</div>${m.is_broadcast?'<span class="unknown-badge" style="margin-top:7px;">Broadcast</span>':''}</div>`).join('')}</div>`;
     }catch(err){adminDashboardContent.innerHTML=`<div class="error-msg">${escapeHtml(err.message)}</div>`;}
 };
 
@@ -4455,7 +4470,7 @@ adminNicModal.addEventListener('click',e=>{if(e.target===adminNicModal)adminNicM
     function addToolBar(){
       const area=q('.chat-input-area'); if(!area||q('#nextGenToolbar'))return;
       const d=document.createElement('div');d.id='nextGenToolbar';d.className='nextgen-toolbar';
-      d.innerHTML='<button id="ngMemoryBtn">🧠 Memory</button><button id="ngReminderBtn">🔔 Remind</button><button id="ngMorphBtn">🪄 Morph</button><button id="ngThemeBtn">🎨 Theme</button><button id="ngPresenceBtn">🛰️ Presence</button><button id="ngMeetingBtn">📞 Meeting AI</button>';
+      d.innerHTML='<button id="ngMemoryBtn">ð§  Memory</button><button id="ngReminderBtn">ð Remind</button><button id="ngMorphBtn">ðª Morph</button><button id="ngThemeBtn">ð¨ Theme</button><button id="ngPresenceBtn">ð°ï¸ Presence</button><button id="ngMeetingBtn">ð Meeting AI</button>';
       area.insertBefore(d,area.firstElementChild);
       q('#ngMemoryBtn').onclick=showMemory; q('#ngReminderBtn').onclick=makeReminderFromInput; q('#ngMorphBtn').onclick=morphDialog; q('#ngThemeBtn').onclick=themeDialog; q('#ngPresenceBtn').onclick=presenceDialog; q('#ngMeetingBtn').onclick=meetingMode;
     }
@@ -4466,45 +4481,45 @@ adminNicModal.addEventListener('click',e=>{if(e.target===adminNicModal)adminNicM
     }
     async function runAIAction(action){
       try{const rows=await chatRows();if(!rows.length&&action!=='doc'&&action!=='vision'){aiSay('There are no messages in this chat yet.');return;}
-        if(action==='summarize'){aiSay('🧠 '+summarizeRows(rows));return}
+        if(action==='summarize'){aiSay('ð§  '+summarizeRows(rows));return}
         if(action==='find'){const term=prompt('What should I find in this conversation?');if(term)aiSay(findInRows(rows,term));return}
-        if(action==='translate'){const m=[...rows].reverse().find(x=>x.text);if(!m){aiSay('No text message found.');return}const lang=prompt('Translate to which language? (English/Sinhala)')||'English';aiSay('🌐 '+simpleTranslate(m.text,lang));return}
-        if(action==='rewrite'){const m=[...rows].reverse().find(x=>x.text);if(!m)return;aiSay('✍️ '+rewriteText(m.text));return}
-        if(action==='explain'){const m=[...rows].reverse().find(x=>x.text);if(!m)return;aiSay('💡 '+explainText(m.text));return}
-        if(action==='reply'){const m=[...rows].reverse().find(x=>x.sender!==currentUser.email&&x.text);if(!m){aiSay('No received text found.');return}const r=makeReply(m.text);messageInput.value=r;messageInput.dispatchEvent(new Event('input'));aiSay('✉️ Suggested reply: '+r);return}
-        if(action==='memory'){const m=[...rows].reverse().find(x=>x.text);if(m){await addMemory(currentChatWith,m.text);aiSay('🧠 Saved a chat memory from the latest message.');}return}
+        if(action==='translate'){const m=[...rows].reverse().find(x=>x.text);if(!m){aiSay('No text message found.');return}const lang=prompt('Translate to which language? (English/Sinhala)')||'English';aiSay('ð '+simpleTranslate(m.text,lang));return}
+        if(action==='rewrite'){const m=[...rows].reverse().find(x=>x.text);if(!m)return;aiSay('âï¸ '+rewriteText(m.text));return}
+        if(action==='explain'){const m=[...rows].reverse().find(x=>x.text);if(!m)return;aiSay('ð¡ '+explainText(m.text));return}
+        if(action==='reply'){const m=[...rows].reverse().find(x=>x.sender!==currentUser.email&&x.text);if(!m){aiSay('No received text found.');return}const r=makeReply(m.text);messageInput.value=r;messageInput.dispatchEvent(new Event('input'));aiSay('âï¸ Suggested reply: '+r);return}
+        if(action==='memory'){const m=[...rows].reverse().find(x=>x.text);if(m){await addMemory(currentChatWith,m.text);aiSay('ð§  Saved a chat memory from the latest message.');}return}
         if(action==='poll'){const topic=summarizeRows(rows).slice(0,120);openPollFromAI(topic);return}
         if(action==='vision'){await visionFromLastImage(rows);return}
         if(action==='doc'){await documentAssistant();return}
       }catch(e){aiSay('AI action error: '+e.message)}
     }
     function summarizeRows(rows){const texts=rows.filter(r=>r.text).map(r=>`${r.sender===currentUser.email?'You':(r.sender_name||r.sender)}: ${r.text}`);if(!texts.length)return'No text content to summarize.';const tail=texts.slice(-30);const keywords=extractKeyFacts(tail.join(' '));return `Conversation summary: ${tail.slice(-8).join(' | ')}${keywords.length?'\nKey facts: '+keywords.join('; '):''}`}
-    function findInRows(rows,term){const t=term.toLowerCase();const hits=rows.filter(r=>(r.text||'').toLowerCase().includes(t));if(!hits.length)return`I couldn't find “${term}” in this loaded conversation.`;return `Found ${hits.length} message(s):\n`+hits.slice(-10).map(r=>`${new Date(r.timestamp).toLocaleString()} — ${r.sender_name||r.sender}: ${r.text}`).join('\n')}
+    function findInRows(rows,term){const t=term.toLowerCase();const hits=rows.filter(r=>(r.text||'').toLowerCase().includes(t));if(!hits.length)return`I couldn't find â${term}â in this loaded conversation.`;return `Found ${hits.length} message(s):\n`+hits.slice(-10).map(r=>`${new Date(r.timestamp).toLocaleString()} â ${r.sender_name||r.sender}: ${r.text}`).join('\n')}
     function extractKeyFacts(text){const out=[];const patterns=[/\b(?:deadline|due|meeting|meet|date|time)\b[^.!?\n]{0,100}/gi,/\b(?:github|website|project|assignment|exam|test)\b[^.!?\n]{0,100}/gi];patterns.forEach(p=>(text.match(p)||[]).slice(0,4).forEach(x=>{if(!out.some(y=>y.toLowerCase()===x.toLowerCase()))out.push(x.trim())}));return out.slice(0,8)}
-    function simpleTranslate(t,lang){if(lang.toLowerCase().startsWith('english'))return t.replace(/ආයුබෝවන්/g,'Hello').replace(/ස්තුතියි/g,'Thank you').replace(/හරි/g,'Okay').replace(/ඔව්/g,'Yes').replace(/නැහැ/g,'No');if(lang.toLowerCase().startsWith('sinh'))return t.replace(/hello/gi,'ආයුබෝවන්').replace(/thank you/gi,'ස්තුතියි').replace(/okay/gi,'හරි').replace(/yes/gi,'ඔව්').replace(/no/gi,'නැහැ');return `Translation engine not configured for ${lang}.`}
+    function simpleTranslate(t,lang){if(lang.toLowerCase().startsWith('english'))return t.replace(/à¶à¶ºà·à¶¶à·à·à¶±à·/g,'Hello').replace(/à·à·à¶­à·à¶­à·à¶ºà·/g,'Thank you').replace(/à·à¶»à·/g,'Okay').replace(/à¶à·à·/g,'Yes').replace(/à¶±à·à·à·/g,'No');if(lang.toLowerCase().startsWith('sinh'))return t.replace(/hello/gi,'à¶à¶ºà·à¶¶à·à·à¶±à·').replace(/thank you/gi,'à·à·à¶­à·à¶­à·à¶ºà·').replace(/okay/gi,'à·à¶»à·').replace(/yes/gi,'à¶à·à·').replace(/no/gi,'à¶±à·à·à·');return `Translation engine not configured for ${lang}.`}
     function rewriteText(t){return `Polite version: ${t.replace(/\s+/g,' ').trim()}\n\nProfessional version: Please note that ${t.charAt(0).toLowerCase()+t.slice(1)}`}
-    function explainText(t){return `This message appears to say: “${t}”. In simple terms, the sender is communicating the main point expressed in that sentence.`}
-    function makeReply(t){if(/thank/i.test(t))return"You're welcome! 😊";if(/sorry/i.test(t))return"No worries, thanks for letting me know.";if(/where|when|time/i.test(t))return"Sure, I'll confirm the details and let you know shortly.";return"Thanks for the message. I'll check this and get back to you soon."}
+    function explainText(t){return `This message appears to say: â${t}â. In simple terms, the sender is communicating the main point expressed in that sentence.`}
+    function makeReply(t){if(/thank/i.test(t))return"You're welcome! ð";if(/sorry/i.test(t))return"No worries, thanks for letting me know.";if(/where|when|time/i.test(t))return"Sure, I'll confirm the details and let you know shortly.";return"Thanks for the message. I'll check this and get back to you soon."}
     async function addMemory(chat,key){const list=Array.isArray(currentUserData?.chatMemory)?currentUserData.chatMemory:[];list.push({id:crypto.randomUUID?crypto.randomUUID():Date.now().toString(),chat,email:chat,key:key.slice(0,300),created_at:new Date().toISOString()});await profilePatch({chatMemory:list.slice(-200)});}
-    async function showMemory(){const list=Array.isArray(currentUserData?.chatMemory)?currentUserData.chatMemory:[];const own=list.filter(m=>!currentChatWith||m.chat===currentChatWith);const body=own.length?own.map((m,i)=>`<div class="ng-card ng-memory"><div><strong>${esc(m.key)}</strong><small>${esc(m.chat||'General')} · ${new Date(m.created_at).toLocaleString()}</small></div><button onclick="window.chatproDeleteMemory('${esc(m.id)}')">Delete</button></div>`).join(''):'<div class="ng-card">No saved memories for this chat.</div>';const box=document.createElement('div');box.className='modal-overlay';box.innerHTML=`<div class="modal-box" style="max-width:680px;max-height:80vh;overflow:auto"><h3>🧠 Chat Memory</h3><p class="modal-sub">Important facts can be edited or deleted.</p>${body}<div class="modal-actions"><button class="btn-cancel">Close</button><button class="btn-confirm" id="addManualMemory">Add Memory</button></div></div>`;document.body.appendChild(box);box.querySelector('.btn-cancel').onclick=()=>box.remove();box.querySelector('#addManualMemory').onclick=async()=>{const v=prompt('Memory:');if(v){await addMemory(currentChatWith,v);box.remove();showMemory()}}}
+    async function showMemory(){const list=Array.isArray(currentUserData?.chatMemory)?currentUserData.chatMemory:[];const own=list.filter(m=>!currentChatWith||m.chat===currentChatWith);const body=own.length?own.map((m,i)=>`<div class="ng-card ng-memory"><div><strong>${esc(m.key)}</strong><small>${esc(m.chat||'General')} Â· ${new Date(m.created_at).toLocaleString()}</small></div><button onclick="window.chatproDeleteMemory('${esc(m.id)}')">Delete</button></div>`).join(''):'<div class="ng-card">No saved memories for this chat.</div>';const box=document.createElement('div');box.className='modal-overlay';box.innerHTML=`<div class="modal-box" style="max-width:680px;max-height:80vh;overflow:auto"><h3>ð§  Chat Memory</h3><p class="modal-sub">Important facts can be edited or deleted.</p>${body}<div class="modal-actions"><button class="btn-cancel">Close</button><button class="btn-confirm" id="addManualMemory">Add Memory</button></div></div>`;document.body.appendChild(box);box.querySelector('.btn-cancel').onclick=()=>box.remove();box.querySelector('#addManualMemory').onclick=async()=>{const v=prompt('Memory:');if(v){await addMemory(currentChatWith,v);box.remove();showMemory()}}}
     window.chatproDeleteMemory=async id=>{const list=(currentUserData.chatMemory||[]).filter(m=>m.id!==id);await profilePatch({chatMemory:list});document.querySelectorAll('.modal-overlay').forEach(x=>x.remove());showMemory()};
-    function makeReminderFromInput(){const text=(messageInput?.value||'').trim();const when=prompt('Reminder time (e.g. 2026-10-15 18:00 or "tomorrow 6")');if(!when)return;const r={id:Date.now().toString(),chat:currentChatWith,text,when,created_at:new Date().toISOString()};NG.reminders.push(r);saveReminderState();alert('🔔 Reminder created.');}
+    function makeReminderFromInput(){const text=(messageInput?.value||'').trim();const when=prompt('Reminder time (e.g. 2026-10-15 18:00 or "tomorrow 6")');if(!when)return;const r={id:Date.now().toString(),chat:currentChatWith,text,when,created_at:new Date().toISOString()};NG.reminders.push(r);saveReminderState();alert('ð Reminder created.');}
     async function saveReminderState(){await profilePatch({chatReminders:NG.reminders.slice(-200)})}
     function intentParser(text){const x=text.toLowerCase();let m=x.match(/(?:remind me to|remind me)\s+(.+?)\s+(?:tomorrow|tonight|today|at)\s+(.+)/i);if(m)return{type:'reminder',task:m[1],when:m[2]};m=x.match(/send (?:this|it) to (.+?) every (monday|tuesday|wednesday|thursday|friday|saturday|sunday) at (\d{1,2}(?::\d{2})?\s*(?:am|pm)?)/i);if(m)return{type:'recurring',target:m[1],day:m[2],time:m[3]};return null}
-    async function processIntent(text){const intent=intentParser(text);if(!intent)return false;if(intent.type==='reminder'){NG.reminders.push({id:Date.now().toString(),chat:currentChatWith,text:intent.task,when:intent.when,created_at:new Date().toISOString()});await saveReminderState();aiSay(`⚡ Intent understood. Reminder created for “${intent.task}” at ${intent.when}.`);return true}if(intent.type==='recurring'){const arr=Array.isArray(currentUserData.chatRecurring)?currentUserData.chatRecurring:[];arr.push({...intent,created_at:new Date().toISOString()});await profilePatch({chatRecurring:arr});aiSay(`🔁 Recurring schedule created: ${intent.day} at ${intent.time}.`);return true}return false}
+    async function processIntent(text){const intent=intentParser(text);if(!intent)return false;if(intent.type==='reminder'){NG.reminders.push({id:Date.now().toString(),chat:currentChatWith,text:intent.task,when:intent.when,created_at:new Date().toISOString()});await saveReminderState();aiSay(`â¡ Intent understood. Reminder created for â${intent.task}â at ${intent.when}.`);return true}if(intent.type==='recurring'){const arr=Array.isArray(currentUserData.chatRecurring)?currentUserData.chatRecurring:[];arr.push({...intent,created_at:new Date().toISOString()});await profilePatch({chatRecurring:arr});aiSay(`ð Recurring schedule created: ${intent.day} at ${intent.time}.`);return true}return false}
     function voiceEverything(){if(!('webkitSpeechRecognition'in window||'SpeechRecognition'in window)){alert('Voice recognition is not supported in this browser.');return}const SR=window.SpeechRecognition||window.webkitSpeechRecognition;voiceRecognition=new SR();voiceRecognition.lang='en-US';voiceRecognition.interimResults=false;voiceRecognition.onresult=async e=>{const text=e.results[0][0].transcript;const m=text.match(/^send (?:a )?(?:polite )?message to (.+?) saying (.+)$/i);if(m){const target=m[1],body=m[2];const reply=makeReply(body).startsWith('Thanks')?`Hi ${target}, ${body}`:`Hi ${target}, ${body}`;messageInput.value=reply;messageInput.dispatchEvent(new Event('input'));if(confirm(`Send this message?\n\n${reply}`))sendMessage();}else{messageInput.value=text;messageInput.dispatchEvent(new Event('input'));await processIntent(text)}};voiceRecognition.start()}
-    function morphDialog(){const t=(messageInput?.value||'').trim();if(!t){alert('Type a message first.');return}const type=prompt('Morph to: voice / sticker / poll / professional / summary / image');if(!type)return;if(type.toLowerCase()==='voice'){alert('Use the microphone button to record the generated wording.');messageInput.value=t;return}if(type.toLowerCase()==='sticker'){insertAdvancedMessage({media_type:'sticker',message_type:'sticker',text:'✨ '+t.slice(0,30)});return}if(type.toLowerCase()==='poll'){openPollFromAI(t);return}if(type.toLowerCase()==='professional'){messageInput.value=rewriteText(t).split('\n')[0];messageInput.dispatchEvent(new Event('input'));return}if(type.toLowerCase()==='summary'){messageInput.value=t.length>120?t.slice(0,117)+'...':t;messageInput.dispatchEvent(new Event('input'));return}if(type.toLowerCase()==='image'){alert('Image generation needs a configured AI image provider/Edge Function; the text remains untouched.');}}
+    function morphDialog(){const t=(messageInput?.value||'').trim();if(!t){alert('Type a message first.');return}const type=prompt('Morph to: voice / sticker / poll / professional / summary / image');if(!type)return;if(type.toLowerCase()==='voice'){alert('Use the microphone button to record the generated wording.');messageInput.value=t;return}if(type.toLowerCase()==='sticker'){insertAdvancedMessage({media_type:'sticker',message_type:'sticker',text:'â¨ '+t.slice(0,30)});return}if(type.toLowerCase()==='poll'){openPollFromAI(t);return}if(type.toLowerCase()==='professional'){messageInput.value=rewriteText(t).split('\n')[0];messageInput.dispatchEvent(new Event('input'));return}if(type.toLowerCase()==='summary'){messageInput.value=t.length>120?t.slice(0,117)+'...':t;messageInput.dispatchEvent(new Event('input'));return}if(type.toLowerCase()==='image'){alert('Image generation needs a configured AI image provider/Edge Function; the text remains untouched.');}}
     function openPollFromAI(topic){pollQuestion.value=topic||'What do you think?';pollOption1.value='Yes';pollOption2.value='No';pollOption3.value='Maybe';pollModal.classList.remove('hidden')}
-    function themeDialog(){const p=prompt('Describe your theme (e.g. futuristic blue cyberpunk):');if(!p)return;const x=p.toLowerCase();let bg='#0a0f1e',accent='#7c5cff',bubble='rgba(124,92,255,.18)';if(x.includes('green')){accent='#00a884';bubble='rgba(0,168,132,.18)'}if(x.includes('red')){accent='#ff5e7a';bubble='rgba(255,94,122,.18)'}if(x.includes('blue')){accent='#4da3ff';bubble='rgba(77,163,255,.18)'}document.documentElement.style.setProperty('--primary',accent);document.documentElement.style.setProperty('--bubble-sent',bubble);document.body.style.background=`radial-gradient(circle at 20% 10%,${accent}22,transparent 35%),${bg}`;localStorage.setItem('chatproThemePrompt',p);alert('🎨 Theme applied and saved on this device.');}
-    function presenceDialog(){const states=['available','busy','listening to music','working','studying','focus mode','do not disturb'];const p=prompt('Presence state:\n'+states.join(' · '),NG.presence)||NG.presence;NG.presence=p;profilePatch({presenceState:p,presenceVisible:true}).then(()=>{const h=q('#contactStatus');if(h)h.innerHTML=`<i class="fas fa-circle" style="font-size:8px;"></i> ${esc(p)}`;alert('🛰️ Presence updated.')})}
-    function meetingMode(){if(!currentUser){return}if(!('webkitSpeechRecognition'in window||'SpeechRecognition'in window)){alert('Live transcription is not supported by this browser.');return}const SR=window.SpeechRecognition||window.webkitSpeechRecognition;const sr=new SR();sr.continuous=true;sr.interimResults=true;sr.lang='en-US';const box=document.createElement('div');box.className='modal-overlay';box.innerHTML='<div class="modal-box" style="max-width:720px"><h3>📞 LIVE AI Meeting Mode</h3><p class="modal-sub">Live browser transcription, notes, tasks and decisions.</p><div id="meetingLive" class="ng-card" style="min-height:160px">Listening…</div><div class="modal-actions"><button id="stopMeeting" class="btn-confirm">Stop & Summarize</button><button class="btn-cancel">Close</button></div></div>';document.body.appendChild(box);let transcript='';sr.onresult=e=>{transcript=Array.from(e.results).map(r=>r[0].transcript).join(' ');box.querySelector('#meetingLive').textContent=transcript};sr.start();box.querySelector('.btn-cancel').onclick=()=>{sr.stop();box.remove()};box.querySelector('#stopMeeting').onclick=()=>{sr.stop();const tasks=(transcript.match(/(?:todo|task|need to|must)\b[^.!?]*/gi)||[]).slice(0,8);const decisions=(transcript.match(/(?:decided|agree|agreed|decision)\b[^.!?]*/gi)||[]).slice(0,8);box.querySelector('#meetingLive').innerHTML=`<strong>Meeting Summary</strong><p>${esc(transcript.slice(0,1200)||'No transcript captured.')}</p><p><b>Tasks:</b> ${esc(tasks.join(' · ')||'None detected')}</p><p><b>Decisions:</b> ${esc(decisions.join(' · ')||'None detected')}</p>`};}
-    async function visionFromLastImage(rows){const m=[...rows].reverse().find(x=>x.media_type==='image'&&x.media_url);if(!m){aiSay('No image message was found in this chat.');return}const action=prompt('Vision action: Describe / Translate / Extract Text / Solve / Summarize / Identify')||'Describe';try{const img=await fetch(m.media_url).then(r=>r.blob());if(typeof Tesseract!=='undefined'&&/extract|solve|translate|summarize/i.test(action)){aiSay('👁️ Reading image…');const res=await Tesseract.recognize(img,'eng');const text=res.data.text.trim();aiSay(`👁️ ${action}:\n${text||'No readable text detected.'}`)}else aiSay(`👁️ ${action}: Image received. For full visual understanding, configure the optional AI vision Edge Function.`)}catch(e){aiSay('Vision error: '+e.message)}}
-    async function documentAssistant(){const input=document.createElement('input');input.type='file';input.accept='.txt,.md,.csv,.json,.pdf,.doc,.docx';input.onchange=async()=>{const f=input.files[0];if(!f)return;if(f.type==='application/pdf'){aiSay('📄 PDF selected. Browser-only extraction is limited; connect the optional AI document Edge Function for full PDF summarization.');return}const text=await f.text();aiSay('📄 Document summary:\n'+summarizeRows([{text}]))};input.click()}
+    function themeDialog(){const p=prompt('Describe your theme (e.g. futuristic blue cyberpunk):');if(!p)return;const x=p.toLowerCase();let bg='#0a0f1e',accent='#7c5cff',bubble='rgba(124,92,255,.18)';if(x.includes('green')){accent='#00a884';bubble='rgba(0,168,132,.18)'}if(x.includes('red')){accent='#ff5e7a';bubble='rgba(255,94,122,.18)'}if(x.includes('blue')){accent='#4da3ff';bubble='rgba(77,163,255,.18)'}document.documentElement.style.setProperty('--primary',accent);document.documentElement.style.setProperty('--bubble-sent',bubble);document.body.style.background=`radial-gradient(circle at 20% 10%,${accent}22,transparent 35%),${bg}`;localStorage.setItem('chatproThemePrompt',p);alert('ð¨ Theme applied and saved on this device.');}
+    function presenceDialog(){const states=['available','busy','listening to music','working','studying','focus mode','do not disturb'];const p=prompt('Presence state:\n'+states.join(' Â· '),NG.presence)||NG.presence;NG.presence=p;profilePatch({presenceState:p,presenceVisible:true}).then(()=>{const h=q('#contactStatus');if(h)h.innerHTML=`<i class="fas fa-circle" style="font-size:8px;"></i> ${esc(p)}`;alert('ð°ï¸ Presence updated.')})}
+    function meetingMode(){if(!currentUser){return}if(!('webkitSpeechRecognition'in window||'SpeechRecognition'in window)){alert('Live transcription is not supported by this browser.');return}const SR=window.SpeechRecognition||window.webkitSpeechRecognition;const sr=new SR();sr.continuous=true;sr.interimResults=true;sr.lang='en-US';const box=document.createElement('div');box.className='modal-overlay';box.innerHTML='<div class="modal-box" style="max-width:720px"><h3>ð LIVE AI Meeting Mode</h3><p class="modal-sub">Live browser transcription, notes, tasks and decisions.</p><div id="meetingLive" class="ng-card" style="min-height:160px">Listeningâ¦</div><div class="modal-actions"><button id="stopMeeting" class="btn-confirm">Stop & Summarize</button><button class="btn-cancel">Close</button></div></div>';document.body.appendChild(box);let transcript='';sr.onresult=e=>{transcript=Array.from(e.results).map(r=>r[0].transcript).join(' ');box.querySelector('#meetingLive').textContent=transcript};sr.start();box.querySelector('.btn-cancel').onclick=()=>{sr.stop();box.remove()};box.querySelector('#stopMeeting').onclick=()=>{sr.stop();const tasks=(transcript.match(/(?:todo|task|need to|must)\b[^.!?]*/gi)||[]).slice(0,8);const decisions=(transcript.match(/(?:decided|agree|agreed|decision)\b[^.!?]*/gi)||[]).slice(0,8);box.querySelector('#meetingLive').innerHTML=`<strong>Meeting Summary</strong><p>${esc(transcript.slice(0,1200)||'No transcript captured.')}</p><p><b>Tasks:</b> ${esc(tasks.join(' Â· ')||'None detected')}</p><p><b>Decisions:</b> ${esc(decisions.join(' Â· ')||'None detected')}</p>`};}
+    async function visionFromLastImage(rows){const m=[...rows].reverse().find(x=>x.media_type==='image'&&x.media_url);if(!m){aiSay('No image message was found in this chat.');return}const action=prompt('Vision action: Describe / Translate / Extract Text / Solve / Summarize / Identify')||'Describe';try{const img=await fetch(m.media_url).then(r=>r.blob());if(typeof Tesseract!=='undefined'&&/extract|solve|translate|summarize/i.test(action)){aiSay('ðï¸ Reading imageâ¦');const res=await Tesseract.recognize(img,'eng');const text=res.data.text.trim();aiSay(`ðï¸ ${action}:\n${text||'No readable text detected.'}`)}else aiSay(`ðï¸ ${action}: Image received. For full visual understanding, configure the optional AI vision Edge Function.`)}catch(e){aiSay('Vision error: '+e.message)}}
+    async function documentAssistant(){const input=document.createElement('input');input.type='file';input.accept='.txt,.md,.csv,.json,.pdf,.doc,.docx';input.onchange=async()=>{const f=input.files[0];if(!f)return;if(f.type==='application/pdf'){aiSay('ð PDF selected. Browser-only extraction is limited; connect the optional AI document Edge Function for full PDF summarization.');return}const text=await f.text();aiSay('ð Document summary:\n'+summarizeRows([{text}]))};input.click()}
     function addVisionButtons(){
       document.querySelectorAll('.msg .media-wrapper img').forEach(img=>{
         if(img.parentElement.querySelector('.vision-actions')) return;
         const b=document.createElement('div'); b.className='vision-actions';
-        b.innerHTML='<button>✨ Describe</button><button>Extract Text</button><button>🌐 Translate</button><button>🧮 Solve</button>';
+        b.innerHTML='<button>â¨ Describe</button><button>Extract Text</button><button>ð Translate</button><button>ð§® Solve</button>';
         b.querySelectorAll('button').forEach(x=>x.onclick=async()=>{
           if(typeof Tesseract==='undefined'){alert('Vision OCR is unavailable.');return;}
           try{const r=await Tesseract.recognize(img.src,'eng');alert(x.textContent+':\n\n'+(r.data.text.trim()||'No text detected.'));}catch(e){alert(e.message);}
@@ -4512,18 +4527,63 @@ adminNicModal.addEventListener('click',e=>{if(e.target===adminNicModal)adminNicM
         img.parentElement.appendChild(b);
       });
     }
-    function startLongPress(el){
-      let timer=null,moved=false;
-      const clear=()=>{if(timer){clearTimeout(timer);timer=null}};
-      el.addEventListener('pointerdown',()=>{moved=false;clear();timer=setTimeout(()=>{if(!moved)showMessageContextMenu(el)},520)},{passive:true});
-      el.addEventListener('pointermove',()=>{moved=true;clear()},{passive:true});
-      ['pointerup','pointerleave','pointercancel'].forEach(ev=>el.addEventListener(ev,clear,{passive:true}));
-      el.addEventListener('contextmenu',e=>{e.preventDefault();showMessageContextMenu(el);});
+    // Per-element listeners were re-attached every 1.2s and missed freshly rendered messages.
+    // Events are now delegated from #chatMessages (see bindMessageMenuEvents below).
+    function startLongPress(el){ /* handled by delegated listeners */ }
+    async function getMessageById(id,fresh){
+      if(!id)return null;
+      const cached=window.chatproMessageCache&&window.chatproMessageCache[String(id)];
+      if(cached&&!fresh)return cached;
+      try{
+        if(supabaseClient){
+          const {data,error}=await supabaseClient.from('messages').select('*').eq('id',id).maybeSingle();
+          if(!error&&data)return data;
+        }
+      }catch(_){}
+      return cached||null;
     }
-    async function getMessageById(id){
-      if(!id||!supabaseClient)return null;
-      const {data,error}=await supabaseClient.from('messages').select('*').eq('id',id).maybeSingle();
-      if(error) throw error; return data||null;
+    function messagePreviewText(m){
+      if(!m)return 'Message';
+      if(m.text)return String(m.text);
+      const t=m.media_type;
+      return t==='image'?'ð· Photo':t==='video'?'ð¥ Video':t==='voice'?'ð¤ Voice message':t==='location'?'ð Location':t==='poll'?'ð Poll':t==='sticker'?'ð Sticker':'ð Media message';
+    }
+    let mcTimer=null,mcStart=null,mcSuppressUntil=0,mcLastShown=0;
+    function openMenuFor(el){if(!el||!chatMessages.contains(el))return;mcLastShown=Date.now();showMessageContextMenu(el);}
+    function jumpToMessage(id){
+      let el=null;
+      try{el=chatMessages.querySelector('.msg[data-message-id="'+(window.CSS&&CSS.escape?CSS.escape(String(id)):String(id))+'"]');}catch(_){}
+      if(!el){alert('The original message is no longer available in this chat.');return;}
+      el.scrollIntoView({behavior:'smooth',block:'center'});
+      el.classList.remove('reply-highlight');void el.offsetWidth;el.classList.add('reply-highlight');
+      setTimeout(()=>el.classList.remove('reply-highlight'),1600);
+    }
+    function bindMessageMenuEvents(){
+      if(bindMessageMenuEvents.done||!chatMessages)return;bindMessageMenuEvents.done=true;
+      const cancel=()=>{if(mcTimer){clearTimeout(mcTimer);mcTimer=null}};
+      // Touch / pen long-press (mouse users use right-click).
+      chatMessages.addEventListener('pointerdown',e=>{
+        if(e.pointerType==='mouse')return;
+        const el=e.target.closest('.msg[data-message-id]');if(!el)return;
+        mcStart={x:e.clientX,y:e.clientY};cancel();
+        mcTimer=setTimeout(()=>{mcTimer=null;mcSuppressUntil=Date.now()+700;openMenuFor(el);},450);
+      },{passive:true});
+      chatMessages.addEventListener('pointermove',e=>{if(mcTimer&&mcStart&&(Math.abs(e.clientX-mcStart.x)>10||Math.abs(e.clientY-mcStart.y)>10))cancel();},{passive:true});
+      ['pointerup','pointercancel','pointerleave'].forEach(ev=>chatMessages.addEventListener(ev,cancel,{passive:true}));
+      chatMessages.addEventListener('scroll',cancel,{passive:true});
+      // Right-click on desktop (also stops the browser's native menu on long-press).
+      chatMessages.addEventListener('contextmenu',e=>{
+        const el=e.target.closest('.msg[data-message-id]');if(!el)return;
+        e.preventDefault();
+        if(Date.now()-mcLastShown<800)return;
+        openMenuFor(el);
+      });
+      // Releasing the finger after a long-press must not count as a click that closes the menu.
+      document.addEventListener('click',e=>{if(Date.now()<mcSuppressUntil){e.stopPropagation();e.preventDefault();}},true);
+      // Right-click outside a message closes an open message menu.
+      document.addEventListener('contextmenu',e=>{if(!e.target.closest('.msg[data-message-id]')&&!e.target.closest('.wa-menu')&&typeof closeWaMenus==='function')closeWaMenus();});
+      // Tap on a quoted reply jumps to the original message (like WhatsApp).
+      chatMessages.addEventListener('click',e=>{const q=e.target.closest('.quoted-reply[data-reply-id]');if(q&&q.dataset.replyId)jumpToMessage(q.dataset.replyId);});
     }
     function positionMenu(menu,x,y){
       menu.classList.remove('hidden');
@@ -4534,8 +4594,9 @@ adminNicModal.addEventListener('click',e=>{if(e.target===adminNicModal)adminNicM
     function setReplyMessage(msg){
       pendingReplyMessage=msg||null;
       if(!pendingReplyMessage){clearReplyPreview();return;}
-      replyPreviewName.textContent='Replying to '+(pendingReplyMessage.sender_name||pendingReplyMessage.sender||'contact');
-      replyPreviewText.textContent=(pendingReplyMessage.text||('📎 '+(pendingReplyMessage.media_type||'Media message'))).slice(0,180);
+      const mine=String(pendingReplyMessage.sender||'').trim().toLowerCase()===String(currentUser?.email||'').trim().toLowerCase();
+      replyPreviewName.textContent=mine?'Replying to yourself':'Replying to '+(pendingReplyMessage.sender_name||pendingReplyMessage.sender||'contact');
+      replyPreviewText.textContent=messagePreviewText(pendingReplyMessage).slice(0,180);
       replyPreviewBar.classList.remove('hidden'); messageInput.focus();
     }
     function clearReplyPreview(){pendingReplyMessage=null;replyPreviewBar?.classList.add('hidden');if(replyPreviewName)replyPreviewName.textContent='Replying';if(replyPreviewText)replyPreviewText.textContent='Message';}
@@ -4545,24 +4606,33 @@ adminNicModal.addEventListener('click',e=>{if(e.target===adminNicModal)adminNicM
     function showMessageContextMenu(el){
       const id=el?.dataset?.messageId;if(!id||!messageContextMenu)return;
       document.querySelectorAll('.msg.context-selected').forEach(x=>x.classList.remove('context-selected'));el.classList.add('context-selected');
+      const row=(window.chatproMessageCache&&window.chatproMessageCache[String(id)])||{};
       const mine=el.classList.contains('sent');
-      messageContextMenu.innerHTML=`
-        <button data-msg-action="reply"><i class="fas fa-reply"></i><span>Reply</span></button>
-        <button data-msg-action="copy"><i class="fas fa-copy"></i><span>Copy</span></button>
-        <button data-msg-action="star"><i class="fas fa-star"></i><span>Star Message</span></button>
-        <button data-msg-action="pin"><i class="fas fa-thumbtack"></i><span>Pin Message</span></button>
-        <button data-msg-action="translate"><i class="fas fa-language"></i><span>Translate</span></button>
-        <button data-msg-action="remind"><i class="fas fa-bell"></i><span>Remind Me</span></button>
-        <button data-msg-action="forward"><i class="fas fa-share"></i><span>Forward</span></button>
-        <button data-msg-action="read"><i class="fas fa-volume-high"></i><span>Read Out</span></button>
-        <button data-msg-action="delete-me" class="danger-menu"><i class="fas fa-trash"></i><span>Delete for Me</span></button>
-        ${mine?'<button data-msg-action="delete-everyone" class="danger-menu"><i class="fas fa-trash-can"></i><span>Delete for Everyone</span></button>':''}`;
-      const rect=el.getBoundingClientRect();positionMenu(messageContextMenu,Math.min(rect.right,innerWidth-230),Math.min(rect.top,innerHeight-330));
+      const deleted=el.classList.contains('deleted-message');
+      const scheduled=el.classList.contains('scheduled');
+      const hasText=!!String(row.text||'').trim()&&!deleted;
+      const starred=messageList('chatproStarredMessages').includes(String(id));
+      const pinned=messageList('chatproPinnedMessages').includes(String(id));
+      const items=[];
+      if(!deleted)items.push('<button type="button" data-msg-action="reply"><i class="fas fa-reply"></i><span>Reply</span></button>');
+      if(hasText)items.push('<button type="button" data-msg-action="copy"><i class="fas fa-copy"></i><span>Copy</span></button>');
+      if(!deleted)items.push('<button type="button" data-msg-action="star"><i class="fas fa-star"></i><span>'+(starred?'Unstar Message':'Star Message')+'</span></button>');
+      if(!deleted)items.push('<button type="button" data-msg-action="pin"><i class="fas fa-thumbtack"></i><span>'+(pinned?'Unpin Message':'Pin Message')+'</span></button>');
+      if(hasText)items.push('<button type="button" data-msg-action="translate"><i class="fas fa-language"></i><span>Translate</span></button>');
+      if(!deleted)items.push('<button type="button" data-msg-action="remind"><i class="fas fa-bell"></i><span>Remind Me</span></button>');
+      if(!deleted&&!scheduled)items.push('<button type="button" data-msg-action="forward"><i class="fas fa-share"></i><span>Forward</span></button>');
+      if(hasText)items.push('<button type="button" data-msg-action="read"><i class="fas fa-volume-high"></i><span>Read Out</span></button>');
+      items.push('<button type="button" data-msg-action="delete-me" class="danger-menu"><i class="fas fa-trash"></i><span>Delete for Me</span></button>');
+      if(mine&&!deleted)items.push('<button type="button" data-msg-action="delete-everyone" class="danger-menu"><i class="fas fa-trash-can"></i><span>Delete for Everyone</span></button>');
+      messageContextMenu.innerHTML=items.join('');
       messageContextMenu.dataset.messageId=id;
+      messageContextMenu.classList.remove('hidden');
+      const rect=el.getBoundingClientRect(),mw=messageContextMenu.offsetWidth,mh=messageContextMenu.offsetHeight;
+      positionMenu(messageContextMenu,mine?rect.right-mw:rect.left,Math.min(rect.bottom+4,innerHeight-mh-8));
     }
     async function copyText(text){
       text=String(text||'').trim();if(!text){alert('There is no text to copy from this message.');return;}
-      try{if(navigator.clipboard?.writeText){await navigator.clipboard.writeText(text);}else{const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();}alert('✓ Message copied.');}
+      try{if(navigator.clipboard?.writeText){await navigator.clipboard.writeText(text);}else{const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();}alert('â Message copied.');}
       catch(e){alert('Copy failed. Please select and copy the message manually.');}
     }
     async function translateMessage(msg){
@@ -4572,44 +4642,106 @@ adminNicModal.addEventListener('click',e=>{if(e.target===adminNicModal)adminNicM
       if(window.chatproNextGen?.runAIAction && aiBtn && aiInput && aiSend){
         aiBtn.click();setTimeout(()=>{aiInput.value=`Translate exactly this message into ${target.startsWith('sinh')?'Sinhala':'English'}. Return only the translation:\n\n${text}`;aiSend.click();},180);return;
       }
-      const translated=simpleTranslate(text,target);alert('🌐 Translation:\n\n'+translated);
+      const translated=simpleTranslate(text,target);alert('ð Translation:\n\n'+translated);
     }
-    async function forwardMessage(msg){
-      const options=(contacts||[]).filter(c=>c.email!==currentUser.email);
-      if(!options.length){alert('No contacts are available to forward this message to.');return;}
-      const list=options.slice(0,30).map((c,i)=>`${i+1}. ${c.name||c.email} — ${c.email}`).join('\n');
-      const choice=prompt('Forward message to:\n\n'+list+'\n\nEnter the contact number or email:');if(!choice)return;
-      const trimmed=choice.trim();let target=options[Number(trimmed)-1];
-      if(!target) target=options.find(c=>String(c.email).toLowerCase()===trimmed.toLowerCase());
-      if(!target){alert('Contact not found.');return;}
-      const payload={chat_id:getChatId(currentUser.email,target.email),sender:currentUser.email,sender_name:currentUserData?.name||currentUser.email,recipient:target.email,recipient_name:target.name||target.email,text:msg.text||null,media_type:msg.media_type||null,media_url:msg.media_url||null,media_path:msg.media_path||null,media_mime_type:msg.media_mime_type||null,duration:msg.duration||null,language:msg.language||detectLanguage(msg.text||''),status:'sent',scheduled_at:null,message_type:'forwarded',is_broadcast:false,metadata:{forwardedFrom:{id:msg.id,senderName:msg.sender_name||msg.sender||'Unknown',text:msg.text||null}}};
-      const {error}=await supabaseClient.from('messages').insert(payload);if(error)throw error;alert('✓ Message forwarded to '+(target.name||target.email)+'.');
+    function forwardMessage(msg){
+      return new Promise(resolve=>{
+        if(msg?.metadata?.deletedForEveryone){alert('Deleted messages cannot be forwarded.');return resolve();}
+        const me=String(currentUser?.email||'').trim().toLowerCase();
+        const options=(contacts||[]).filter(c=>c&&c.email&&String(c.email).trim().toLowerCase()!==me);
+        if(!options.length){alert('No contacts are available to forward this message to.');return resolve();}
+        const selected=new Set();
+        const box=document.createElement('div');box.className='modal-overlay';box.style.zIndex='6000';
+        box.innerHTML='<div class="modal-box" style="max-width:420px;padding:20px;max-height:85vh;display:flex;flex-direction:column"><h3 style="margin-bottom:10px"><i class="fas fa-share"></i> Forward message to</h3><input type="text" class="fwd-search" placeholder="Search contacts" style="margin-bottom:8px"><div class="fwd-list" style="overflow-y:auto;flex:1;min-height:120px"></div><div class="fwd-count" style="font-size:11px;color:#8f95ad;margin:6px 2px">Select up to 5 chats</div><div class="modal-actions"><button type="button" class="btn-cancel">Cancel</button><button type="button" class="btn-confirm fwd-send" disabled>Forward</button></div></div>';
+        document.body.appendChild(box);
+        const list=box.querySelector('.fwd-list'),search=box.querySelector('.fwd-search'),sendBtn2=box.querySelector('.fwd-send'),count=box.querySelector('.fwd-count');
+        const close=()=>{box.remove();resolve();};
+        const draw=()=>{
+          const q=search.value.trim().toLowerCase();
+          const shown=options.filter(c=>!q||String(c.name||'').toLowerCase().includes(q)||String(c.email||'').toLowerCase().includes(q));
+          list.innerHTML=shown.length?shown.map(c=>{const em=String(c.email).trim().toLowerCase();return '<div class="fwd-row'+(selected.has(em)?' selected':'')+'" data-email="'+esc(em)+'"><span class="fwd-check"><i class="fas fa-check"></i></span><div><strong>'+esc(c.name||c.email)+'</strong><small>'+esc(c.email)+'</small></div></div>';}).join(''):'<div style="padding:14px;color:#8f95ad;text-align:center">No contacts found</div>';
+          sendBtn2.disabled=!selected.size;count.textContent=selected.size?selected.size+' selected (max 5)':'Select up to 5 chats';
+        };
+        list.addEventListener('click',e=>{
+          const r=e.target.closest('.fwd-row');if(!r)return;const em=r.dataset.email;
+          if(selected.has(em))selected.delete(em);else{if(selected.size>=5){alert('You can forward to a maximum of 5 chats.');return;}selected.add(em);}
+          draw();
+        });
+        search.addEventListener('input',draw);
+        box.querySelector('.btn-cancel').onclick=close;
+        box.addEventListener('mousedown',e=>{if(e.target===box)close();});
+        sendBtn2.onclick=async()=>{
+          sendBtn2.disabled=true;sendBtn2.textContent='Forwarding...';
+          const base=(msg.metadata&&typeof msg.metadata==='object')?{...msg.metadata}:{};
+          ['replyTo','reply_to','deletedForEveryone','deletedAt','deletedBy','forwardedFrom','forwarded'].forEach(k=>delete base[k]);
+          let ok=0,failed=[];
+          for(const em of selected){
+            const target=options.find(c=>String(c.email).trim().toLowerCase()===em);
+            const payload={chat_id:getChatId(currentUser.email,em),sender:currentUser.email,sender_name:currentUserData?.name||currentUser.email,timestamp:new Date().toISOString(),recipient:em,recipient_name:target?.name||em,text:msg.text||null,media_type:msg.media_type||null,media_url:msg.media_url||null,media_path:msg.media_path||null,media_mime_type:msg.media_mime_type||null,duration:msg.duration||null,language:msg.language||detectLanguage(msg.text||''),status:'sent',scheduled_at:null,message_type:(msg.message_type&&msg.message_type!=='deleted')?msg.message_type:'text',is_broadcast:false,metadata:{...base,forwarded:true,forwardedFrom:{id:msg.id,senderName:msg.sender_name||msg.sender||'Unknown'}}};
+            try{const {error}=await supabaseClient.from('messages').insert(payload);if(error)throw error;ok++;}
+            catch(err){console.error('Forward failed',err);failed.push((target?.name||em)+': '+(err.message||err));}
+          }
+          box.remove();
+          alert(failed.length?('Forwarded to '+ok+' chat(s).\n\nCould not forward to:\n'+failed.join('\n')):'â Message forwarded.');
+          resolve();
+        };
+        draw();search.focus();
+      });
+    }
+    function refreshMessageIndicators(id){
+      const el=chatMessages.querySelector('.msg[data-message-id="'+(window.CSS&&CSS.escape?CSS.escape(String(id)):String(id))+'"]');if(!el)return;
+      const box=el.querySelector('.message-action-indicators');if(!box)return;
+      const st=messageList('chatproStarredMessages').includes(String(id)),pn=messageList('chatproPinnedMessages').includes(String(id));
+      box.innerHTML=(st?'<span title="Starred">â­</span>':'')+(pn?'<span title="Pinned">ð</span>':'')+(el.classList.contains('deleted-message')?'<span>Deleted</span>':'');
+    }
+    function markMessageDeletedInDom(id,mine){
+      const el=chatMessages.querySelector('.msg[data-message-id="'+(window.CSS&&CSS.escape?CSS.escape(String(id)):String(id))+'"]');if(!el)return;
+      el.querySelectorAll('.quoted-reply,.forwarded-label,.media-wrapper,.media-caption,.location-card,.poll-box,.sticker-msg,.voice-note,.schedule-chip').forEach(n=>n.remove());
+      el.classList.add('deleted-message');
+      const cap=document.createElement('div');cap.className='media-caption';cap.innerHTML='<i class="fas fa-ban"></i> '+(mine?'You deleted this message':'This message was deleted');
+      const ts=el.querySelector('.time-stamp');if(ts)el.insertBefore(cap,ts);else el.appendChild(cap);
+      refreshMessageIndicators(id);
     }
     async function handleMessageContextAction(action,id){
       try{
-        const msg=await getMessageById(id);if(!msg)return;
         const starred=messageList('chatproStarredMessages'), pinned=messageList('chatproPinnedMessages'), deleted=messageList('chatproDeletedForMe');
+        // Actions that only need the message id (no network round-trip).
+        if(action==='star'){const i=starred.indexOf(String(id));if(i>=0)starred.splice(i,1);else starred.push(String(id));saveMessageList('chatproStarredMessages',starred);refreshMessageIndicators(id);return}
+        if(action==='pin'){const i=pinned.indexOf(String(id));if(i>=0)pinned.splice(i,1);else pinned.push(String(id));saveMessageList('chatproPinnedMessages',pinned);refreshMessageIndicators(id);return}
+        if(action==='remind'){showReminderMenu(id);return}
+        if(action==='delete-me'){
+          if(!deleted.includes(String(id))){deleted.push(String(id));saveMessageList('chatproDeletedForMe',deleted);}
+          const el=chatMessages.querySelector('.msg[data-message-id="'+(window.CSS&&CSS.escape?CSS.escape(String(id)):String(id))+'"]');if(el)el.remove();
+          if(!chatMessages.querySelector('.msg'))chatMessages.innerHTML='<div class="empty-chat"><i class="fas fa-comment" style="font-size:40px;color:rgba(0,168,132,0.15);"></i><p>No messages yet. Say hello!</p></div>';
+          return;
+        }
+        const msg=await getMessageById(id,action==='delete-everyone');if(!msg){alert('This message could not be found. Please reopen the chat and try again.');return}
+        const isDel=msg.metadata&&typeof msg.metadata==='object'&&msg.metadata.deletedForEveryone===true;
+        if(isDel&&action!=='delete-everyone'){alert('This message was deleted.');return}
         if(action==='reply'){setReplyMessage(msg);return}
         if(action==='copy'){await copyText(msg.text||'');return}
-        if(action==='star'){const i=starred.indexOf(String(id));if(i>=0)starred.splice(i,1);else starred.push(String(id));saveMessageList('chatproStarredMessages',starred);if(currentChatWith)loadMessages(currentChatWith);return}
-        if(action==='pin'){const i=pinned.indexOf(String(id));if(i>=0)pinned.splice(i,1);else pinned.push(String(id));saveMessageList('chatproPinnedMessages',pinned);if(currentChatWith)loadMessages(currentChatWith);return}
         if(action==='translate'){await translateMessage(msg);return}
-        if(action==='remind'){showReminderMenu(id);return}
         if(action==='forward'){await forwardMessage(msg);return}
         if(action==='read'){const text=String(msg.text||'Media message');if('speechSynthesis'in window){speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang=(msg.language==='si'||detectLanguage(text)==='si')?'si-LK':'en-US';speechSynthesis.speak(u);}else alert('Read Out is not supported by this browser.');return}
-        if(action==='delete-me'){if(deleted.includes(String(id)))return;deleted.push(String(id));saveMessageList('chatproDeletedForMe',deleted);if(currentChatWith)loadMessages(currentChatWith);return}
         if(action==='delete-everyone'){
-          if(msg.sender!==currentUser.email){alert('You can only delete your own messages for everyone.');return;}
-          if(!confirm('Delete this message for everyone? This replaces its content with “This message was deleted”.'))return;
-          const meta=msg.metadata&&typeof msg.metadata==='object'?msg.metadata:{};
-          const updated={...meta,deletedForEveryone:true,deletedAt:new Date().toISOString(),deletedBy:currentUser.email};
-          const {error}=await supabaseClient.from('messages').update({text:null,media_url:null,media_path:null,media_type:null,media_mime_type:null,duration:null,message_type:'deleted',metadata:updated}).eq('id',id).eq('sender',currentUser.email);if(error)throw error;
-          if(currentChatWith)loadMessages(currentChatWith);return;
+          if(isDel)return;
+          if(String(msg.sender||'').trim().toLowerCase()!==String(currentUser.email||'').trim().toLowerCase()){alert('You can only delete your own messages for everyone.');return;}
+          if(!confirm('Delete this message for everyone? This replaces its content with âThis message was deletedâ.'))return;
+          const updated={deletedForEveryone:true,deletedAt:new Date().toISOString(),deletedBy:currentUser.email};
+          const clearFields={text:null,media_url:null,media_path:null,media_type:null,media_mime_type:null,duration:null,metadata:updated};
+          let res=await supabaseClient.from('messages').update({...clearFields,message_type:'deleted'}).eq('id',id).eq('sender',msg.sender).select('id');
+          if(res.error){res=await supabaseClient.from('messages').update(clearFields).eq('id',id).eq('sender',msg.sender).select('id');}
+          if(res.error)throw res.error;
+          if(!res.data||!res.data.length){alert('Could not delete this message for everyone. The database did not allow the update (check the Supabase UPDATE policy on the messages table).');return;}
+          if(msg.media_path&&typeof MEDIA_BUCKET!=='undefined'){try{await supabaseClient.storage.from(MEDIA_BUCKET).remove([msg.media_path]);}catch(_){}}
+          if(window.chatproMessageCache)window.chatproMessageCache[String(id)]={...msg,...clearFields};
+          markMessageDeletedInDom(id,true);
+          return;
         }
       }catch(e){console.error('Message action failed',e);alert('Message action failed: '+(e.message||e));}
     }
     async function showReminderMenu(messageId){
-      const choice=(prompt('🔔 Remind Me\n\n1. In 10 minutes\n2. Tonight\n3. Tomorrow morning\n4. Custom date/time\n\nEnter 1-4:')||'').trim();if(!choice)return;
+      const choice=(prompt('ð Remind Me\n\n1. In 10 minutes\n2. Tonight\n3. Tomorrow morning\n4. Custom date/time\n\nEnter 1-4:')||'').trim();if(!choice)return;
       const now=new Date();let when=new Date(now);
       if(choice==='1')when=new Date(now.getTime()+10*60000);
       else if(choice==='2'){when.setHours(20,0,0,0);if(when<=now)when.setDate(when.getDate()+1);}
@@ -4619,11 +4751,19 @@ adminNicModal.addEventListener('click',e=>{if(e.target===adminNicModal)adminNicM
       if(isNaN(when.getTime())||when<=now){alert('Choose a valid future date/time.');return;}
       const list=Array.isArray(currentUserData?.chatReminders)?[...currentUserData.chatReminders]:[];
       list.push({id:crypto.randomUUID?.()||Date.now().toString(),chat:currentChatWith,messageId:String(messageId),when:when.toISOString(),created_at:now.toISOString(),notified:false});
-      try{await profilePatch({chatReminders:list.slice(-200)});alert('🔔 Reminder saved for '+when.toLocaleString());}catch(e){alert('Could not save reminder: '+e.message);}
+      try{await profilePatch({chatReminders:list.slice(-200)});alert('ð Reminder saved for '+when.toLocaleString());}catch(e){alert('Could not save reminder: '+e.message);}
     }
-    async function checkReminders(){const list=Array.isArray(currentUserData?.chatReminders)?currentUserData.chatReminders:[];const due=list.filter(r=>!r.notified&&new Date(r.when).getTime()<=Date.now());if(!due.length)return;due.forEach(r=>{r.notified=true;});currentUserData.chatReminders=list;try{await profilePatch({chatReminders:list});}catch(_){}due.forEach(r=>{const when=new Date(r.when).toLocaleString();if(document.visibilityState==='visible')alert('🔔 ChatPro Reminder\nYou asked to be reminded about this message.\n\n'+when);});}
+    async function checkReminders(){const list=Array.isArray(currentUserData?.chatReminders)?currentUserData.chatReminders:[];const due=list.filter(r=>!r.notified&&new Date(r.when).getTime()<=Date.now());if(!due.length)return;due.forEach(r=>{r.notified=true;});currentUserData.chatReminders=list;try{await profilePatch({chatReminders:list});}catch(_){}due.forEach(r=>{const when=new Date(r.when).toLocaleString();if(document.visibilityState==='visible')alert('ð ChatPro Reminder\nYou asked to be reminded about this message.\n\n'+when);});}
     function attachLongPress(){document.querySelectorAll('.msg[data-message-id]').forEach(startLongPress)}
     setInterval(checkReminders,15000);setInterval(attachLongPress,1200);
+
+    // Global code (send, menu click handlers) calls these; they live inside this IIFE so they must be exposed.
+    window.handleMessageContextAction=handleMessageContextAction;
+    window.positionMenu=positionMenu;
+    window.clearReplyPreview=clearReplyPreview;
+    window.setReplyMessage=setReplyMessage;
+    window.messagePreviewText=messagePreviewText;
+    bindMessageMenuEvents();
 
     // Expose safe public helpers.
     window.chatproNextGen={runAIAction,voiceEverything,processIntent,showMemory,themeDialog,presenceDialog,meetingMode};
@@ -4636,7 +4776,7 @@ function closeWaMenus(){[mobileTopMenu,contactMoreMenu,messageContextMenu].forEa
 mobileTopMoreBtn?.addEventListener('click',e=>{e.stopPropagation();contactMoreMenu?.classList.add('hidden');messageContextMenu?.classList.add('hidden');if(mobileTopMenu?.classList.contains('hidden'))positionMenu(mobileTopMenu,e.clientX||innerWidth-240,e.clientY||60);else mobileTopMenu.classList.add('hidden');});
 contactMoreBtn?.addEventListener('click',e=>{e.stopPropagation();mobileTopMenu?.classList.add('hidden');messageContextMenu?.classList.add('hidden');if(contactMoreMenu?.classList.contains('hidden')){const r=contactMoreBtn.getBoundingClientRect();positionMenu(contactMoreMenu,r.right-235,r.bottom+5)}else contactMoreMenu.classList.add('hidden');});
 mobileTopMenu?.addEventListener('click',e=>{const b=e.target.closest('[data-wa-top]');if(!b)return;closeWaMenus();const a=b.dataset.waTop;if(a==='settings')settingsBtn?.click();if(a==='profile'){settingsBtn?.click();setTimeout(()=>document.querySelector('[data-section="profile"]')?.click(),150)}if(a==='memory')window.chatproNextGen?.showMemory?.();if(a==='theme')window.chatproNextGen?.themeDialog?.();if(a==='presence')window.chatproNextGen?.presenceDialog?.();if(a==='meeting')window.chatproNextGen?.meetingMode?.();if(a==='logout')logoutBtn?.click();});
-contactMoreMenu?.addEventListener('click',async e=>{const b=e.target.closest('[data-wa-action]');if(!b)return;closeWaMenus();const a=b.dataset.waAction;if(a==='contact-info'){if(currentChatWith)displayContactProfile(currentChatWith);return}if(a==='media'){alert('Media, links & documents are available through the messages in this chat.');return}if(a==='search'){aiBtn?.click();setTimeout(()=>{if(aiInput){aiInput.value='Find a message in this conversation';aiInput.focus()}},100);return}if(a==='mute'){alert('🔕 Notifications muted for this browser session.');return}if(a==='wallpaper'){window.chatproNextGen?.themeDialog?.();return}if(a==='lock'){lockCurrentChatBtn?.click();return}if(a==='clear'){if(confirm('Clear this chat from the current view?'))chatMessages.innerHTML='<div class="empty-chat"><i class="fas fa-comment"></i><p>Chat cleared from this view.</p></div>';return}if(a==='export'){if(window.chatproNextGen?.runAIAction){aiBtn?.click();setTimeout(()=>{aiInput.value='Summarize and prepare an export of this conversation';aiSend?.click()},120)}return}if(a==='ai'){aiBtn?.click();return}if(a==='schedule'){scheduleBtn?.click();return}});
+contactMoreMenu?.addEventListener('click',async e=>{const b=e.target.closest('[data-wa-action]');if(!b)return;closeWaMenus();const a=b.dataset.waAction;if(a==='contact-info'){if(currentChatWith)displayContactProfile(currentChatWith);return}if(a==='media'){alert('Media, links & documents are available through the messages in this chat.');return}if(a==='search'){aiBtn?.click();setTimeout(()=>{if(aiInput){aiInput.value='Find a message in this conversation';aiInput.focus()}},100);return}if(a==='mute'){alert('ð Notifications muted for this browser session.');return}if(a==='wallpaper'){window.chatproNextGen?.themeDialog?.();return}if(a==='lock'){lockCurrentChatBtn?.click();return}if(a==='clear'){if(confirm('Clear this chat from the current view?'))chatMessages.innerHTML='<div class="empty-chat"><i class="fas fa-comment"></i><p>Chat cleared from this view.</p></div>';return}if(a==='export'){if(window.chatproNextGen?.runAIAction){aiBtn?.click();setTimeout(()=>{aiInput.value='Summarize and prepare an export of this conversation';aiSend?.click()},120)}return}if(a==='ai'){aiBtn?.click();return}if(a==='schedule'){scheduleBtn?.click();return}});
 messageContextMenu?.addEventListener('click',e=>{const b=e.target.closest('[data-msg-action]');if(!b)return;const id=messageContextMenu.dataset.messageId;closeWaMenus();handleMessageContextAction(b.dataset.msgAction,id)});
 document.addEventListener('click',e=>{if(!e.target.closest('.wa-menu')&&!e.target.closest('.contact-more-btn')&&!e.target.closest('.mobile-top-more'))closeWaMenus();});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeWaMenus();});
@@ -4650,7 +4790,7 @@ async function ensureCallChannel(){
 async function sendCallSignal(to,payload){await ensureCallChannel();const ch=supabaseClient.channel('chatpro-calls-'+encodeURIComponent(to));ch.subscribe(status=>{if(status==='SUBSCRIBED')ch.send({type:'broadcast',event:'signal',payload:{...payload,to,from:currentUser.email}})});setTimeout(()=>{try{supabaseClient.removeChannel(ch)}catch(_){ }},5000)}
 function closeCallUI(){document.querySelector('.call-overlay')?.remove();if(callLocalStream)callLocalStream.getTracks().forEach(t=>t.stop());callLocalStream=null;if(callPc){callPc.onicecandidate=null;callPc.ontrack=null;callPc.close();}callPc=null;activeCallPeer=null;pendingIce=[];}
 function showCallUI(video,peer){
-  document.querySelector('.call-overlay')?.remove();const box=document.createElement('div');box.className='call-overlay';box.innerHTML=`<div class="call-box"><video class="call-remote" autoplay playsinline></video><video class="call-local" autoplay muted playsinline></video><div class="call-label">${video?'📹 Video call':'📞 Voice call'} · ${escapeHtml(peer)}</div><button class="call-end" title="End call"><i class="fas fa-phone-slash"></i></button></div>`;document.body.appendChild(box);box.querySelector('.call-end').onclick=async()=>{if(activeCallPeer)await sendCallSignal(activeCallPeer,{type:'hangup'});closeCallUI()};return box;
+  document.querySelector('.call-overlay')?.remove();const box=document.createElement('div');box.className='call-overlay';box.innerHTML=`<div class="call-box"><video class="call-remote" autoplay playsinline></video><video class="call-local" autoplay muted playsinline></video><div class="call-label">${video?'ð¹ Video call':'ð Voice call'} Â· ${escapeHtml(peer)}</div><button class="call-end" title="End call"><i class="fas fa-phone-slash"></i></button></div>`;document.body.appendChild(box);box.querySelector('.call-end').onclick=async()=>{if(activeCallPeer)await sendCallSignal(activeCallPeer,{type:'hangup'});closeCallUI()};return box;
 }
 async function createPeer(video,peer){
   callPc=new RTCPeerConnection({iceServers:[{urls:'stun:stun.l.google.com:19302'}]});
@@ -4666,7 +4806,7 @@ async function handleCallSignal(p){
   if(!p||p.to!==currentUser?.email)return;
   try{
     if(p.type==='offer'){
-      if(callPc)return;activeCallPeer=p.from;activeCallVideo=!!p.video;const incoming=document.createElement('div');incoming.className='call-incoming';incoming.innerHTML=`<strong>${activeCallVideo?'📹 Incoming video call':'📞 Incoming voice call'}</strong><div style="margin-top:6px;color:#aeb4ca">${escapeHtml(p.from)}</div><div class="call-incoming-actions"><button class="call-answer">Answer</button><button class="call-reject">Decline</button></div>`;document.body.appendChild(incoming);incoming.querySelector('.call-reject').onclick=async()=>{await sendCallSignal(p.from,{type:'hangup'});incoming.remove()};incoming.querySelector('.call-answer').onclick=async()=>{incoming.remove();showCallUI(!!p.video,p.from);await createPeer(!!p.video,p.from);await callPc.setRemoteDescription(new RTCSessionDescription(p.offer));for(const c of pendingIce){try{await callPc.addIceCandidate(c)}catch(_){}}pendingIce=[];const ans=await callPc.createAnswer();await callPc.setLocalDescription(ans);await sendCallSignal(p.from,{type:'answer',answer:ans});};
+      if(callPc)return;activeCallPeer=p.from;activeCallVideo=!!p.video;const incoming=document.createElement('div');incoming.className='call-incoming';incoming.innerHTML=`<strong>${activeCallVideo?'ð¹ Incoming video call':'ð Incoming voice call'}</strong><div style="margin-top:6px;color:#aeb4ca">${escapeHtml(p.from)}</div><div class="call-incoming-actions"><button class="call-answer">Answer</button><button class="call-reject">Decline</button></div>`;document.body.appendChild(incoming);incoming.querySelector('.call-reject').onclick=async()=>{await sendCallSignal(p.from,{type:'hangup'});incoming.remove()};incoming.querySelector('.call-answer').onclick=async()=>{incoming.remove();showCallUI(!!p.video,p.from);await createPeer(!!p.video,p.from);await callPc.setRemoteDescription(new RTCSessionDescription(p.offer));for(const c of pendingIce){try{await callPc.addIceCandidate(c)}catch(_){}}pendingIce=[];const ans=await callPc.createAnswer();await callPc.setLocalDescription(ans);await sendCallSignal(p.from,{type:'answer',answer:ans});};
     }else if(p.type==='answer'&&callPc){await callPc.setRemoteDescription(new RTCSessionDescription(p.answer));for(const c of pendingIce){try{await callPc.addIceCandidate(c)}catch(_){}}pendingIce=[];
     }else if(p.type==='ice'){if(callPc?.remoteDescription)await callPc.addIceCandidate(new RTCIceCandidate(p.candidate));else pendingIce.push(new RTCIceCandidate(p.candidate));
     }else if(p.type==='hangup'){document.querySelector('.call-incoming')?.remove();closeCallUI();}
@@ -4729,10 +4869,10 @@ if (supabaseClient) {
     });
 }
 
-console.log('🚀 ChatPro Premium loaded!');
-console.log('👑 Admin: admin1@chatapp.com / admin2@chatapp.com (pass: admin123)');
-console.log('📱 Features: Photos, Videos, Voice Notes, Auto Language Detection');
-console.log('💾 Media and profile photos are stored in Supabase Storage; chat data is stored in Supabase PostgreSQL.');
+console.log('ð ChatPro Premium loaded!');
+console.log('ð Admin: admin1@chatapp.com / admin2@chatapp.com (pass: admin123)');
+console.log('ð± Features: Photos, Videos, Voice Notes, Auto Language Detection');
+console.log('ð¾ Media and profile photos are stored in Supabase Storage; chat data is stored in Supabase PostgreSQL.');
 </script>
 
 <script id="chatpro-personal-ai-header-hook">
