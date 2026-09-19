@@ -3526,77 +3526,190 @@ addUnknownContactBtn.addEventListener('click', async () => {
 });
 
 async function loadMessages(contactEmail) {
-    if (unsubscribeMessages) { try { await unsubscribeMessages(); } catch (_) {} unsubscribeMessages = null; }
-    const chatId = getChatId(currentUser.email, contactEmail);
+    // Stop the previous realtime listener before switching chats.
+    if (unsubscribeMessages) {
+        try { await unsubscribeMessages(); } catch (_) {}
+        unsubscribeMessages = null;
+    }
+
+    if (!currentUser || !contactEmail || !chatMessages) return;
+
+    const myEmail = String(currentUser.email || '').trim();
+    const otherEmail = String(contactEmail || '').trim();
+    const chatId = getChatId(myEmail, otherEmail);
+
     chatMessages.innerHTML = '<div class="empty-chat"><i class="fas fa-spinner fa-spin" style="font-size:32px;color:rgba(0,168,132,0.2);"></i><p>Loading messages...</p></div>';
-    await requireSupabase();
-    const render = async () => {
-        const { data: rows, error } = await supabaseClient.from('messages').select('*').eq('chat_id', chatId).or('status.eq.sent,status.is.null').order('timestamp', { ascending: true });
-        if (error) {
-            console.error('Messages load error:', error);
-            chatMessages.innerHTML = '<div class="empty-chat"><i class="fas fa-exclamation-circle" style="font-size:32px;color:#ff5e5e;"></i><p>Error loading messages</p></div>';
-            return;
-        }
-        const hiddenForMe=messageList('chatproDeletedForMe');
-        const visibleRows=(rows||[]).filter(msg=>!hiddenForMe.includes(String(msg.id)));
-        if (!visibleRows.length) {
+
+    try {
+        await requireSupabase();
+
+        /*
+         * IMPORTANT:
+         * Do not depend only on chat_id here. Older ChatPro messages can have
+         * a different/empty chat_id, especially after accounts or email casing
+         * changed. Loading by BOTH sender/recipient directions makes existing
+         * conversations appear again.
+         *
+         * We also deliberately do not use the old:
+         *   .or('status.eq.sent,status.is.null')
+         * filter because it can hide messages when older rows use another
+         * status value. Status is filtered safely in JavaScript instead.
+         */
+        const [sentResult, receivedResult] = await Promise.all([
+            supabaseClient
+                .from('messages')
+                .select('*')
+                .eq('sender', myEmail)
+                .eq('recipient', otherEmail)
+                .order('timestamp', { ascending: true }),
+            supabaseClient
+                .from('messages')
+                .select('*')
+                .eq('sender', otherEmail)
+                .eq('recipient', myEmail)
+                .order('timestamp', { ascending: true })
+        ]);
+
+        if (sentResult.error) throw sentResult.error;
+        if (receivedResult.error) throw receivedResult.error;
+
+        // Merge both directions and remove duplicate rows.
+        const byId = new Map();
+        [...(sentResult.data || []), ...(receivedResult.data || [])].forEach(row => {
+            if (row && row.id != null) byId.set(String(row.id), row);
+        });
+
+        let rows = Array.from(byId.values()).sort((a, b) => {
+            const ta = a.timestamp ? new Date(a.timestamp).getTime() : 0;
+            const tb = b.timestamp ? new Date(b.timestamp).getTime() : 0;
+            return ta - tb;
+        });
+
+        // Only messages explicitly deleted/hidden are removed from this view.
+        const hiddenForMe = messageList('chatproDeletedForMe');
+        rows = rows.filter(msg => !hiddenForMe.includes(String(msg.id)));
+
+        if (!rows.length) {
             chatMessages.innerHTML = '<div class="empty-chat"><i class="fas fa-comment" style="font-size:40px;color:rgba(0,168,132,0.15);"></i><p>No messages yet. Say hello!</p></div>';
             return;
         }
-        const starred=messageList('chatproStarredMessages');
-        const pinned=messageList('chatproPinnedMessages');
+
+        const starred = messageList('chatproStarredMessages');
+        const pinned = messageList('chatproPinnedMessages');
         let messagesHTML = '';
-        visibleRows.forEach(msg => {
-            const isSent = msg.sender === currentUser.email;
-            const meta=msg.metadata && typeof msg.metadata==='object' ? msg.metadata : {};
-            const deletedForEveryone=meta.deletedForEveryone===true;
+
+        rows.forEach(msg => {
+            const isSent = String(msg.sender || '').toLowerCase() === myEmail.toLowerCase();
+            const meta = msg.metadata && typeof msg.metadata === 'object' ? msg.metadata : {};
+            const deletedForEveryone = meta.deletedForEveryone === true || msg.message_type === 'deleted';
             const isBroadcast = !!msg.is_broadcast;
             let msgClass = isSent ? 'sent' : 'received';
             if (isBroadcast) msgClass = 'broadcast';
-            const isSinhala = msg.language === 'si' || detectLanguage(msg.text) === 'si';
+
+            const isSinhala = msg.language === 'si' || detectLanguage(msg.text || '') === 'si';
             let mediaHTML = '';
-            if (msg.media_type === 'image' && msg.media_url) mediaHTML = `<div class="media-wrapper"><img src="${msg.media_url}" alt="Image" loading="lazy" /></div>`;
-            else if (msg.media_type === 'video' && msg.media_url) mediaHTML = `<div class="media-wrapper"><video controls preload="metadata"><source src="${msg.media_url}" type="${msg.media_mime_type || 'video/mp4'}" /></video></div>`;
-            else if (msg.media_type === 'location' && msg.metadata) { const loc=msg.metadata; mediaHTML=`<div class="location-card"><i class="fas fa-location-dot" style="font-size:24px;color:#00cdbd"></i><div><strong>Location</strong><div style="font-size:11px;color:var(--text-muted)">${escapeHtml(loc.lat+', '+loc.lng)}</div><a href="https://www.google.com/maps?q=${encodeURIComponent(loc.lat+','+loc.lng)}" target="_blank" style="color:#a99cff;font-size:11px">Open map</a></div></div>`; }
-            else if (msg.media_type === 'poll' && msg.metadata) { const p=msg.metadata; mediaHTML=`<div class="poll-box"><strong>📊 ${escapeHtml(p.question||'Poll')}</strong>${(p.options||[]).map((o,i)=>`<button class="poll-option" onclick="votePoll('${msg.id}',${i})">${escapeHtml(o)}</button>`).join('')}</div>`; }
-            else if (msg.media_type === 'sticker') { mediaHTML=`<div class="sticker-msg">${escapeHtml(msg.text||'🙂')}</div>`; }
-            else if (msg.media_type === 'voice' && msg.media_url) {
-                const duration = msg.duration || 5;
-                const bars = Array.from({length: 20}, () => Math.random() * 60 + 20);
-                mediaHTML = `<div class="voice-note"><button class="play-btn" onclick="playVoice('${msg.media_url}', this)"><i class="fas fa-play"></i></button><div class="waveform">${bars.map(h => `<div class="bar" style="height:${h}%"></div>`).join('')}</div><span class="duration">${Math.floor(duration / 60)}:${String(Math.floor(duration % 60)).padStart(2, '0')}</span></div>`;
+
+            if (deletedForEveryone) {
+                mediaHTML = '';
+            } else if (msg.media_type === 'image' && msg.media_url) {
+                mediaHTML = `<div class="media-wrapper"><img src="${escapeHtml(msg.media_url)}" alt="Image" loading="lazy" /></div>`;
+            } else if (msg.media_type === 'video' && msg.media_url) {
+                mediaHTML = `<div class="media-wrapper"><video controls preload="metadata"><source src="${escapeHtml(msg.media_url)}" type="${escapeHtml(msg.media_mime_type || 'video/mp4')}" /></video></div>`;
+            } else if (msg.media_type === 'location' && msg.metadata) {
+                const loc = msg.metadata;
+                mediaHTML = `<div class="location-card"><i class="fas fa-location-dot" style="font-size:24px;color:#00cdbd"></i><div><strong>Location</strong><div style="font-size:11px;color:var(--text-muted)">${escapeHtml(String(loc.lat ?? '') + ', ' + String(loc.lng ?? ''))}</div><a href="https://www.google.com/maps?q=${encodeURIComponent(String(loc.lat ?? '') + ',' + String(loc.lng ?? ''))}" target="_blank" rel="noopener" style="color:#a99cff;font-size:11px">Open map</a></div></div>`;
+            } else if (msg.media_type === 'poll' && msg.metadata) {
+                const p = msg.metadata;
+                mediaHTML = `<div class="poll-box"><strong>📊 ${escapeHtml(p.question || 'Poll')}</strong>${(Array.isArray(p.options) ? p.options : []).map((o, i) => `<button class="poll-option" onclick="votePoll('${escapeHtml(msg.id)}',${i})">${escapeHtml(o)}</button>`).join('')}</div>`;
+            } else if (msg.media_type === 'sticker') {
+                mediaHTML = `<div class="sticker-msg">${escapeHtml(msg.text || '🙂')}</div>`;
+            } else if (msg.media_type === 'voice' && msg.media_url) {
+                const duration = Number(msg.duration) || 5;
+                const bars = Array.from({ length: 20 }, () => Math.random() * 60 + 20);
+                mediaHTML = `<div class="voice-note"><button class="play-btn" onclick="playVoice('${escapeHtml(msg.media_url)}', this)"><i class="fas fa-play"></i></button><div class="waveform">${bars.map(h => `<div class="bar" style="height:${h}%"></div>`).join('')}</div><span class="duration">${Math.floor(duration / 60)}:${String(Math.floor(duration % 60)).padStart(2, '0')}</span></div>`;
             }
-            const time = msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : ''; const scheduledTag = msg.status === 'scheduled' ? `<span class="schedule-chip"><i class="fas fa-clock"></i> Scheduled for ${msg.scheduled_at?new Date(msg.scheduled_at).toLocaleString():''}</span>` : '';
-            const replyMeta=meta.replyTo||meta.reply_to;
-            let quoted='';
-            if(replyMeta){quoted=`<div class="quoted-reply"><strong>↩ ${escapeHtml(replyMeta.senderName||'Reply')}</strong>${escapeHtml(String(replyMeta.text||'Message').slice(0,180))}</div>`;}
-            const body=deletedForEveryone ? '<div class="media-caption"><i class="fas fa-ban"></i> This message was deleted</div>' : `${mediaHTML}${msg.text ? `<div class="media-caption">${escapeHtml(msg.text)}</div>` : ''}`;
-            const indicators=`<div class="message-action-indicators">${starred.includes(String(msg.id))?'<span title="Starred">⭐</span>':''}${pinned.includes(String(msg.id))?'<span title="Pinned">📌</span>':''}${deletedForEveryone?'<span>Deleted</span>':''}</div>`;
-            messagesHTML += `<div class="msg ${msgClass} ${msg.status==='scheduled'?'scheduled':''} ${deletedForEveryone?'deleted-message':''} ${isSinhala ? 'sinhala' : ''}" data-message-id="${escapeHtml(msg.id)}">${!isSent && !isBroadcast ? `<span class="sender">${escapeHtml(msg.sender_name || 'Unknown')}</span>` : ''}${isBroadcast ? '<span class="sender">📢 ADMIN</span>' : ''}${scheduledTag}${quoted}${body}<span class="time-stamp">${time}</span>${indicators}</div>`;
+
+            const time = msg.timestamp
+                ? new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                : '';
+
+            const scheduledTag = msg.status === 'scheduled'
+                ? `<span class="schedule-chip"><i class="fas fa-clock"></i> Scheduled for ${msg.scheduled_at ? new Date(msg.scheduled_at).toLocaleString() : ''}</span>`
+                : '';
+
+            const replyMeta = meta.replyTo || meta.reply_to;
+            const quoted = replyMeta
+                ? `<div class="quoted-reply"><strong>↩ ${escapeHtml(replyMeta.senderName || 'Reply')}</strong>${escapeHtml(String(replyMeta.text || 'Message').slice(0, 180))}</div>`
+                : '';
+
+            const body = deletedForEveryone
+                ? '<div class="media-caption"><i class="fas fa-ban"></i> This message was deleted</div>'
+                : `${mediaHTML}${msg.text ? `<div class="media-caption">${escapeHtml(msg.text)}</div>` : ''}`;
+
+            const indicators = `<div class="message-action-indicators">${starred.includes(String(msg.id)) ? '<span title="Starred">⭐</span>' : ''}${pinned.includes(String(msg.id)) ? '<span title="Pinned">📌</span>' : ''}${deletedForEveryone ? '<span>Deleted</span>' : ''}</div>`;
+
+            messagesHTML += `<div class="msg ${msgClass} ${msg.status === 'scheduled' ? 'scheduled' : ''} ${deletedForEveryone ? 'deleted-message' : ''} ${isSinhala ? 'sinhala' : ''}" data-message-id="${escapeHtml(msg.id)}">${!isSent && !isBroadcast ? `<span class="sender">${escapeHtml(msg.sender_name || 'Unknown')}</span>` : ''}${isBroadcast ? '<span class="sender">📢 ADMIN</span>' : ''}${scheduledTag}${quoted}${body}<span class="time-stamp">${time}</span>${indicators}</div>`;
         });
+
         chatMessages.innerHTML = messagesHTML;
         chatMessages.scrollTop = chatMessages.scrollHeight;
-        const newestReceived = [...visibleRows].reverse().find(x=>x.sender!==currentUser.email); if(newestReceived) maybeAutoReply(newestReceived);
-        const lastMsg = visibleRows[visibleRows.length - 1];
-        const preview = lastMsg.text || (lastMsg.media_type === 'image' ? '📷 Photo' : lastMsg.media_type === 'video' ? '🎥 Video' : lastMsg.media_type === 'voice' ? '🎤 Voice' : lastMsg.media_type === 'location' ? '📍 Location' : lastMsg.media_type === 'poll' ? '📊 Poll' : lastMsg.media_type === 'sticker' ? `🙂 Sticker` : '');
+
+        const newestReceived = [...rows].reverse().find(x => String(x.sender || '').toLowerCase() !== myEmail.toLowerCase());
+        if (newestReceived) maybeAutoReply(newestReceived);
+
+        const lastMsg = rows[rows.length - 1];
+        const preview = lastMsg.text ||
+            (lastMsg.media_type === 'image' ? '📷 Photo' :
+             lastMsg.media_type === 'video' ? '🎥 Video' :
+             lastMsg.media_type === 'voice' ? '🎤 Voice' :
+             lastMsg.media_type === 'location' ? '📍 Location' :
+             lastMsg.media_type === 'poll' ? '📊 Poll' :
+             lastMsg.media_type === 'sticker' ? '🙂 Sticker' :
+             lastMsg.message_type === 'deleted' ? 'Message deleted' : '');
+
         const contact = contacts.find(c => c.email === contactEmail);
         if (contact) {
             contact.lastMessage = preview;
-            updateContactLastMessage(contactEmail, preview);
+            // Do not await this UI/profile update; a failed preview save must
+            // never stop the chat itself from rendering.
+            updateContactLastMessage(contactEmail, preview).catch(() => {});
         } else if (unknownChats[contactEmail]) {
             unknownChats[contactEmail].lastMessage = preview;
             unknownChats[contactEmail].lastTimestamp = lastMsg.timestamp || null;
             renderContacts();
         }
-    };
-    await render();
-    const channel = supabaseClient.channel(`messages-${chatId}`)
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'messages', filter: `chat_id=eq.${chatId}` }, () => render())
-        .subscribe();
-    unsubscribeMessages = async () => { try { await supabaseClient.removeChannel(channel); } catch (_) {} };
+    } catch (error) {
+        console.error('Messages load error:', error);
+        chatMessages.innerHTML = `<div class="empty-chat"><i class="fas fa-exclamation-circle" style="font-size:32px;color:#ff5e5e;"></i><p>Error loading messages</p><small style="display:block;margin-top:8px;opacity:.7;max-width:360px;">${escapeHtml(error?.message || 'Could not load this conversation.')}</small><button type="button" onclick="loadMessages(${JSON.stringify(otherEmail)})" style="margin-top:12px;padding:8px 14px;border:0;border-radius:10px;cursor:pointer;">Retry</button></div>`;
+        return;
+    }
+
+    // Realtime is still scoped to the normal ChatPro chat_id for new messages.
+    try {
+        const channel = supabaseClient.channel(`messages-${chatId}-${Date.now()}`)
+            .on(
+                'postgres_changes',
+                { event: '*', schema: 'public', table: 'messages', filter: `chat_id=eq.${chatId}` },
+                () => {
+                    if (currentChatWith === otherEmail) loadMessages(otherEmail);
+                }
+            )
+            .subscribe();
+
+        unsubscribeMessages = async () => {
+            try { await supabaseClient.removeChannel(channel); } catch (_) {}
+        };
+    } catch (realtimeError) {
+        // Initial loading must continue to work even when Realtime is not enabled.
+        console.warn('Message realtime subscription unavailable:', realtimeError);
+        unsubscribeMessages = null;
+    }
 }
 
 function getChatId(email1, email2) {
-    return [email1, email2].sort().join('_');
+    const a = String(email1 || '').trim().toLowerCase();
+    const b = String(email2 || '').trim().toLowerCase();
+    return [a, b].sort().join('_');
 }
 
 async function updateContactLastMessage(email, lastMessage) {
